@@ -85,16 +85,14 @@ int read_sequence_file(const char* filename, std::string& seq) {
 
 	ifstream fs;
 	fs.open(filename, ios::in);
-	if (fs == NULL)
-		return FAILURE;
+	if (!fs.good()) return FAILURE;
 
 	string line;
-	getline(fs, line);
-	while(line.length() > 0) {
-		// exclude lines starting with FASTA comment characters
-		if(line[0] != ';' && line[0] != '>')
-			seq += line;
+	while(fs.good()) {
 		getline(fs, line);
+		// exclude lines starting with FASTA comment characters
+		if(line[0] != ';' && line[0] != '>' && line.length() > 0)
+			seq += line;
 	}
 
 	fs.close();
