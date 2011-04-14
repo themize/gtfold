@@ -16,8 +16,9 @@ int *VM;
 int **WM; 
 int *indx; 
 
-void create_tables(int len)
-{	
+int alloc_flag = 0;
+
+void create_tables(int len) {	
 	V = (int *) malloc(((len+1)*len/2 + 1) * sizeof(int));
 	if (V == NULL) {
 		perror("Cannot allocate variable 'V'");
@@ -74,12 +75,13 @@ void create_tables(int len)
 		exit(-1);
 	}
 
+	alloc_flag = 1;
+	
 	init_tables(len);
 }
 
 
-void init_tables(int len) 
-{
+void init_tables(int len) {
 	int i, j, LLL;
 	
 	for (i = 0; i <= len; i++) {
@@ -105,21 +107,21 @@ void init_tables(int len)
 	return;
 }
 
-void free_tables(int len)
-{
-	free(indx);
-	
-	int i;
-	for (i = 0; i <= len; i++)
-	         free(WM[i]);
-	free(WM);
+void free_tables(int len) {
+	if (alloc_flag == 1) {
+		free(indx);
 
-	free(VM);
-	free(VBI);
-	free(V);
-	free(VV);
-	free(VV1);
-	free(W);
+		int i;
+		for (i = 0; i <= len; i++) free(WM[i]);
+		free(WM);
+
+		free(VM);
+		free(VBI);
+		free(V);
+		free(VV);
+		free(VV1);
+		free(W);
+	}
 }
 
 
@@ -215,8 +217,7 @@ inline int eL(int i, int j, int ip, int jp) {
 	return energy;
 }
 
-inline int eH(int i, int j) 
-{
+inline int eH(int i, int j) {
 	/*  Hairpin loop for all the bases between i and j */
 	/*  size for size of the loop, energy is the result, loginc is for the extrapolation for loops bigger than 30 */
 	int size;
@@ -321,8 +322,7 @@ inline int eH(int i, int j)
 	return energy;
 }
 
-inline int eS(int i, int j) 
-{
+inline int eS(int i, int j) {
 	int energy;
 	/*  not sure about eparam[1], come from MFold.. = 0 */
 	energy = stack[fourBaseIndex(RNA[i], RNA[j], RNA[i+1], RNA[j-1])] + eparam[1];
