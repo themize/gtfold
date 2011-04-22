@@ -172,7 +172,6 @@ void printRunConfiguration(string seq) {
 
 	printf("- thermodynamic parameters: %s\n", EN_DATADIR.c_str());
 	printf("- input file: %s\n", seqfile.c_str());
-	printf("  - sequence length: %d\n", (int)seq.length());
-	printf("  - sequence contents: %s\n", seq.c_str());
+	printf("- sequence length: %d\n", (int)seq.length());
 	printf("- output file: %s\n", outputFile.c_str());
 }
