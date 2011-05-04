@@ -89,13 +89,16 @@ static int load_constraints(const char* constr_file, int verbose=0) {
 		for(int k=1;k<= FBP[it][2];k++)
 			v_fbp.push_back(std::pair<int,int>(FBP[it][0]+k-1, FBP[it][1]-k+1));
 	}
-	std::sort(v_fbp.begin(), v_fbp.end(), compare_bp);
-	for (size_t ii = 0; ii < v_fbp.size() -1 ; ++ii) {
-		if (v_fbp[ii].second <= v_fbp[ii+1].second) {
-			fprintf(stderr, "\nConstraints create pseudoknots, exiting !!!\n");
-			exit(-1);
+
+	if (v_fbp.size() > 1) {
+		std::sort(v_fbp.begin(), v_fbp.end(), compare_bp);
+		for (size_t ii = 0; ii < v_fbp.size() -1 ; ++ii) {
+			if (v_fbp[ii].second <= v_fbp[ii+1].second) {
+				fprintf(stderr, "\nConstraints create pseudoknots, exiting !!!\n");
+				exit(-1);
+			}
+
 		}
-			
 	}
 
 
@@ -134,18 +137,18 @@ int init_constraints(const char* constr_file,int length) {
 		for (it = 0; it < nFBP; it++) {
 			if (FBP[it][2] < 1) {
 				printf("Invalid entry (%d %d %d)\n", FBP[it][0], FBP[it][1], FBP[it][2]);
-				continue;
+				continue; // TODO: report and exit here
 			}
 			for(k=1; k <= FBP[it][2];k++) {
 				int i1 = FBP[it][0]+k-1;
 				int j1 = FBP[it][1]-k+1;
 				if (!canPair(RNA[FBP[it][0]+k-1], RNA[FBP[it][1]-k+1])) {
 					printf("Can't constrain (%d,%d)\n", FBP[it][0]+k-1, FBP[it][1]-k+1);
-					continue;
+					continue; // TODO: report and exit here
 				}
 				if (j1-i1 < TURN) {
 					printf("Can't constrain (%d,%d)\n", i1, j1);
-					continue;
+					continue; // TODO: report and exit here
 				}	
 				BP[FBP[it][0]+k-1] = FBP[it][1]+1-k;
 				BP[FBP[it][1]+1-k] = FBP[it][0]+k-1;
@@ -174,6 +177,8 @@ void print_constraints(int len) {
     }
     printf("\n");
 }
+
+
 
 int is_ss(int i, int j) {
 	if (CONS_ENABLED) {
