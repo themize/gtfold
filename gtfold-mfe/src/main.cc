@@ -254,6 +254,9 @@ int main(int argc, char** argv) {
 		}
 		else{
 			printf("ERROR: NOT OK!!\n");
+			fprintf(stderr, "ERROR: Structure does not fulfill constraint criteria.\n");
+			fprintf(stderr, "Structure file: %s\n", outputFile.c_str());
+			fprintf(stderr, "Constraint file: %s\n", constraintsFile.c_str());
 		}
 	}
 	// release the malloc'd arrays

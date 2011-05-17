@@ -174,6 +174,17 @@ int init_constraints(const char* constr_file,int length) {
 	
 	//ZS: set prohibited basepairs
 	if(nPBP != 0){
+		int temp;
+		//Make sure smallest one is first 
+		for(it = 0; it < nPBP; it++){
+			if(PBP[it][0] > PBP[it][1]){
+				temp = PBP[it][0];	
+				PBP[it][0] = PBP[it][1];
+				PBP[it][1] = temp;
+			}
+			printf("%d\n", it);
+		}
+
 		for(it = 0; it < nPBP; it++){
 			if(PBP[it][2] < 1 || PBP[it][1] == 0){
 				printf("Invalid entry (P: %d %d %d)\n", PBP[it][0], PBP[it][1], PBP[it][2]);
@@ -194,6 +205,15 @@ int init_constraints(const char* constr_file,int length) {
 	//ZS: set forced basepairs and single-stranded nucleotides
 
 	if(nFBP != 0){
+		int temp; 
+		for(it  = 0; it < nFBP; it++){
+			if(FBP[it][0] > FBP[it][1]){
+				temp = FBP[it][0];
+				FBP[it][0] = FBP[it][1];
+				FBP[it][1] = temp; 
+			}
+			printf("%d\n", it);
+		}
 		for(it = 0; it<nFBP; it++){
 			if(FBP[it][2] < 1){
 				printf("Invalid entry (F: %d %d %d)\n", FBP[it][0], FBP[it][1], FBP[it][2]);

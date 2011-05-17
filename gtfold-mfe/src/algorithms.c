@@ -39,6 +39,9 @@
 int calculate(int len, int nThreads) { 
 	int b, i, j;
 
+
+//	printf("%d\n", BP(1145, 13));
+
 #ifdef _OPENMP
 	if (nThreads>0) omp_set_num_threads(nThreads);
 #endif
