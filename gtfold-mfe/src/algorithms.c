@@ -63,17 +63,49 @@ int calculate(int len, int nThreads) {
 				if (j-i > 6) {  // Internal Loop BEGIN
 					int p=0, q=0;
 					int VBIij = INFINITY_;
-
 					for (p = i+1; p <= MIN(j-2-TURN,i+MAXLOOP+1) ; p++) {
 						int minq = j-i+p-MAXLOOP-2;
 						if (minq < p+1+TURN) minq = p+1+TURN;
-						for (q = minq; q < j; q++) {
+						int maxq = (p==i+1)?(j-2):(j-1);
+						for (q = minq; q <= maxq; q++) {
 							if (!canPair(RNA[p], RNA[q])) continue;
 							if (check_iloop(i,j,p,q)) continue;
 							VBIij = MIN(eL(i, j, p, q) + V(p,q), VBIij);
 						}
 					}
 					VBI(i,j) = check_pair(i,j)?INFINITY_:VBIij;
+					
+					/*
+					int ip,jp;
+					int ifinal, jfinal, temp;
+
+					ip = i + 1;
+					int thres1 = MAX((j - 1) + (ip - i - 1) - MAXLOOP, ip + 4); // Minimum size of a hairpin loop is 3. So, start jp from ip+4 
+					for (jp = thres1; jp <= j - 2; jp++) {
+						if (canPair(RNA[ip], RNA[jp])) {
+							temp = eL(i, j, ip, jp) + V[indx[ip] + jp]; // Energy of internal loop closed by (i,j) and (ip,jp) + the energy of structure closed by (ip, jp)
+							if (VBIij > temp) {
+								VBIij = temp;
+								ifinal = ip;
+								jfinal = jp;
+							}
+						}
+					}
+
+					for (ip = i + 2; ip <= i + MAXLOOP + 1; ip++) {
+						thres1 = MAX((j - 1) + (ip - i - 1) - MAXLOOP, ip + 4);
+						for (jp = thres1; jp <= j - 1; jp++) {
+							if (canPair(RNA[ip], RNA[jp])) {
+								temp = eL(i, j, ip, jp) + V[indx[ip] + jp];
+								if (VBIij > temp) {
+									VBIij = temp;
+									ifinal = ip;
+									jfinal = jp;
+								}
+							}
+						}
+					} */
+
 				} 	// Internal Loop END
 				
 				if (j-i > 10) {	 // Multi Loop BEGIN
