@@ -39,6 +39,8 @@
 #include "constraints.h"
 #include "traceback.h"
 #include "subopt_traceback.h"
+#include "shapereader.h"
+
 
 using namespace std;
 
@@ -173,7 +175,7 @@ int main(int argc, char** argv) {
 	std::string seq;
 	int energy;
 	double t1;
-
+	
 	print_header();
 
 	parse_options(argc, argv);
@@ -184,7 +186,7 @@ int main(int argc, char** argv) {
 	}
 	
 	// Read in thermodynamic parameters. Always use Turner99 data (for now)
-	readThermodynamicParameters("Turner99",false);
+	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR);
 
 	printRunConfiguration(seq);
 	
