@@ -54,12 +54,12 @@ int calculate(int len, int nThreads) {
 #endif
 		for (i = 1; i <= len - b; i++) {
 			j = i + b;
-			int flag = 0, newWM = INFINITY_; 
+			int newWM = INFINITY_; 
 
 			if (canPair(RNA[i], RNA[j])) {
-				flag = 1;
 				int eh = check_hairpin(i,j)?INFINITY_:eH(i, j); //hair pin
 				int es = check_stack(i,j)?INFINITY_:(eS(i, j) + V(i+1,j-1)); // stack
+				
 				if (j-i > 6) {  // Internal Loop BEGIN
 					int p=0, q=0;
 					int VBIij = INFINITY_;
@@ -74,38 +74,6 @@ int calculate(int len, int nThreads) {
 						}
 					}
 					VBI(i,j) = check_pair(i,j)?INFINITY_:VBIij;
-					
-					/*
-					int ip,jp;
-					int ifinal, jfinal, temp;
-
-					ip = i + 1;
-					int thres1 = MAX((j - 1) + (ip - i - 1) - MAXLOOP, ip + 4); // Minimum size of a hairpin loop is 3. So, start jp from ip+4 
-					for (jp = thres1; jp <= j - 2; jp++) {
-						if (canPair(RNA[ip], RNA[jp])) {
-							temp = eL(i, j, ip, jp) + V[indx[ip] + jp]; // Energy of internal loop closed by (i,j) and (ip,jp) + the energy of structure closed by (ip, jp)
-							if (VBIij > temp) {
-								VBIij = temp;
-								ifinal = ip;
-								jfinal = jp;
-							}
-						}
-					}
-
-					for (ip = i + 2; ip <= i + MAXLOOP + 1; ip++) {
-						thres1 = MAX((j - 1) + (ip - i - 1) - MAXLOOP, ip + 4);
-						for (jp = thres1; jp <= j - 1; jp++) {
-							if (canPair(RNA[ip], RNA[jp])) {
-								temp = eL(i, j, ip, jp) + V[indx[ip] + jp];
-								if (VBIij > temp) {
-									VBIij = temp;
-									ifinal = ip;
-									jfinal = jp;
-								}
-							}
-						}
-					} */
-
 				} 	// Internal Loop END
 				
 				if (j-i > 10) {	 // Multi Loop BEGIN
@@ -118,7 +86,6 @@ int calculate(int len, int nThreads) {
 						VMidj = MIN(VMidj, WMU(i+2,h-1) + WML(h,j-1));	
 						VMijd = MIN(VMijd, WMU(i+1,h-1) + WML(h,j-2));	
 						VMidjd = MIN(VMidjd, WMU(i+2,h-1) + WML(h,j-2));	
-						newWM = MIN(newWM, VMij);
 					}
 
 					int d3 = Ed3(i,j,j-1);
@@ -138,12 +105,10 @@ int calculate(int len, int nThreads) {
 
 			if (j-i > 4) {	// WM BEGIN
 				int h; 
-				if (!flag) {
-					for (h = i+TURN+1 ; h <= j-TURN-1; h++) {
-						newWM = MIN(newWM, WMU(i,h-1) + WML(h,j));
-					}
+				for (h = i+TURN+1 ; h <= j-TURN-1; h++) {
+					newWM = MIN(newWM, WMU(i,h-1) + WML(h,j));
 				}
-				
+
 				newWM = MIN(V(i,j) + auPenalty(i,j) + Eb, newWM); 
 				newWM = check_base(i)?MIN(V(i+1,j) + Ed3(j,i+1,i) + auPenalty(i+1,j) + Eb + Ec, newWM): INFINITY_; 
 				newWM = check_base(j)?MIN(V(i,j-1) + Ed5(j-1,i,j) + auPenalty(i,j-1) + Eb + Ec, newWM) : INFINITY_; 
