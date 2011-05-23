@@ -24,8 +24,8 @@ bool compare_bp(const std::pair<int,int>& o1,
 
 
 static int load_constraints(const char* constr_file, int verbose=0) {
+    fprintf(stdout, "- Running with constraints %s\n", constr_file);
 	std::ifstream cfcons;
-    fprintf(stdout, "- Running with constraints\n");
 
     cfcons.open(constr_file, std::ios::in);
     if (cfcons == 0) {
@@ -83,7 +83,7 @@ static int load_constraints(const char* constr_file, int verbose=0) {
             pit++;
         }
     }
-
+	/*
 	std::vector<std::pair<int,int> > v_fbp;
 	for(it=0; it< nFBP; it++) {
 		for(int k=1;k<= FBP[it][2];k++)
@@ -100,7 +100,7 @@ static int load_constraints(const char* constr_file, int verbose=0) {
 
 		}
 	}
-
+*/
 
     return 0;
 }
