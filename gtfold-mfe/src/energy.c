@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "global.h"
 #include "constants.h"
+#include "shapereader.h"
 
 int *V; 
 int *VV; 
@@ -153,7 +154,8 @@ inline int eL(int i, int j, int ip, int jp) {
 			energy += auPen(RNA[i], RNA[j]) + auPen(RNA[ip], RNA[jp]);
 		} else if (size == 1) {
 			energy = stack[fourBaseIndex(RNA[i], RNA[j], RNA[ip], RNA[jp])]
-				+ bulge[size] + eparam[2]; /* mans */
+				+ bulge[size] + eparam[2] +
+				+ getShapeEnergy(i) + getShapeEnergy(j) + getShapeEnergy(ip) + getShapeEnergy(jp);
 		}
 	} else {
 		/* Internal loop */
@@ -325,7 +327,8 @@ inline int eS(int i, int j)
 {
 	int energy;
 	/*  not sure about eparam[1], come from MFold.. = 0 */
-	energy = stack[fourBaseIndex(RNA[i], RNA[j], RNA[i+1], RNA[j-1])] + eparam[1];
+	energy = stack[fourBaseIndex(RNA[i], RNA[j], RNA[i+1], RNA[j-1])] + eparam[1] 
+		+ getShapeEnergy(i) + getShapeEnergy(j) + getShapeEnergy(i+1) + getShapeEnergy(j-1) ;
 
 	return energy;
 }

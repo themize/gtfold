@@ -49,7 +49,7 @@ int calculate(int len, int nThreads) {
 			if (canPair(RNA[i], RNA[j])) {
 				flag = 1;
 				int eh = canHairpin(i,j)?eH(i,j):INFINITY_; //hair pin
-				int es = canStack(i,j)?eS(i,j)+V(i+1,j-1):INFINITY_; // stack
+				int es = canStack(i,j)?eS(i,j)+getShapeEnergy(i)+getShapeEnergy(j)+V(i+1,j-1):INFINITY_; // stack
 				if (j-i > 6) { // Internal Loop BEGIN
 					int p=0, q=0;
 					int VBIij = INFINITY_;
@@ -106,7 +106,7 @@ int calculate(int len, int nThreads) {
 		}
 	}
 	for (j = TURN+2; j <= len; j++) {
-		int i, must_branch=0, Wj, Widjd, Wijd, Widj, Wij, Wim1;
+		int i, Wj, Widjd, Wijd, Widj, Wij, Wim1;
 		Wj = INFINITY_;
 		for (i = 1; i < j-TURN; i++) {
 			Wij = Widjd = Wijd = Widj = INFINITY_;
@@ -116,34 +116,8 @@ int calculate(int len, int nThreads) {
 			Wijd = canSS(j)?V(i,j-1) + auPenalty(i,j-1) + Ed5(j-1,i,j) + Wim1:Wijd;
 			Widj = canSS(i)?V(i+1, j) + auPenalty(i+1,j) + Ed3(j,i + 1,i) + Wim1:Widj;
 			Wj = MIN(MIN4(Wij, Widjd, Wijd, Widj), Wj); 
-	
-			/*
-			if (Wj<INFINITY_) {
-				if (Wj==Wij && forcePair(i,j))
-				must_branch = 1;
-				else if (Wj==Widjd && forcePair(i+1,j-1))
-				must_branch = 1;
-				else if (Wj==Wijd && forcePair(i,j-1))
-				must_branch = 1; 
-				else if (forcePair(i+1,j))
-				must_branch = 1;
-			}
-			*/
-			if(i==296&&j==301){
-				printf("Option 1: %d\n", W[j-1]);
-				printf("Option 2: %d = V(i,j) + W(i-1) = %d +%d = %d\n", W[j], V(i,j), W[i-1], V(i,j) + W[i-1]);
-			}
 		}
-		//W[j] = branch?Wj:MIN(Wj, W[j-1]);
 		W[j] = canSS(j)?MIN(Wj, W[j-1]):Wj;
-		if(j==301){
-			printf("Final option 1: %d\n", W[j-1]);
-			printf("Final option 2: %d\n", Wj);
-			printf("canSS(j): %d\n", canSS(j));
-			printf("chosen: %d\n", W[j]);
-			printf("canHairpin(i,j): %d\n", canHairpin(295,305));
-			printf("eH(i,j): %d\n", eH(295,305));
-		}
 	}
 	return W[len];
 }

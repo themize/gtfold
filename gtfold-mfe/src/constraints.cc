@@ -182,7 +182,6 @@ int init_constraints(const char* constr_file,int length) {
 				PBP[it][0] = PBP[it][1];
 				PBP[it][1] = temp;
 			}
-			printf("%d\n", it);
 		}
 
 		for(it = 0; it < nPBP; it++){
@@ -212,7 +211,6 @@ int init_constraints(const char* constr_file,int length) {
 				FBP[it][0] = FBP[it][1];
 				FBP[it][1] = temp; 
 			}
-			printf("%d\n", it);
 		}
 		for(it = 0; it<nFBP; it++){
 			if(FBP[it][2] < 1){
