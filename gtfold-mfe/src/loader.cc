@@ -76,7 +76,6 @@ int gail; /* It is either 0 or 1. It is used for grosely asymmetric internal loo
 float prelog;
 
 void readThermodynamicParameters(const char *userdatadir,bool userdatalogic) {
-	cout << userdatalogic << ' ' << userdatadir << std::endl;
 	if (!userdatalogic) {
 		EN_DATADIR.assign(xstr(DATADIR));
 		EN_DATADIR += "/";
