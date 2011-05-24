@@ -39,8 +39,6 @@
 #include "constraints.h"
 #include "traceback.h"
 #include "subopt_traceback.h"
-#include "shapereader.h"
-
 
 using namespace std;
 
