@@ -54,7 +54,7 @@ void trace(int len, int vbose) {
 }
 
 void traceW(int j) {
-	int done, i, Wj,Wj_temp;
+	int done, i, Wj;
 	int wim1, flag, Widjd, Wijd, Widj, Wij;
 	Wj = INFINITY_;
 	flag = 1;

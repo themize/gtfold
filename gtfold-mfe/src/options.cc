@@ -17,13 +17,10 @@ bool SHAPE_ENABLED = false;
 
 string seqfile = "";
 string constraintsFile = "";
-<<<<<<< .merge_file_vAQXEJ
 string outputFile = "";
 string shapeFile = "";
-=======
-string outputFile = ""; 
 string paramDir = "Turner99"; // default value
->>>>>>> .merge_file_058DyL
+
 
 int suboptDelta = -1;
 int nThreads = -1;

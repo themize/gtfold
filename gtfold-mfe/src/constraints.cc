@@ -44,12 +44,7 @@ bool compare_bp(const std::pair<int,int>& o1,
 
 
 static int load_constraints(const char* constr_file, int verbose=0) {
-<<<<<<< .merge_file_FGxfkH
 	
-=======
-    fprintf(stdout, "- Running with constraints %s\n", constr_file);
-	std::ifstream cfcons;
->>>>>>> .merge_file_mYvNsH
 
 	fprintf(stdout, "- Running with constraints\n");
 
@@ -111,13 +106,12 @@ static int load_constraints(const char* constr_file, int verbose=0) {
             pit++;
         }
     }
-	/*
+
 	std::vector<std::pair<int,int> > v_fbp;
 	for(it=0; it< nFBP; it++) {
 		for(int k=1;k<= FBP[it][2];k++)
 			v_fbp.push_back(std::pair<int,int>(FBP[it][0]+k-1, FBP[it][1]-k+1));
 	}
-<<<<<<< .merge_file_FGxfkH
 	
 	if(v_fbp.size()>1){
 		std::sort(v_fbp.begin(), v_fbp.end(), compare_bp);
@@ -132,21 +126,6 @@ static int load_constraints(const char* constr_file, int verbose=0) {
 	}
 
   
-=======
-
-	if (v_fbp.size() > 1) {
-		std::sort(v_fbp.begin(), v_fbp.end(), compare_bp);
-		for (size_t ii = 0; ii < v_fbp.size() -1 ; ++ii) {
-			if (v_fbp[ii].second <= v_fbp[ii+1].second) {
-				fprintf(stderr, "\nConstraints create pseudoknots, exiting !!!\n");
-				exit(-1);
-			}
-
-		}
-	}
-*/
-
->>>>>>> .merge_file_mYvNsH
     return 0;
 }
 
@@ -191,7 +170,6 @@ int init_constraints(const char* constr_file,int length) {
 			}
 		}
 	}
-<<<<<<< .merge_file_FGxfkH
 
 	
 	//ZS: set prohibited basepairs
@@ -210,13 +188,6 @@ int init_constraints(const char* constr_file,int length) {
 			if(PBP[it][2] < 1 || PBP[it][1] == 0){
 				printf("Invalid entry (P: %d %d %d)\n", PBP[it][0], PBP[it][1], PBP[it][2]);
 				continue;
-=======
-	if (nFBP != 0) {
-		for (it = 0; it < nFBP; it++) {
-			if (FBP[it][2] < 1) {
-				printf("Invalid entry (%d %d %d)\n", FBP[it][0], FBP[it][1], FBP[it][2]);
-				continue; // TODO: report and exit here
->>>>>>> .merge_file_mYvNsH
 			}
 		
 			for(k = 1; k <= PBP[it][2]; k++){
@@ -251,7 +222,6 @@ int init_constraints(const char* constr_file,int length) {
 			for(k = 1; k<=FBP[it][2]; k++){
 				int i1 = FBP[it][0]+k-1;
 				int j1 = FBP[it][1]-k+1;
-<<<<<<< .merge_file_FGxfkH
 				if(FBP[it][1]!=0&&!canPair(RNA[FBP[it][0]+k-1], RNA[FBP[it][1]-k+1])){
 					printf("Can't force (%d, %d) to pair (non-canonical) \n", FBP[it][0]+k-1, FBP[it][1]-k+1);
 					continue;			
@@ -304,18 +274,6 @@ int init_constraints(const char* constr_file,int length) {
 					BP(FBP[it][0]+k-1, FBP[it][1]-(k-1)) = 1;
 					
 				}
-=======
-				if (!canPair(RNA[FBP[it][0]+k-1], RNA[FBP[it][1]-k+1])) {
-					printf("Can't constrain (%d,%d)\n", FBP[it][0]+k-1, FBP[it][1]-k+1);
-					continue; // TODO: report and exit here
-				}
-				if (j1-i1 < TURN) {
-					printf("Can't constrain (%d,%d)\n", i1, j1);
-					continue; // TODO: report and exit here
-				}	
-				BP[FBP[it][0]+k-1] = FBP[it][1]+1-k;
-				BP[FBP[it][1]+1-k] = FBP[it][0]+k-1;
->>>>>>> .merge_file_mYvNsH
 			}
 		}
 	}
@@ -448,23 +406,10 @@ void print_constraints(int len) {
  
 }
 
-<<<<<<< .merge_file_FGxfkH
 int forcePair(int i, int j) {
 //ZS: this function returns true if the pair i-j is forced.
 	if (CONS_ENABLED) 
 		return BP(i,j)==1;
-=======
-
-
-int is_ss(int i, int j) {
-	if (CONS_ENABLED) {
-		int it;
-		for (it = i + 1; it < j; it++) {
-			if (BP[it] > 0) return 1;
-		}
-		return 0;
-	}
->>>>>>> .merge_file_mYvNsH
 	else
 		return 0;
 }
@@ -552,3 +497,4 @@ int withinCD(int i, int j){
 	}
 	else return 1;
 }
+
