@@ -39,6 +39,8 @@ int calculate(int len, int nThreads) {
 #pragma omp master
 	fprintf(stdout,"Thread count: %3d \n",omp_get_num_threads());
 #endif
+
+
 	for (b = TURN+1; b <= len-1; b++) {
 #ifdef _OPENMP
 #pragma omp parallel for private (i,j) schedule(guided)

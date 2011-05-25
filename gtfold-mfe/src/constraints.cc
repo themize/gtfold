@@ -443,7 +443,7 @@ int canILoop(int i, int j, int p, int q) {
 		return canStack(i,j) && canStack(p,q) && canSSregion(i,p) && canSSregion(q,j);
 	}
 	else 
-		return 1;
+		return withinCD(i,j) && withinCD(p,q);
 }
 
 int canHairpin(int i, int j) {
@@ -452,7 +452,7 @@ int canHairpin(int i, int j) {
 		//Need to check if pair is allowed and if anything pairs between them
 		return canStack(i,j) && canSSregion(i,j);
 	}	
-	else return 1;
+	else return withinCD(i,j);
 }
 
 int canSSregion(int i, int j){
@@ -485,15 +485,15 @@ int canStack(int i, int j) {
 		if(BP(i,j)==2||BP(i,i)==3||BP(j,j)==3) return 0;
 		//can't pair if i or j are forced to pair with something other than each other
 		if((BP(i,i)==4||BP(j,j)==4)&&BP(i,j)!=1) return 0;	
-		else return 1;
+		else return withinCD(i,j);
 	}
-	else return 1;
+	else return withinCD(i,j);
 }
 
 int withinCD(int i, int j){
 	//ZS: This function returns 1 if i and j are within the required contact distance from each other. 
-	if (LIMIT_DISTANCE){	
-		return j-i+1>contactDistance;
+	if (LIMIT_DISTANCE){
+		return (j-i>=contactDistance);
 	}
 	else return 1;
 }
