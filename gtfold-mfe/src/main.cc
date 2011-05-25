@@ -94,16 +94,14 @@ int read_sequence_file(const char* filename, std::string& seq) {
 
 	ifstream fs;
 	fs.open(filename, ios::in);
-	if (fs == NULL)
-		return FAILURE;
+	if (!fs.good()) return FAILURE;
 
 	string line;
-	getline(fs, line);
-	while(line.length() > 0) {
-		// exclude lines starting with FASTA comment characters
-		if(line[0] != ';' && line[0] != '>')
-			seq += line;
+	while(fs.good()) {
 		getline(fs, line);
+		// exclude lines starting with FASTA comment characters
+		if(line[0] != ';' && line[0] != '>' && line.length() > 0)
+			seq += line;
 	}
 
 	fs.close();
@@ -188,7 +186,7 @@ int main(int argc, char** argv) {
 	std::string seq;
 	int energy;
 	double t1;
-
+	
 	print_header();
 
 	parse_options(argc, argv);
@@ -199,7 +197,7 @@ int main(int argc, char** argv) {
 	}
 	
 	// Read in thermodynamic parameters. Always use Turner99 data (for now)
-	readThermodynamicParameters("Turner99",false);
+	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR);
 
 	printRunConfiguration(seq);
 	

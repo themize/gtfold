@@ -45,12 +45,22 @@ int calculate(int len, int nThreads) {
 #endif
 		for (i = 1; i <= len - b; i++) {
 			j = i + b;
+<<<<<<< .merge_file_vD135I
 			int flag = 0, newWM = INFINITY_; 
 			if (canPair(RNA[i], RNA[j])) {
 				flag = 1;
 				int eh = canHairpin(i,j)?eH(i,j):INFINITY_; //hair pin
 				int es = canStack(i,j)?eS(i,j)+getShapeEnergy(i)+getShapeEnergy(j)+V(i+1,j-1):INFINITY_; // stack
 				if (j-i > 6) { // Internal Loop BEGIN
+=======
+			int newWM = INFINITY_; 
+
+			if (canPair(RNA[i], RNA[j])) {
+				int eh = check_hairpin(i,j)?INFINITY_:eH(i, j); //hair pin
+				int es = check_stack(i,j)?INFINITY_:(eS(i, j) + V(i+1,j-1)); // stack
+				
+				if (j-i > 6) {  // Internal Loop BEGIN
+>>>>>>> .merge_file_o95D9I
 					int p=0, q=0;
 					int VBIij = INFINITY_;
 					for (p = i+1; p <= MIN(j-2-TURN,i+MAXLOOP+1) ; p++) {
@@ -72,10 +82,17 @@ int calculate(int len, int nThreads) {
 					int VMij, VMijd, VMidj, VMidjd;
 					VMij = VMijd = VMidj = VMidjd = INFINITY_;
 					for (h = i+TURN+1; h <= j-1-TURN; h++) { 
+<<<<<<< .merge_file_vD135I
 						VMij = MIN(VMij, WMU(i+1,h-1) + WML(h,j-1)); 
 						VMidj = MIN(VMidj, WMU(i+2,h-1) + WML(h,j-1)); 
 						VMijd = MIN(VMijd, WMU(i+1,h-1) + WML(h,j-2)); 
 						VMidjd = MIN(VMidjd, WMU(i+2,h-1) + WML(h,j-2)); 
+=======
+						VMij = MIN(VMij, WMU(i+1,h-1) + WML(h,j-1));		
+						VMidj = MIN(VMidj, WMU(i+2,h-1) + WML(h,j-1));	
+						VMijd = MIN(VMijd, WMU(i+1,h-1) + WML(h,j-2));	
+						VMidjd = MIN(VMidjd, WMU(i+2,h-1) + WML(h,j-2));	
+>>>>>>> .merge_file_o95D9I
 					}
 					int d3 = canSS(j-1)?Ed3(i,j,j-1):INFINITY_;
 					int d5 = canSS(i+1)?Ed5(i,j,i+1):INFINITY_;
@@ -91,10 +108,16 @@ int calculate(int len, int nThreads) {
 			if (j-i > 4) { // WM BEGIN
 				int h; 
 				for (h = i+TURN+1 ; h <= j-TURN-1; h++) {
+<<<<<<< .merge_file_vD135I
 					//ZS: This sum corresponds to when i,j are NOT paired with each other.
 					//So we need to make sure only terms where i,j aren't pairing are considered. 
 					newWM = (!forcePair(i,j))?MIN(newWM, WMU(i,h-1) + WML(h,j)):newWM;
 				}
+=======
+					newWM = MIN(newWM, WMU(i,h-1) + WML(h,j));
+				}
+
+>>>>>>> .merge_file_o95D9I
 				newWM = MIN(V(i,j) + auPenalty(i,j) + Eb, newWM); 
 				newWM = canSS(i)?MIN(V(i+1,j) + Ed3(j,i+1,i) + auPenalty(i+1,j) + Eb + Ec, newWM):newWM; //i dangle
 				newWM = canSS(j)?MIN(V(i,j-1) + Ed5(j-1,i,j) + auPenalty(i,j-1) + Eb + Ec, newWM):newWM;  //j dangle
