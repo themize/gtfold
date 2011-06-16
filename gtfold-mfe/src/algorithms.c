@@ -127,11 +127,10 @@ int calculate(int len, int nThreads, int t_mismatch) {
 			
 			if (PP[i][j]==1) {
 				int eh = canHairpin(i,j)?eH(i,j):INFINITY_; //hair pin
-				int es = canStack(i,j)?eS(i,j)+getShapeEnergy(i)+getShapeEnergy(j)+V(i+1,j-1):INFINITY_; // stack
+				int es = canStack(i,j)?eS(i,j)+V(i+1,j-1):INFINITY_; // stack
 
 				// Internal Loop BEGIN
 				VBI(i,j) = calcVBI(i,j);
-				V(i,j) = V(i,j) + getShapeEnergy(i) + getShapeEnergy(j);
 				// Internal Loop END
 
 				// Multi Loop BEGIN
