@@ -25,18 +25,21 @@
 #include "constants.h"
 #include "data.h"
 
-void readThermodynamicParameters(const char *userdatadir,bool userdatalogic);
+void readThermodynamicParameters(const char *userdatadir,bool userdatalogic, int t_mismatch);
 
-int initStackValues(std::string fileName);
-int initMiscloopValues(std::string fileName);
-int initDangleValues(std::string fileName);
-int initLoopValues(std::string fileName);
-int initTstkhValues(std::string fileName);
-int initTstkiValues(std::string fileName);
-int initTloopValues(std::string fileName);
-int initInt21Values(std::string fileName);
-int initInt22Values(std::string fileName);
-int initInt11Values(std::string fileName);
+int initStackValues(const std::string& fileName, const std::string& dirPath);
+int initMiscloopValues(const std::string& fileName, const std::string& dirPath);
+int initDangleValues(const std::string& fileName, const std::string& dirPath);
+int initLoopValues(const std::string& fileName, const std::string& dirPath);
+int initTstkhValues(const std::string& fileName, const std::string& dirPath);
+int initTstkiValues(const std::string& fileName, const std::string& dirPath);
+int initTloopValues(const std::string& fileName, const std::string& dirPath);
+int initInt21Values(const std::string& fileName, const std::string& dirPath);
+int initInt22Values(const std::string& fileName, const std::string& dirPath);
+int initInt11Values(const std::string& fileName, const std::string& dirPath);
+int	initTstkmValues(const std::string& fileName, const std::string& dirPath);
+int	initTstkeValues(const std::string& fileName, const std::string& dirPath);
+int	initTstk23Values(const std::string& fileName, const std::string& dirPath);
 
 extern std::string EN_DATADIR;
 

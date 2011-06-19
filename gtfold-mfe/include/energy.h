@@ -4,24 +4,20 @@
 #include "data.h"
 
 extern int *V; 
-extern int *VV; 
-extern int *VV1; 
 extern int *W; 
 extern int *VBI; 
 extern int *VM; 
 extern int **WM; 
-extern int *WMu; 
-extern int *WMl; 
+extern int **WMPrime; 
 extern int *indx; 
-
+extern int **PP; 
 
 #define V(i,j) V[indx[j]+i]
 #define VM(i,j) VM[indx[j]+i]
 #define WM(i,j) WM[i][j]
+#define WMPrime(i,j) WMPrime[i][j]
 #define WMU(i,j) WM[i][j]
 #define WML(i,j) WM[j][i]
-//#define WMU(i,j) WMu[indx[j]+i]
-//#define WML(i,j) WMl[indx[j]+i]
 #define VBI(i,j) VBI[indx[j]+i]
 #define RT ((0.00198721 * 310.15)/100.00)
 
@@ -41,6 +37,9 @@ int auPenalty(int i, int j);
 int eS(int i, int j);
 int eH(int i, int j);
 int eL(int i, int j, int ip, int jp);
+int eL1(int i, int j, int ip, int jp);
+int Estackm(int i, int j);
+int Estacke(int i, int j);
 
 void create_tables(int len);
 void init_tables(int len);

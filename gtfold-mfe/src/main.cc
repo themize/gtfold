@@ -96,16 +96,14 @@ int read_sequence_file(const char* filename, std::string& seq) {
 
 	ifstream fs;
 	fs.open(filename, ios::in);
-	if (fs == NULL)
-		return FAILURE;
+	if (!fs.good()) return FAILURE;
 
 	string line;
-	getline(fs, line);
-	while(line.length() > 0) {
-		// exclude lines starting with FASTA comment characters
-		if(line[0] != ';' && line[0] != '>')
-			seq += line;
+	while(fs.good()) {
 		getline(fs, line);
+		// exclude lines starting with FASTA comment characters
+		if(line[0] != ';' && line[0] != '>' && line.length() > 0)
+			seq += line;
 	}
 
 	fs.close();
@@ -173,11 +171,18 @@ void print_header() {
  * @param outputFile The file to save to
  * @param energy The MFE energy (multiplied by 100)
  */
-void save_ct_file(string outputFile, string seq, int energy) {
+void save_ct_file(string outputFile, string seq, int energy, string seqfile) {
+	if(seqfile.find("/") != string::npos) {
+		size_t pos = seqfile.find_last_of("/");
+		seqfile.erase(0,pos+1);
+	}
+	if(seqfile.find(".") != string::npos)
+		seqfile.erase(seqfile.rfind("."));
 	ofstream outfile;
 	outfile.open(outputFile.c_str());
 
 	outfile << seq.length() << "\t  dG = " << energy/100.0 << endl;
+	//outfile << seq.length() << "\tdG = " << energy/100.0 << "\t" << seqfile << endl;
 
 	unsigned int i = 1;
 	for(i=1; i <= seq.length(); i++)
@@ -190,7 +195,7 @@ int main(int argc, char** argv) {
 	std::string seq;
 	int energy;
 	double t1;
-
+	
 	print_header();
 
 	parse_options(argc, argv);
@@ -201,7 +206,7 @@ int main(int argc, char** argv) {
 	}
 	
 	// Read in thermodynamic parameters. Always use Turner99 data (for now)
-	readThermodynamicParameters("Turner99",false);
+	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, T_MISMATCH);
 
 	printRunConfiguration(seq);
 	
@@ -211,7 +216,7 @@ int main(int argc, char** argv) {
 	fflush(stdout);
 
 	t1 = get_seconds();
-	energy = calculate(seq.length(), nThreads);
+	energy = calculate(seq.length(), nThreads, T_MISMATCH);
 	t1 = get_seconds() - t1;
 	
 	printf("Done.\n\n");
@@ -231,7 +236,7 @@ int main(int argc, char** argv) {
 	}
 	
 	t1 = get_seconds();
-	trace(seq.length(), VERBOSE);
+	trace(seq.length(), VERBOSE, T_MISMATCH);
 	t1 = get_seconds() - t1;
 
 	printf("\n");
@@ -245,7 +250,7 @@ int main(int argc, char** argv) {
 		print_shapeArray(seq.length());
 	
 
-	save_ct_file(outputFile, seq, energy);
+	save_ct_file(outputFile, seq, energy,seqfile);
 	printf("\nMFE structure saved in .ct format to %s\n", outputFile.c_str());
 
 
@@ -256,6 +261,9 @@ int main(int argc, char** argv) {
 		}
 		else{
 			printf("ERROR: NOT OK!!\n");
+			fprintf(stderr, "ERROR: Structure does not fulfill constraint criteria.\n");
+			fprintf(stderr, "Structure file: %s\n", outputFile.c_str());
+			fprintf(stderr, "Constraint file: %s\n", constraintsFile.c_str());
 		}
 	}
 	// release the malloc'd arrays
