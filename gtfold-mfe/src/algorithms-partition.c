@@ -10,6 +10,13 @@
 #include "algorithms-partition.h"
 #include "data.h"
 
+#ifdef _OPENMP   
+#include "omp.h"
+#endif
+
+
+#define DANGLE_DEBUG
+
 // double[][] QB;
 // double[][] Q;
 // double[][] QM;
@@ -58,6 +65,12 @@ void fill_partition_fn_arrays(int len, double** Q, double** QB, double** QM) {
 
     // fill in values in the array
     for(l=1; l<=len; ++l) {
+		//Parrallelize
+		#ifndef DANGLE_DEBUG
+		#ifdef _OPENMP
+		#pragma omp parallel for private (i,j) schedule(guided)
+		#endif
+		#endif
         for(i=1; i<= len-l+1; ++i) {
 
             int j = i+l-1;
@@ -73,13 +86,16 @@ void fill_partition_fn_arrays(int len, double** Q, double** QB, double** QM) {
                 for(d=i+1; d<=j-4; ++d) {
                     for(e=d+4; e<=j-1; ++e) {
                         
-                if(d == i + 1 && e == j -1)
-                    QB[i][j] += exp(-eS(i,j)/RT)*QB[d][e];
-                else 
-                    QB[i][j] += exp(-eL(i,j,d,e)/RT)*QB[d][e];
+						if(d == i + 1 && e == j -1){
+							QB[i][j] += exp(-eS(i,j)/RT)*QB[d][e];
+						}
+						else{
+							printf("i: %d j: %d d: %d e: %d\n", i,j,d,e);
+							QB[i][j] += exp(-eL(i,j,d,e)/RT)*QB[d][e];
+						}
 
-                        QB[i][j] += QM[i+1][d-1]*QB[d][e] *
-                            exp(-(a + b + c*(j-e-1))/RT);
+						QB[i][j] += QM[i+1][d-1]*QB[d][e] *
+									exp(-(a + b + c*(j-e-1))/RT);
                     }
                 }
             }
