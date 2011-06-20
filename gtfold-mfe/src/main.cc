@@ -246,7 +246,8 @@ int main(int argc, char** argv) {
 		if(suboptfile.find(".") != string::npos)
 			suboptfile.erase(suboptfile.rfind("."));
 		suboptfile += ".ss";	
-
+		
+		printf("Suboptimal structures saved in %s\n", suboptfile.c_str());
 		save_subopt_file(suboptfile, subopt_data);	
 		free_fold(seq.length());
 		exit(0);
