@@ -46,39 +46,9 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/gtfold_config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-<<<<<<< HEAD
-am__installdirs = "$(DESTDIR)$(bindir)"
-PROGRAMS = $(bin_PROGRAMS)
-am_gtfold_OBJECTS = main.$(OBJEXT) loader.$(OBJEXT) utils.$(OBJEXT) \
-	options.$(OBJEXT) constraints.$(OBJEXT) global.$(OBJEXT) \
-	energy.$(OBJEXT) algorithms.$(OBJEXT) traceback.$(OBJEXT) \
-	subopt_traceback.$(OBJEXT) algorithms-partition.$(OBJEXT) \
-	partition-dangle.$(OBJEXT) random-sample.$(OBJEXT) \
-	shapereader.$(OBJEXT)
-gtfold_OBJECTS = $(am_gtfold_OBJECTS)
-gtfold_DEPENDENCIES =
-gtfold_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(gtfold_LDFLAGS) \
-	$(LDFLAGS) -o $@
-DEFAULT_INCLUDES = -I. -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
-	-o $@
-SOURCES = $(gtfold_SOURCES)
-DIST_SOURCES = $(gtfold_SOURCES)
-=======
 SOURCES =
 DIST_SOURCES =
 HEADERS = $(noinst_HEADERS)
->>>>>>> gtfold/master
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -130,17 +100,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = 
 VERSION = 1.18
-<<<<<<< HEAD
-abs_builddir = /home/josh/Projects/gtfold/gtfold-mfe/src
-abs_srcdir = /home/josh/Projects/gtfold/gtfold-mfe/src
+abs_builddir = /home/josh/Projects/gtfold/gtfold-mfe/include
+abs_srcdir = /home/josh/Projects/gtfold/gtfold-mfe/include
 abs_top_builddir = /home/josh/Projects/gtfold/gtfold-mfe
 abs_top_srcdir = /home/josh/Projects/gtfold/gtfold-mfe
-=======
-abs_builddir = /home/zs/git/gtfold/gtfold-mfe/include
-abs_srcdir = /home/zs/git/gtfold/gtfold-mfe/include
-abs_top_builddir = /home/zs/git/gtfold/gtfold-mfe
-abs_top_srcdir = /home/zs/git/gtfold/gtfold-mfe
->>>>>>> gtfold/master
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -177,7 +140,7 @@ mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/zs/dsgtfold
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -192,33 +155,8 @@ target_vendor = unknown
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-<<<<<<< HEAD
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/include
-AM_CFLAGS = $(OPENMP_CFLAGS) -DDATADIR='$(datadir)/gtfold'
-AM_CXXFLAGS = -DDATADIR='$(datadir)/gtfold'
-gtfold_SOURCES = \
-	main.cc\
-	loader.cc\
-	utils.cc\
-	options.cc\
-	constraints.cc\
-	global.c\
-	energy.c\
-	algorithms.c\
-	traceback.c\
-	subopt_traceback.cc\
-	algorithms-partition.c\
-	partition-dangle.c\
-	random-sample.cc\
-	shapereader.cc
-
-gtfold_LDFLAGS = 
-gtfold_LDADD = -lm
-CLEANFILES = *~ *.o
-=======
-noinst_HEADERS = algorithms.h constants.h data.h loader.h main.h traceback.h
+noinst_HEADERS = algorithms.h constants.h data.h loader.h main.h traceback.h partition-dangle.h random-sample.h algorithms-partition.h
 CLEANFILES = *~
->>>>>>> gtfold/master
 all: all-am
 
 .SUFFIXES:
@@ -252,98 +190,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-<<<<<<< HEAD
-install-binPROGRAMS: $(bin_PROGRAMS)
-	@$(NORMAL_INSTALL)
-	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p; \
-	  then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	      echo " $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	      $(INSTALL_PROGRAM_ENV) $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
-
-uninstall-binPROGRAMS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' `; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
-
-clean-binPROGRAMS:
-	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-gtfold$(EXEEXT): $(gtfold_OBJECTS) $(gtfold_DEPENDENCIES) 
-	@rm -f gtfold$(EXEEXT)
-	$(gtfold_LINK) $(gtfold_OBJECTS) $(gtfold_LDADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT)
-
-distclean-compile:
-	-rm -f *.tab.c
-
-include ./$(DEPDIR)/algorithms-partition.Po
-include ./$(DEPDIR)/algorithms.Po
-include ./$(DEPDIR)/constraints.Po
-include ./$(DEPDIR)/energy.Po
-include ./$(DEPDIR)/global.Po
-include ./$(DEPDIR)/loader.Po
-include ./$(DEPDIR)/main.Po
-include ./$(DEPDIR)/options.Po
-include ./$(DEPDIR)/partition-dangle.Po
-include ./$(DEPDIR)/random-sample.Po
-include ./$(DEPDIR)/shapereader.Po
-include ./$(DEPDIR)/subopt_traceback.Po
-include ./$(DEPDIR)/traceback.Po
-include ./$(DEPDIR)/utils.Po
-
-.c.o:
-	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(COMPILE) -c $<
-
-.c.obj:
-	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(COMPILE) -c `$(CYGPATH_W) '$<'`
-
-.cc.o:
-	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXXCOMPILE) -c -o $@ $<
-
-.cc.obj:
-	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-#	source='$<' object='$@' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
-#	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-=======
->>>>>>> gtfold/master
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

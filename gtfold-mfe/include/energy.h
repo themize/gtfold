@@ -19,7 +19,7 @@ extern int **PP;
 #define WMU(i,j) WM[i][j]
 #define WML(i,j) WM[j][i]
 #define VBI(i,j) VBI[indx[j]+i]
-#define RT ((0.00198721 * 310.15)/100.00)
+#define RT ((0.00198721 * 310.15) * 100.00)
 
 #define auPen(i, j) ((( (i)==BASE_U || (j)==BASE_U ) && ( (i)==BASE_A || (i)==BASE_G || (j)==BASE_A || (j)==BASE_G )) ? auend : 0)
 

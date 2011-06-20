@@ -15,7 +15,7 @@
 #endif
 
 
-#define DANGLE_DEBUG
+#define MAX_LOOP 30
 
 // double[][] QB;
 // double[][] Q;
@@ -66,36 +66,44 @@ void fill_partition_fn_arrays(int len, double** Q, double** QB, double** QM) {
     // fill in values in the array
     for(l=1; l<=len; ++l) {
 		//Parrallelize
-		#ifndef DANGLE_DEBUG
-		#ifdef _OPENMP
-		#pragma omp parallel for private (i,j) schedule(guided)
-		#endif
-		#endif
-        for(i=1; i<= len-l+1; ++i) {
+		//#ifdef _OPENMP
+		//#pragma omp parallel for private (i,j) schedule(guided)
+		//#endif
+        for(i=1; i<= len - l + 1; i++) {
 
-            int j = i+l-1;
+            int j = i + l - 1;
 
             // QB recursion
             // Only calculate if i and j actually pair
-            if(checkPair(i,j)) {
+            if(canPair(RNA[i],RNA[j])) {
 
                 // NOTE: eH returns an integer encoded as fixed point.  So a
                 // return value of 115 represents raw value 115/100 = 1.15
                 QB[i][j] = exp(-eH(i,j)/RT);
-
+				
                 for(d=i+1; d<=j-4; ++d) {
+					//if(d - i - 1 > MAX_LOOP)
+					//	break;
                     for(e=d+4; e<=j-1; ++e) {
-                        
-						if(d == i + 1 && e == j -1){
-							QB[i][j] += exp(-eS(i,j)/RT)*QB[d][e];
-						}
-						else{
-							printf("i: %d j: %d d: %d e: %d\n", i,j,d,e);
-							QB[i][j] += exp(-eL(i,j,d,e)/RT)*QB[d][e];
-						}
 
-						QB[i][j] += QM[i+1][d-1]*QB[d][e] *
-									exp(-(a + b + c*(j-e-1))/RT);
+                      // if(d - i - 1 + j - e - 1 > MAX_LOOP)
+						//	break;
+
+						if(QB[d][e] != 0){ 
+							//more general than chkpair 
+							//if we cant pair, move on
+
+							if(d == i + 1 && e == j -1){
+								QB[i][j] += exp(-eS(i,j)/RT)*QB[d][e];
+							}
+							else{
+								//printf("i: %d j: %d d: %d e: %d\n", i,j,d,e);
+								QB[i][j] += exp(-eL(i,j,d,e)/RT)*QB[d][e];
+							}
+
+							QB[i][j] += QM[i+1][d-1]*QB[d][e] *
+										exp(-(a + b + c*(j-e-1))/RT);
+						}
                     }
                 }
             }
@@ -111,6 +119,7 @@ void fill_partition_fn_arrays(int len, double** Q, double** QB, double** QM) {
             }
         }
     }
+	printf("Total partition number: %f", Q[1][len]);
 }
 
 /**
@@ -120,7 +129,7 @@ void fill_partition_fn_arrays(int len, double** Q, double** QB, double** QM) {
  *                  index j. structure[i] = 0 means the nucleotide is
  *                  unpaired.
  */
-void fillBasePairProbabilities(int length, int *structure, double **Q, double **QB, double **QM, double**P) {
+void fillBasePairProbabilities(int length, double **Q, double **QB, double **QM, double**P) {
 
 	int d, l, h, i, j;
 	double tempBuffer;

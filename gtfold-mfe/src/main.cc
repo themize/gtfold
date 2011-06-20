@@ -266,8 +266,6 @@ int main(int argc, char** argv) {
 			fprintf(stderr, "Constraint file: %s\n", constraintsFile.c_str());
 		}
 	}
-	// release the malloc'd arrays
-	free_fold(seq.length());
 
 	if(BPP_ENABLED){
 		printf("Calculating partition function\n");
@@ -277,8 +275,9 @@ int main(int argc, char** argv) {
 		QB = mallocTwoD(seq.length() + 1, seq.length() + 1);
 		P = mallocTwoD(seq.length() + 1, seq.length() + 1);
 
+	
 		fill_partition_fn_arrays(seq.length(), Q, QB, QM);
-		fillBasePairProbabilities(seq.length(), structure, Q, QB, QM, P);
+		fillBasePairProbabilities(seq.length(), Q, QB, QM, P);
 		printBasePairProbabilities(seq.length(), structure, P);
 
 		freeTwoD(Q, seq.length() + 1, seq.length() + 1);
@@ -286,6 +285,9 @@ int main(int argc, char** argv) {
 		freeTwoD(QB, seq.length() + 1, seq.length() + 1);
 		freeTwoD(P, seq.length() + 1, seq.length() + 1);
 	}
+
+	// release the malloc'd arrays
+	free_fold(seq.length());
 /*
 	dangle_struct partition;
 	partition = malloc_partition_arrays_d(seq.length());
