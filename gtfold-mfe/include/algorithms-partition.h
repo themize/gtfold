@@ -5,10 +5,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-
+/*
+typedef struct _pFuncData {
+    int len;
+    double** QB;
+    double** Q;
+    double** QM;
+} p_func_data;
+*/
 void fill_partition_fn_arrays(int len, double** QB, double** Q, double** QM);
-void fillBasePairProbabilities(int length, int *structure, double **Q, double **QB, double **QM, double**P);
+void fillBasePairProbabilities(int length, double **Q, double **QB, double **QM, double**P);
 void printBasePairProbabilities(int n, int *structure, double **P);
 
 double probabilityUnpaired(int length, int i, double **P);
@@ -16,14 +22,6 @@ double probabilityUnpaired(int length, int i, double **P);
 double **mallocTwoD(int r, int c);
 void freeTwoD(double** arr, int r, int c);
 
-typedef struct _pFuncData {
-    int len;
-    double** QB;
-    double** Q;
-    double** QM;
-
-    // TODO: probability function stuff here
-} pFuncData;
 
 
 #ifdef __cplusplus

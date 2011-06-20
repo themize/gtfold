@@ -13,9 +13,12 @@ gtfold_SOURCES = \
 	constraints.cc\
 	global.c\
 	energy.c\
-	algorithms.c \
-	traceback.c \
+	algorithms.c\
+	traceback.c\
 	subopt_traceback.cc\
+	algorithms-partition.c\
+	partition-dangle.c\
+	random-sample.cc\
 	shapereader.cc
 
 gtfold_LDFLAGS = 

@@ -51,7 +51,9 @@ PROGRAMS = $(bin_PROGRAMS)
 am_gtfold_OBJECTS = main.$(OBJEXT) loader.$(OBJEXT) utils.$(OBJEXT) \
 	options.$(OBJEXT) constraints.$(OBJEXT) global.$(OBJEXT) \
 	energy.$(OBJEXT) algorithms.$(OBJEXT) traceback.$(OBJEXT) \
-	subopt_traceback.$(OBJEXT) shapereader.$(OBJEXT)
+	subopt_traceback.$(OBJEXT) algorithms-partition.$(OBJEXT) \
+	partition-dangle.$(OBJEXT) random-sample.$(OBJEXT) \
+	shapereader.$(OBJEXT)
 gtfold_OBJECTS = $(am_gtfold_OBJECTS)
 gtfold_DEPENDENCIES =
 gtfold_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(gtfold_LDFLAGS) \
@@ -188,9 +190,12 @@ gtfold_SOURCES = \
 	constraints.cc\
 	global.c\
 	energy.c\
-	algorithms.c \
-	traceback.c \
+	algorithms.c\
+	traceback.c\
 	subopt_traceback.cc\
+	algorithms-partition.c\
+	partition-dangle.c\
+	random-sample.cc\
 	shapereader.cc
 
 gtfold_LDFLAGS = 
@@ -277,6 +282,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/algorithms-partition.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/algorithms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constraints.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/energy.Po@am__quote@
@@ -284,6 +290,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/partition-dangle.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/random-sample.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shapereader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subopt_traceback.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/traceback.Po@am__quote@
