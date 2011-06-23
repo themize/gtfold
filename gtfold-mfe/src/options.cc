@@ -182,7 +182,11 @@ void printRunConfiguration(string seq) {
 
 	printf("Run Configuration:\n");
 	if (UNAMODE == true) {
-		printf("- running in unamode\n");
+		printf("+ running in unamode\n");
+		standardRun = false;
+	}
+	if (T_MISMATCH == true) {
+		printf("+ enabled terminal mismatch calculations\n");
 		standardRun = false;
 	}
 
