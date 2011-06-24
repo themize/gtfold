@@ -118,7 +118,8 @@ void parse_options(int argc, char** argv) {
 					std::stringstream ss;
 					ss << argv[++i];
 					sscanf(ss.str().c_str(),"%d,%d", &value1, &value2);
-					if (value1 < 0 || value2 < 0) {
+					if (value1 <= 0 || value2 <= 0) {
+						printf("INVALID ARGUMENTS: --prefilter accepts positive integers\n\n");
 						help();
 					}
 					b_prefilter =true;
