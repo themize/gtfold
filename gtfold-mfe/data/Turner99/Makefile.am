@@ -10,11 +10,10 @@ gtfold_data_DATA = \
 	int11.DAT\
 	int21.DAT\
 	int22.DAT\
-	sint2.DAT\
-	sint4.DAT\
 	tloop.DAT\
 	tstackh.DAT\
 	tstacki.DAT\
+	tstacke.DAT\
 	tstackm.DAT
 
 
