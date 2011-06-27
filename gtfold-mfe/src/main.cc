@@ -226,10 +226,11 @@ int main(int argc, char** argv) {
 		exit(-1);
 	}
 	
-	// Read in thermodynamic parameters. Always use Turner99 data (for now)
-	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, UNAMODE, T_MISMATCH);
-
 	printRunConfiguration(seq);
+	
+	// Read in thermodynamic parameters. Always use Turner99 data (for now)
+	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, UNAMODE, RNAMODE, T_MISMATCH);
+
 	
 	init_fold(seq);
 

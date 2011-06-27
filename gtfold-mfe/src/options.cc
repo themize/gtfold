@@ -16,6 +16,7 @@ bool VERBOSE = false;
 bool SHAPE_ENABLED = false;
 bool T_MISMATCH = false;
 bool UNAMODE = false;
+bool RNAMODE = false;
 bool b_prefilter = false;
 
 string seqfile = "";
@@ -127,6 +128,8 @@ void parse_options(int argc, char** argv) {
 				T_MISMATCH = true;
 			} else if (strcmp(argv[i], "--unamode") == 0) {
 				UNAMODE = true;
+			} else if (strcmp(argv[i], "--rnafold") == 0) {
+				RNAMODE = true;
 			} else if (strcmp(argv[i], "--prefilter") == 0) {
 				if(i < argc) {
 					int value1 = -1, value2 = -1;
