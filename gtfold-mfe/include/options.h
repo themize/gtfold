@@ -25,7 +25,10 @@ extern bool UNAMODE;
 extern string seqfile;
 extern string constraintsFile;
 extern string shapeFile;
+extern string outputDir;
 extern string outputFile;
+extern string bppOutFile;
+extern string suboptFile;
 extern string paramDir;
 
 extern float suboptDelta;
