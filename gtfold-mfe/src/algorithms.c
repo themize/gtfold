@@ -30,7 +30,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "omp.h"
 #endif
 
-#define DEBUG 1
+//#define DEBUG 1
 
 void initializeMatrix(int len) {
 	int i, j;
