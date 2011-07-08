@@ -48,17 +48,17 @@ void help() {
     printf("   -c, --constraints FILE\n");
     printf("                        Load constraints from FILE.  See Constraint syntax below\n");
 
-    printf("   -d, --limitCD num    Set a maximum base pair contact distance to num. If no\n");
+    printf("   -d, --limitCD INT    Set a maximum base pair contact distance to INT. If no\n");
     printf("                        limit is given, base pairs can be over any distance\n");
-    printf("   -p  --paramdir DIR   Path to directory from where parameters are to be read\n");
-    printf("   -m   		Enable terminal mismatch calculations\n");
-   	printf("   -n, --noisolate      Prevent isolated base pairs from forming\n");
-    printf("   -o, --output NAME    Name output files with prefix\n");
-    printf("   -w, --workDir DIR    Path to directory for output files\n");
-    printf("   -t, --threads num    Limit number of threads used\n");
-    printf("   --unafold 		Run as UNAFOLD default mode (version 3.8). \n");
-    printf("   --prefilter num1,num2 \n\t\t\tSets the prefilter mode similar to UNAfold\n");
-    printf("   --rnafold 		Run as RNAFOLD default mode (version 1.8.5). \n");
+    printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
+    printf("   -m                   Enable terminal mismatch calculations\n");
+    printf("   -n, --noisolate      Prevent isolated base pairs from forming\n");
+    printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
+    printf("   -w, --workDir DIR    Path of directory where output files will be written\n");
+    printf("   -t, --threads INT    Limit number of threads used to INT\n");
+    printf("   --unafold            Run as UNAfold default mode (version 3.8)\n");
+    printf("   --prefilter INT,INT  Sets the prefilter mode similar to UNAfold\n");
+    printf("   --rnafold            Run as RNAfold default mode (ViennaPackage version 1.8.5)\n");
 
     printf("\n");
     printf("   -h, --help           Output help (this message) and exit\n");
@@ -68,7 +68,7 @@ void help() {
     printf("   --bpp                Calculate base pair probabilities\n");
     printf("   --subopt range       Calculate suboptimal structures within 'range' kcal/mol\n");
     printf("                        of the mfe\n");
-    printf("   -s, --useSHAPE FILE  Use SHAPE constraints from FILE");      
+    printf("   -s, --useSHAPE FILE  Use SHAPE constraints from FILE\n");      
 
     printf("\nConstraint syntax:\n");
     printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs\n");
