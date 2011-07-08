@@ -29,6 +29,7 @@ string outputDir = "";
 string shapeFile = "";
 string paramDir; // default value
 
+int dangles=-1;
 int prefilter1=2;
 int prefilter2=2;
 
@@ -52,6 +53,7 @@ void help() {
     printf("                        limit is given, base pairs can be over any distance\n");
     printf("   -p  --paramdir DIR   Path to directory from where parameters are to be read\n");
     printf("   -m   		Enable terminal mismatch calculations\n");
+    printf("   -d2   		Enable d2 calculations\n");
    	printf("   -n, --noisolate      Prevent isolated base pairs from forming\n");
     printf("   -o, --output NAME    Name output files with prefix\n");
     printf("   -w, --workDir DIR    Path to directory for output files\n");
@@ -109,16 +111,19 @@ void parse_options(int argc, char** argv) {
 			} else if(strcmp(argv[i], "--noisolate") == 0 || strcmp(argv[i], "-n") == 0) {
 				NOISOLATE = true;
 			} else if(strcmp(argv[i], "--prefix") == 0 || strcmp(argv[i], "-o") == 0) {
-				if(i < argc)
+				if(i < argc) {
 					outputPrefix = argv[++i];
+				}
 				else
 					help();
 			} else if (strcmp(argv[i], "--workdir") == 0 || strcmp(argv[i], "-w") == 0) {
-				if(i < argc)
+				if(i < argc) {
 					outputDir = argv[++i];
+				}
 				else
 					help();
-			} else if (strcmp(argv[i], "--paramdir") == 0 || strcmp(argv[i], "-p") == 0) {
+			} 
+			else if (strcmp(argv[i], "--paramdir")== 0 || strcmp(argv[i], "-p") == 0) {
 					if(i < argc) {
 					paramDir = argv[++i];
 					PARAM_DIR = true;
@@ -127,6 +132,10 @@ void parse_options(int argc, char** argv) {
 					help();
 			} else if (strcmp(argv[i], "-m") == 0) {
 				T_MISMATCH = true;
+			} else if (strcmp(argv[i], "-d2") == 0) {
+				dangles = 2;
+			} else if (strcmp(argv[i], "-d0") == 0) {
+				dangles = 0;
 			} else if (strcmp(argv[i], "--unafold") == 0) {
 				UNAMODE = true;
 			} else if (strcmp(argv[i], "--rnafold") == 0) {
@@ -202,8 +211,11 @@ void parse_options(int argc, char** argv) {
 	// If output dir specified
 	if (!outputDir.empty()) {
 		outputFile += outputDir;
+		outputFile += "/";
 		suboptFile += outputDir;
+		suboptFile += "/";
 		bppOutFile += outputDir;
+		bppOutFile += "/";
 	}
 	// ... and append the .ct
 	outputFile += outputPrefix;
@@ -225,8 +237,16 @@ void printRunConfiguration(string seq) {
 	bool standardRun = true;
 
 	printf("Run Configuration:\n");
+		if (RNAMODE == true) {
+		printf("+ running in rnafold mode\n");
+		standardRun = false;
+	}
 	if (UNAMODE == true) {
-		printf("+ running in unamode\n");
+		printf("+ running in unafold mode\n");
+		standardRun = false;
+	}
+	if (dangles == 2) {
+		printf("+ running in -d2 mode\n");
 		standardRun = false;
 	}
 	if (T_MISMATCH == true) {
