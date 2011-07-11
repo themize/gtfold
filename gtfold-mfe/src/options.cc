@@ -260,7 +260,7 @@ void printRunConfiguration(string seq) {
 		standardRun = false;
 	}
 	if (b_prefilter == true) {
-		printf("+ running with prefilter values = %d,%d\n",prefilter1,prefilter2);
+		printf("+ running with prefilter value = %d\n",prefilter1);
 		standardRun = false;
 	}
 	if (NOISOLATE == true) {
