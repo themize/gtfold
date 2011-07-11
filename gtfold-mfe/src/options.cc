@@ -48,22 +48,24 @@ void help() {
     printf("OPTIONS\n");
     printf("   -c, --constraints FILE\n");
     printf("                        Load constraints from FILE.  See Constraint syntax below\n");
-
+    printf("   -d, --dangle INT     Allow only one treatment of dangleing end energies in \n");
+    printf("                        mulit- and external loops (INT=0,2) see below for details\n");
+    printf("   -h, --help           Output help (this message) and exit\n");
     printf("   -l, --limitCD INT    Set a maximum base pair contact distance to INT. If no\n");
     printf("                        limit is given, base pairs can be over any distance\n");
-    printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
     printf("   -m  --mismatch       Enable terminal mismatch calculations\n");
-    printf("   -n, --noisolate      Prevent isolated base pairs from forming\n");
+//    printf("   -n, --noisolate      Prevent isolated base pairs from forming\n");
     printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
-    printf("   -w, --workDir DIR    Path of directory where output files will be written\n");
+    printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
     printf("   -t, --threads INT    Limit number of threads used to INT\n");
-    printf("   --unafold            Run as UNAfold default mode (version 3.8)\n");
-    printf("   --prefilter INT,INT  Sets the prefilter mode similar to UNAfold\n");
-    printf("   --rnafold            Run as RNAfold default mode (ViennaPackage version 1.8.5)\n");
-
-    printf("\n");
-    printf("   -h, --help           Output help (this message) and exit\n");
     printf("   -v, --verbose        Run in verbose mode\n");
+    printf("   -w, --workDir DIR    Path of directory where output files will be written\n");
+    printf("   --prefilter INT      Prohibits any basepair which does not have appropriate\n");
+    printf("                        neighboring nucleotides such that it could be part of\n");
+    printf("                        a helix of length INT\n");
+    printf("   --rnafold            Run as RNAfold default mode (ViennaPackage version 1.8.5)\n");
+    printf("   --unafold            Run as UNAfold default mode (version 3.8)\n");
+
 
     printf("\nBETA OPTIONS\n");
     printf("   --bpp                Calculate base pair probabilities\n");
@@ -75,6 +77,12 @@ void help() {
     printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs\n");
     printf("\tP i j k  # prohibit (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs\n");
     printf("\tP i 0 k  # make bases from i to i+k-1 single stranded bases.\n");
+
+    printf("\nDangle:\n");
+    printf("\tINT=0 ignores dangling end energies (mostly for debugging).\n");
+    printf("\tINT=2 dangling end energies are added for nucleotieds on either\n");
+    printf("\tside of each branch in multi-loops and external loops.\n");
+    printf("\tAll other values for INT are ignored.\n");
     exit(-1);
 }
 
@@ -126,7 +134,7 @@ void parse_options(int argc, char** argv) {
 				}
 				else
 					help();
-			} else if (strcmp(argv[i], "--dangles") == 0 || strcmp(argv[i], "-d") == 0) {
+			} else if (strcmp(argv[i], "--dangle") == 0 || strcmp(argv[i], "-d") == 0) {
 											std::string cmd = argv[i];
 						if(i < argc) {
 									dangles = atoi(argv[++i]);
