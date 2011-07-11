@@ -127,21 +127,32 @@ void parse_options(int argc, char** argv) {
 				else
 					help();
 			} else if (strcmp(argv[i], "--dangles") == 0 || strcmp(argv[i], "-d") == 0) {
+											std::string cmd = argv[i];
 						if(i < argc) {
 									dangles = atoi(argv[++i]);
-									if (!(dangles == 0 || dangles == 1 || dangles == 2)) help();
-									T_MISMATCH = false;
+									if (!(dangles == 0 || dangles == 2)) {
+																dangles = -1;
+																printf("Ignoring %s option as it accepts either 0 or 2\n", cmd.c_str());
+									} else {
+																T_MISMATCH = false;
+									}
 						} else
 								 help();
 			} else if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--mismatch") == 0) {
-					if (!(dangles == 0 || dangles == 1 || dangles == 2)) T_MISMATCH = true;
+											std::string cmd = argv[i];
+					if (!(dangles == 0 ||  dangles == 2)) 
+													T_MISMATCH = true;
+					else {
+													printf("Ignoring %s option\n", cmd.c_str());
+													T_MISMATCH = false;
+					}
 			} else if (strcmp(argv[i], "--unafold") == 0) {
 				UNAMODE = true;
 				dangles = -1;
 				T_MISMATCH = false;
 			} else if (strcmp(argv[i], "--rnafold") == 0) {
 				RNAMODE = true;
-				dangles = 1;
+				//dangles = 1;
 				T_MISMATCH = false;
 			} else if (strcmp(argv[i], "--prefilter") == 0) {
 				if(i < argc) {
