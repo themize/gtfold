@@ -48,8 +48,8 @@ void help() {
     printf("OPTIONS\n");
     printf("   -c, --constraints FILE\n");
     printf("                        Load constraints from FILE.  See Constraint syntax below\n");
-    printf("   -d, --dangle INT     Allow only one treatment of dangleing end energies in \n");
-    printf("                        mulit- and external loops (INT=0,2) see below for details\n");
+    printf("   -d, --dangle INT     Allow only one treatment of dangling end energies in \n");
+    printf("                        multi- and external loops (INT=0,2) see below for details\n");
     printf("   -h, --help           Output help (this message) and exit\n");
     printf("   -l, --limitCD INT    Set a maximum base pair contact distance to INT. If no\n");
     printf("                        limit is given, base pairs can be over any distance\n");
@@ -80,7 +80,7 @@ void help() {
 
     printf("\nDangle:\n");
     printf("\tINT=0 ignores dangling end energies (mostly for debugging).\n");
-    printf("\tINT=2 dangling end energies are added for nucleotieds on either\n");
+    printf("\tINT=2 dangling end energies are added for nucleotides on either\n");
     printf("\tside of each branch in multi-loops and external loops.\n");
     printf("\tAll other values for INT are ignored.\n");
     exit(-1);
