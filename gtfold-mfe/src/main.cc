@@ -1,6 +1,7 @@
 /*
  GTfold: compute minimum free energy of RNA secondary structure
- Copyright (C) 2008  David A. Bader
+ Copyright (C) 2007-2011  David A. Bader, Christine E. Heitsch, 
+ and Steve C. Harvey
  http://www.cc.gatech.edu/~bader
 
  This program is free software: you can redistribute it and/or modify
@@ -215,7 +216,7 @@ bool encodeSequence(string seq) {
 
 void print_header() {
 	printf("GTfold: A Scalable Multicore Code for RNA Secondary Structure Prediction\n");
-	printf("(c) 2007-2011  D.A. Bader, S. Mallidi, A. Mathuriya, C.E. Heitsch, S.C. Harvey\n");
+	printf("(c) 2007-2011  D.A. Bader, C.E. Heitsch, S.C. Harvey\n");
 	printf("Georgia Institute of Technology\n\n");
 }
 
