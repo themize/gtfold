@@ -43,44 +43,45 @@ int contactDistance = -1;
 void help() {
     printf("Usage: gtfold [OPTION]... FILE\n\n");
 
-    printf("  FILE is an RNA sequence file.  Single line or FASTA formats are accepted.\n\n");
+    printf("   FILE is an RNA sequence file containing only the sequence or in FASTA format.\n\n");
 
     printf("OPTIONS\n");
     printf("   -c, --constraints FILE\n");
-    printf("                        Load constraints from FILE.  See Constraint syntax below\n");
-    printf("   -d, --dangle INT     Allow only one treatment of dangling end energies in \n");
-    printf("                        multi- and external loops (INT=0,2) see below for details\n");
-    printf("   -h, --help           Output help (this message) and exit\n");
+    printf("                        Load constraints from FILE.  See Constraint syntax below.\n");
+    printf("   -d, --dangle INT     Restricts treatment of dangling energies (INT=0,2),\n"); 
+    printf("                        see below for details.\n");
+    printf("   -h, --help           Output help (this message) and exit.\n");
     printf("   -l, --limitCD INT    Set a maximum base pair contact distance to INT. If no\n");
-    printf("                        limit is given, base pairs can be over any distance\n");
+    printf("                        limit is given, base pairs can be over any distance.\n");
     printf("   -m  --mismatch       Enable terminal mismatch calculations\n");
-//    printf("   -n, --noisolate      Prevent isolated base pairs from forming\n");
+//    printf("   -n, --noisolate      Prevent isolated base pairs from forming.\n");
     printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
     printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
-    printf("   -t, --threads INT    Limit number of threads used to INT\n");
-    printf("   -v, --verbose        Run in verbose mode\n");
-    printf("   -w, --workDir DIR    Path of directory where output files will be written\n");
+    printf("   -t, --threads INT    Limit number of threads used to INT.\n");
+    printf("   -v, --verbose        Run in verbose mode (includes loop-by-loop energy decomposition\n");
+    printf("                        and confirmation of constraints satisfied).\n");
+    printf("   -w, --workdir DIR    Path of directory where output files will be written.\n");
     printf("   --prefilter INT      Prohibits any basepair which does not have appropriate\n");
     printf("                        neighboring nucleotides such that it could be part of\n");
-    printf("                        a helix of length INT\n");
-    printf("   --rnafold            Run as RNAfold default mode (ViennaPackage version 1.8.5)\n");
-    printf("   --unafold            Run as UNAfold default mode (version 3.8)\n");
-
+    printf("                        a helix of length INT.\n");
+    printf("   --rnafold            Run as RNAfold default mode (ViennaPackage version 1.8.5).\n");
+    printf("   --unafold            Run as UNAfold default mode (version 3.8), subject to traceback\n");
+    printf("                        implementation.\n");
 
     printf("\nBETA OPTIONS\n");
-    printf("   --bpp                Calculate base pair probabilities\n");
-    printf("   --subopt range       Calculate suboptimal structures within 'range' kcal/mol\n");
-    printf("                        of the mfe\n");
-    printf("   -s, --useSHAPE FILE  Use SHAPE constraints from FILE\n");      
+    printf("   --bpp                Calculate base pair probabilities.\n");
+    printf("   --subopt NUM         Calculate suboptimal structures within NUM kcal/mol\n");
+    printf("                        of the MFE.\n");
+    printf("   -s, --useSHAPE FILE  Use SHAPE constraints from FILE.\n");      
 
     printf("\nConstraint syntax:\n");
-    printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs\n");
-    printf("\tP i j k  # prohibit (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs\n");
+    printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
+    printf("\tP i j k  # prohibit (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
     printf("\tP i 0 k  # make bases from i to i+k-1 single stranded bases.\n");
 
     printf("\nDangle:\n");
-    printf("\tINT=0 ignores dangling end energies (mostly for debugging).\n");
-    printf("\tINT=2 dangling end energies are added for nucleotides on either\n");
+    printf("\tINT=0 ignores dangling energies (mostly for debugging).\n");
+    printf("\tINT=2 dangling energies are added for nucleotides on either\n");
     printf("\tside of each branch in multi-loops and external loops.\n");
     printf("\tAll other values for INT are ignored.\n");
     exit(-1);
