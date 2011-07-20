@@ -71,7 +71,7 @@ void help() {
     printf("\nBETA OPTIONS\n");
     printf("   --bpp                Calculate base pair probabilities.\n");
     printf("   --subopt NUM         Calculate suboptimal structures within NUM kcal/mol\n");
-    printf("                        of the MFE.\n");
+    printf("                        of the MFE. (Uses -d 2 treatment of dangling energies.)\n");
     printf("   -s, --useSHAPE FILE  Use SHAPE constraints from FILE.\n");      
 
     printf("\nConstraint syntax:\n");
