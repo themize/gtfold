@@ -28,7 +28,7 @@
 #include "global.h"
 #include "subopt_traceback.h"
 
-#define DEBUG 1
+//#define DEBUG 1
 
 const char* lstr[] = {"W", "V", "VBI", "VM", "WM", "WMPrime"};
 
