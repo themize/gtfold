@@ -112,7 +112,7 @@ void readThermodynamicParameters(const char *userdatadir,bool userdatalogic, int
 																if (!found && stat(opt2.c_str(), &buf) == 0) {
 																								found = true;
 																								EN_DATADIR.assign(opt2);
-																								fprintf(stdout,"Checking for environ variable 'GTDATADIR', found \n");
+																								fprintf(stdout,"Checking for environ variable 'GTFOLDDATADIR', found \n");
 																} else {
 																							if (found == false)	fprintf(stdout,"Checking for environ variable 'GTDATADIR', not found \n");
 																}
