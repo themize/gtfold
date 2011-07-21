@@ -94,8 +94,8 @@ void readThermodynamicParameters(const char *userdatadir,bool userdatalogic, int
 																bool found = false;
 
 																opt1.assign(xstr(DATADIR));
-																if (getenv("GTDATADIR") != 0)
-																								opt2.assign(getenv("GTDATADIR"));
+																if (getenv("GTFOLDDATADIR") != 0)
+																								opt2.assign(getenv("GTFOLDDATADIR"));
 																if (getcwd(cwd, sizeof(cwd)) != 0) {
 																								opt3.assign(cwd);
 																								opt3 += "/data";
