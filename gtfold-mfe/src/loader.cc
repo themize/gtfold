@@ -100,21 +100,21 @@ void readThermodynamicParameters(const char *userdatadir,bool userdatalogic, int
 																								opt3.assign(cwd);
 																								opt3 += "/data";
 																}
-																
-																if (stat(opt1.c_str(), &buf) == 0) {
+	
+																if (stat(opt2.c_str(), &buf) == 0) {
+																								found = true;
+																								EN_DATADIR.assign(opt2);
+																								fprintf(stdout,"Checking for environ variable 'GTFOLDDATADIR', found \n");
+																} else {
+																							if (found == false)	fprintf(stdout,"Checking for environ variable 'GTFOLDDATADIR', not found \n");
+																}
+
+																if (!found && stat(opt1.c_str(), &buf) == 0) {
 																								found = true;
 																								EN_DATADIR.assign(opt1); 
 																							fprintf(stdout,"Checking for default datadir '%s', found.\n", opt1.c_str());
 																} else  {
 																							if (found == false)	fprintf(stdout,"Checking for default datadir '%s', not found.\n", opt1.c_str());
-																}
-
-																if (!found && stat(opt2.c_str(), &buf) == 0) {
-																								found = true;
-																								EN_DATADIR.assign(opt2);
-																								fprintf(stdout,"Checking for environ variable 'GTFOLDDATADIR', found \n");
-																} else {
-																							if (found == false)	fprintf(stdout,"Checking for environ variable 'GTDATADIR', not found \n");
 																}
 
 																if (!found && stat(opt3.c_str(), &buf) == 0){
