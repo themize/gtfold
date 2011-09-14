@@ -1,4 +1,6 @@
 #include "partition-func.h"
+#include "energy.h"
+
 
 static void create_partition_arrays();
 static void init_partition_arrays();
