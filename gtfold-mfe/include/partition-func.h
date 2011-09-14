@@ -5,24 +5,20 @@
 extern "C" {
 #endif
 
-typedef struct partition_struct {
-	double ** u;
-	double ** up;
-	double ** upm;
-	double ** ud;
-	double ** u1d;
+extern	double ** u;
+extern	double ** up;
+extern	double ** upm;
+extern	double ** ud;
+extern	double ** u1d;
 
-	double ** s1;
-	double ** s2;
-	double ** s3;
-	double ** u1;
+extern	double ** s1;
+extern	double ** s2;
+extern	double ** s3;
+extern	double ** u1;
 
-	int length;
-} partition_t;
+extern int part_len;
 
-extern partition_t partition;
-
-void calculate_partition();
+void calculate_partition(int len);
 
 #ifdef __cplusplus
 }
