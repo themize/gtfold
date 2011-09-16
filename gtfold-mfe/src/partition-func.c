@@ -157,7 +157,7 @@ void create_partition_arrays()
 
 void free_partition_arrays()
 {
-  int len = part_len + 1;
+  int len = part_len + 2;
   freeTwoD(u,len,len);
   freeTwoD(up,len,len);
   freeTwoD(upm,len,len);
