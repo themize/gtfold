@@ -268,7 +268,7 @@ void calc_u1(int i, int j){
 	int h;
 	double quadraticSum = 0;
 	
-	for(h=i+1; h<j; ++h){
+	for(h=i+1; h<=j; ++h){
 		quadraticSum += (s3[h][j] * exp((-1)*(c+(h-i)*b)/RT));
 	}
 	
@@ -292,17 +292,16 @@ void calc_u1d(int i, int j){
 void calc_u(int i, int j)
 {
 	int uval = 1;
- int h;
+  int h;
 	int ctr;
-
-	for (h = i+1; h < j; ++h) {
-		uval = up[h][j] * exp( -(Ed5(h,j,h-1) + auPenalty(h,j)) / RT );
+	uval +=  ud[i][j];
+	
+  for (h = i+1; h < j; ++h) {
+		uval += up[h][j] * exp( -(Ed5(h,j,h-1) + auPenalty(h,j)) / RT );
 	}
 
-	uval = uval + ud[i][j];
-
 	for (ctr = i+1; ctr < j-1; ++ctr) {
-		uval = uval + s1[ctr][j];
+		uval += s1[ctr][j];
 	}
 	u[i][j] = uval;
 }
