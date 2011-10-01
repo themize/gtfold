@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "partition-func.h"
 #include "energy.h"
 #include "algorithms-partition.h"
@@ -9,7 +10,7 @@
 #include "omp.h"
 #endif
 
-#define DEBUG_PF 1
+#define DEBUG_PF 0
 
 #ifdef DEBUG_PF 
   #undef Ec
@@ -60,7 +61,6 @@ static void calc_u1d(int i, int j);
 static void calc_s1(int i, int j);
 static void calc_s2(int i, int j);
 static void calc_s3(int i, int j);
-static double f(int j, int h, int l);
 
 double f(int j, int h, int l){
 	if(j - 1 == l)
@@ -72,20 +72,10 @@ double f(int j, int h, int l){
 
 void calculate_partition(int len) 
 {
-  int i, j;
   part_len = len;
   create_partition_arrays();
   init_partition_arrays();
   fill_partition_arrays();
-
-  for (i = 0; i <= part_len+1; ++i) 
-  {
-    for (j = 0; j <= part_len+1; ++j)
-      printf("%0.1f ",u[i][j]);
-    printf("\n");
-  }
-
-  printf("%4.4f\n",u[1][part_len]);
 }
 
 void free_partition()
@@ -176,7 +166,7 @@ void calc_s1(int h, int j)
 		int l;						
 		for (l = h; l < j; ++l)
 		{
-				s1[h][j] = up[h][l]*(exp(-(Ed5(h,l,h-1)+auPenalty(h,l))/RT))*
+				s1[h][j] += up[h][l]*(exp(-(Ed5(h,l,h-1)+auPenalty(h,l))/RT))*
 						(exp(-Ed3(h,l,l+1)/RT)*u[l+2][j]+(ud[l+1][j]+
 																				up[l+1][j]*exp(-(auPenalty(l+1,j)/RT))));							
 		}
@@ -187,7 +177,7 @@ void calc_s2(int h, int j)
 	int l;							
 	for (l = h; l < j; ++l)
 	{
-			s2[h][j] = up[h][l]*(exp(-(Ed5(h,l,h-1)+auPenalty(h,l))/RT))*
+			s2[h][j] += up[h][l]*(exp(-(Ed5(h,l,h-1)+auPenalty(h,l))/RT))*
 										(exp(-Ed3(h,l,l+1)/RT)*u1[l+2][j-1]+u1d[l+1][j-1]);							
 	}
 }
@@ -197,7 +187,7 @@ void calc_s3(int h, int j)
   int l;							
   for (l = h; l < j; ++l)
   {
-    s3[h][j] = up[h][l]*(exp(-(Ed5(h,l,h-1)+auPenalty(h,l))/RT))*
+    s3[h][j] += up[h][l]*(exp(-(Ed5(h,l,h-1)+auPenalty(h,l))/RT))*
       (f(j+1,h,l)*exp(-((j-l)*Eb)/RT) + 
        exp(-(Ed3(h,l,l+1)+Eb)/RT)*u1[l+2][j] + u1d[l+1][j]);
   }
