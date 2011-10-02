@@ -173,7 +173,7 @@ void calculate_partition(int len)
 
   fill_partition_arrays();
 
-  printAllMatrixes();
+  //printAllMatrixes();
 
   printf("%4.4f\n",u[1][part_len]);
 }
