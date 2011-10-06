@@ -257,7 +257,7 @@ int calculate(int len) {
 
       Wj = MIN(Wj,Wij); 
     }
-    W[j] = canSS(j)?MIN(Wj, W[j-1]):Wj;
+    W[j] = (j!=0 && canSS(j))?MIN(Wj, W[j-1]):Wj;
   }
 
 #ifdef DEBUG

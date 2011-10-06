@@ -8,7 +8,7 @@ sub test()
 {
   my(%Config) = %{$_[1]};
   my(%Sequences) = %{$_[2]};
-  my $logger = $_[3];
+  my $logger = $_[4];
 
   my $gtdir = $Config{"G_GTFOLD_DIR"};
   my $unadir = $Config{"G_UNAFOLD_DIR"};

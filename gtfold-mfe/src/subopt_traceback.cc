@@ -228,7 +228,7 @@ void traceVM(int i, int j, ps_t& ps, ps_stack_t& gstack) {
         }
 }
 
-void push_to_gstack(ps_stack_t& gstack , ps_t& v) {
+void push_to_gstack(ps_stack_t& gstack, const ps_t& v) {
         gflag = 1;
         gstack.push(v);
 }

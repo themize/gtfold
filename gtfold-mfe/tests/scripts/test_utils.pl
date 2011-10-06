@@ -22,7 +22,7 @@ sub load_config_file()
     if ( ($line !~ /^#/) && ($line ne "") ) {    # Ignore lines starting with # and blank lines
       ($Name, $Value) = split (/=/, $line);    # Split each line into name value pairs
 
-      if ($Name =~ /G_INCLUDE_SEQUENCES|G_EXCLUDE_SEQUENCES|G_INCLUDE_TESTS|G_EXCLUDE_TESTS/) {
+      if ($Name =~ /.*_INCLUDE_SEQUENCES|.*_EXCLUDE_SEQUENCES|G_INCLUDE_TESTS|G_EXCLUDE_TESTS/) {
         $orig_value= %Config->{$Name};
         $Value =~ s/[.]/\\./g;
         $Value =~ s/[*]/.\*/g;
@@ -31,7 +31,7 @@ sub load_config_file()
         }
       }
 
-      if ($Name eq "G_SEQUENCE_DIR") {
+      if ($Name =~ /.*_SEQUENCE_DIR/) {
         my @seqdir_arr = %Config->{$Name};
         push (@{%Config->{$Name}}, $Value);
         next;

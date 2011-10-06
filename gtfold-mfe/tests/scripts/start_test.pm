@@ -10,8 +10,10 @@ use Log::Log4perl qw(:easy);
 require 'test_utils.pl';
 
 my $configdir="../config";
+
 Log::Log4perl::init( "$configdir/root-logger.conf" );
 my $logger = Log::Log4perl->get_logger;
+
 
 $logger->info("Starting Tests...");
 
@@ -37,30 +39,10 @@ my @seqdir_arr = @{$Config{"G_SEQUENCE_DIR"}};
 my $seq_include_regex = $Config{"G_INCLUDE_SEQUENCES"};
 my $seq_exclude_regex = $Config{"G_EXCLUDE_SEQUENCES"};
 
-foreach (@seqdir_arr) {
-
-  opendir(DIR, $_) || die $!;
-  while (my $seqfile = readdir(DIR)) {
-
-	  my $seqname;
-	  my $path;
-	  my $suffix;
-	  ($seqname,$path,$suffix) = fileparse($seqfile);
-
-	  if (-d $seqfile) {
-		  next;
-	  }
-
-    $seqfile = "$_$seqname";
-    my $seq_include = (not defined($seq_include_regex)) || ($seqname =~ /$seq_include_regex/);
-
-    my $seq_exclude = (not defined($seq_exclude_regex)) || ($seqname !~ /$seq_exclude_regex/);
-    if ( $seq_include && $seq_exclude ) {
-      $Sequences{$seqname} = $seqfile;
-      $logger->info("Selected Sequence ... $seqname");
-    }
-  }
-}
+%Sequences = find_sequences_from_dir(
+                seq_include_regex => $seq_include_regex,
+                seq_exclude_regex => $seq_exclude_regex,
+                seq_dirs => @seqdir_arr);
 
 my $test_include_regex = $Config{"G_INCLUDE_TESTS"};
 my $test_exclude_regex = $Config{"G_EXCLUDE_TESTS"};
@@ -78,17 +60,71 @@ open(TESTLISTFILE, $test_list_file) || die("Could not open file: $test_list_file
       $testname =~ s/\s*$//;     # Remove spaces at the end of the line
       if ( ($testname !~ /^#/) && ($testname ne "") ) {    # Ignore lines starting with # and blank lines
 
-      my $test_include = (not defined($test_include_regex)) || ($testname =~ /$seq_include_regex/);
+        my $test_include = (not defined($test_include_regex)) || ($testname =~ /$seq_include_regex/);
+        my $test_exclude = (not defined($test_exclude_regex)) || ($testname !~ /$test_exclude_regex/);
 
-      my $test_exclude = (not defined($test_exclude_regex)) || ($testname !~ /$test_exclude_regex/);
+        if ( $test_include && $test_exclude ) {
+          my $uppertestname = uc($testname);
+          my $local_sequence_dirname = "L_".$uppertestname."_SEQUENCE_DIR";
+          my $local_sequence_include_regex = $Config{"L_".$uppertestname."_SEQUENCE_INCLUDE"};
+          my $local_sequence_exclude_regex = $Config{"L_".$uppertestname."_SEQUENCE_EXCLUDE"};
+          my @local_sequence_dir;
+          my %local_sequences;
 
-      if ( $test_include && $test_exclude ) {
-        my $module = $testname;
-        load($module);
-        $module->test(\%Config, \%Sequences, $logger);
+          if (defined($Config{$local_sequence_dirname})) {
+            @local_sequence_dir = @{$Config{$local_sequence_dirname}};
+            %local_sequences = find_sequences_from_dir(
+                    seq_include_regex => $local_sequence_include_regex,
+                    seq_exclude_regex => $local_sequence_exclude_regex,
+                    seq_dirs => @local_sequence_dir);
+          }
+
+          my $module = $testname;
+          load($module);
+          $module->test(\%Config, \%Sequences, \%local_sequences, $logger);
+        }
       }
-    
-    }
+   }
 
+
+sub find_sequences_from_dir
+{
+
+my %args = @_;
+
+my %seq_hash;
+my $include_regex = $args{seq_include_regex};
+my $exclude_regex = $args{seq_exclude_regex};
+my @seqdirs = $args{seq_dirs};
+
+if (scalar(@seqdirs) eq 0) {
+  return %seq_hash;
+}
+
+foreach (@seqdirs) {
+
+  opendir(DIR, $_) || die $!;
+  while (my $seqfile = readdir(DIR)) {
+
+	  my $seqname;
+	  my $path;
+	  my $suffix;
+	  ($seqname,$path,$suffix) = fileparse($seqfile, (".seq", ".constraint"));
+
+	  if ((-d $seqfile) || $suffix ne '.seq') {
+		  next;
+	  }
+
+    $seqfile = "$_$seqname$suffix";
+    my $seq_include = (not defined($include_regex)) || ($seqname =~ /$include_regex/);
+    my $seq_exclude = (not defined($exclude_regex)) || ($seqname !~ /$exclude_regex/);
+
+    if ( $seq_include && $seq_exclude ) {
+      $seq_hash{$seqname} = $seqfile;
+      $logger->info("Selected Sequence ... $seqname");
+    }
   }
 
+}
+  return %seq_hash;
+}
