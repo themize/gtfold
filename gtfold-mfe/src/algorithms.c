@@ -226,7 +226,8 @@ int calculate(int len) {
     }
   }
 
-  for (j = 0; j <= len; j++) {
+  W[0] = 0;
+  for (j = 1; j <= len; j++) {
     int i, Wj, Widjd, Wijd, Widj, Wij, Wim1;
     Wj = INFINITY_;
     for (i = 1; i < j-TURN; i++) {
@@ -257,7 +258,7 @@ int calculate(int len) {
 
       Wj = MIN(Wj,Wij); 
     }
-    W[j] = (j!=0 && canSS(j))?MIN(Wj, W[j-1]):Wj;
+    W[j] = canSS(j)?MIN(Wj, W[j-1]):Wj;
   }
 
 #ifdef DEBUG
