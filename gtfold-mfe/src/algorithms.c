@@ -229,7 +229,7 @@ int calculate(int len) {
   W[0] = 0;
   for (j = 1; j <= len; j++) {
     int i, Wj, Widjd, Wijd, Widj, Wij, Wim1;
-    Wj = INFINITY_;
+    Wj = 0;
     for (i = 1; i < j-TURN; i++) {
       Wij = Widjd = Wijd = Widj = INFINITY_;
       Wim1 = MIN(0, W[i-1]); 
