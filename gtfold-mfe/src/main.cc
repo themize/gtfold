@@ -297,8 +297,8 @@ int main(int argc, char** argv) {
   if (RND_SAMPLE == true)
   {
 	  printf("\nComputing partition function...\n");
-	  int pf_count_mode = 1;
-	  //if(PF_COUNT_MODE) pf_count_mode=1;
+	  int pf_count_mode = 0;
+	  if(PF_COUNT_MODE) pf_count_mode=1;
 	  calculate_partition(seq.length(),pf_count_mode);
 
 	  int* structure = new int[seq.length()+1];
@@ -309,7 +309,7 @@ int main(int argc, char** argv) {
 		  for (int count = 1; count <= num_rnd; ++count) 
 		  {
 			  memset(structure, 0, (seq.length()+1)*sizeof(int));
-			  rnd_structure(structure, seq.length());
+			  double energy = rnd_structure(structure, seq.length());
 
 			  std::string ensemble(seq.length()+1,'.');
 			  for (int i = 1; i <= (int)seq.length(); ++ i) {
@@ -320,7 +320,7 @@ int main(int argc, char** argv) {
 					  ensemble[structure[i]] = ')';
 				  }
 			  }
-			  std::cout << ensemble.substr(1) << std::endl;
+			  std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 		  }
 	  }
 
