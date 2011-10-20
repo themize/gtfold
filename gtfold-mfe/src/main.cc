@@ -303,6 +303,7 @@ int main(int argc, char** argv) {
 
 	  int* structure = new int[seq.length()+1];
 	  srand(time(NULL));
+    std::map<std::string,std::pair<int,double> >  uniq_structs;
 
 	  if (num_rnd > 0 ) {
 		  printf("\nSampling structures...\n");
@@ -320,9 +321,39 @@ int main(int argc, char** argv) {
 					  ensemble[structure[i]] = ')';
 				  }
 			  }
-			  std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+        std::map<std::string,std::pair<int,double> >::iterator iter ;
+        if ((iter =uniq_structs.find(ensemble.substr(1))) != uniq_structs.end())
+        {
+          std::pair<int,double>& pp = iter->second;
+          pp.first++;
+        }
+        else {
+          uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
+        }
+			  //std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 		  }
 	  }
+    
+    int pcount = 0;
+    int maxCount = 0; std::string bestStruct;
+    double bestE = INFINITY;
+
+    std::map<std::string,std::pair<int,double> >::iterator iter ;
+    for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
+    {
+      const std::string& ss = iter->first;
+      const std::pair<int,double>& pp = iter->second;
+    //  printf("%s\tp=%lf, e=%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
+      pcount += pp.first;
+      if (pp.first > maxCount)
+      {
+        maxCount = pp.first;
+        bestStruct  = ss;
+        bestE = pp.second;
+      }
+    }
+    assert(num_rnd == pcount);
+    printf("Most favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
 
 	  free_partition();
 	  free_fold(seq.length());
