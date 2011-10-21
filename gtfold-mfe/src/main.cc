@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
     {
       const std::string& ss = iter->first;
       const std::pair<int,double>& pp = iter->second;
-      //  printf("%s\tp=%lf, e=%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
+      printf("%s\t%lf\t%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
       pcount += pp.first;
       if (pp.first > maxCount)
       {
@@ -353,7 +353,7 @@ int main(int argc, char** argv) {
       }
     }
     assert(num_rnd == pcount);
-    printf("Most favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+    printf("\nMost favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
 
 	  free_partition();
 	  free_fold(seq.length());
