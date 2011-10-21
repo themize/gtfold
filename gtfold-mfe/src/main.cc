@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
     {
       const std::string& ss = iter->first;
       const std::pair<int,double>& pp = iter->second;
-    //  printf("%s\tp=%lf, e=%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
+      //  printf("%s\tp=%lf, e=%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
       pcount += pp.first;
       if (pp.first > maxCount)
       {
