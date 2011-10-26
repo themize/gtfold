@@ -296,14 +296,38 @@ int main(int argc, char** argv) {
   }
   if (RND_SAMPLE == true)
   {
-	  printf("\nComputing partition function...\n");
+	//below code is for comparison of scores of different sampled structures from different methods
+	int ctFileWriteOn=1;
+	int summaryWriteOn=1;
+        string summaryfile = "";
+        ofstream summaryoutfile;      
+	if(summaryWriteOn){//if(ctFileWriteOn){
+		summaryfile = "/home/users/msoni/Desktop/manoj_gatech/research/gtfold/git_code/gtfold/gtfold-mfe/src/stochaSampleSummery.txt";
+		summaryoutfile.open(summaryfile.c_str());
+	}
+
+	//below code is for comparison of BP probabilities 
+	int calcBpProb=1;
+         double** bpProb;
+         if(calcBpProb){
+                bpProb = new double*[seq.length()+1];
+                for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI){
+                        bpProb[bpIndI]=new double[seq.length()+1];
+                        for(int bpIndJ=1; bpIndJ<=seq.length(); ++bpIndJ){
+                                bpProb[bpIndI][bpIndJ]=0.0;
+                        }
+                }
+          }
+
+  
+	printf("\nComputing partition function...\n");
 	  int pf_count_mode = 0;
 	  if(PF_COUNT_MODE) pf_count_mode=1;
 	  calculate_partition(seq.length(),pf_count_mode);
 
-	  int* structure = new int[seq.length()+1];
+	  //int* structure = new int[seq.length()+1];
 	  srand(time(NULL));
-    std::map<std::string,std::pair<int,double> >  uniq_structs;
+	std::map<std::string,std::pair<int,double> >  uniq_structs;
 
 	  if (num_rnd > 0 ) {
 		  printf("\nSampling structures...\n");
@@ -321,44 +345,87 @@ int main(int argc, char** argv) {
 					  ensemble[structure[i]] = ')';
 				  }
 			  }
-        std::map<std::string,std::pair<int,double> >::iterator iter ;
-        if ((iter =uniq_structs.find(ensemble.substr(1))) != uniq_structs.end())
-        {
-          std::pair<int,double>& pp = iter->second;
-          pp.first++;
-        }
-        else {
-          uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
-        }
-			  //std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+			if(summaryWriteOn){
+				char abspath[1000];
+                        	getcwd(abspath, 1000);
+                       		std::stringstream ss;
+                        	ss<<abspath<<"/"<<seqfile<<"_"<<count<<".ct";
+                        	if(ctFileWriteOn) save_ct_file(ss.str(), seq, energy);
+                          	summaryoutfile<<ss.str()<<" "<<ensemble.substr(1)<<" "<<energy<< std::endl;
+			}
+
+        		std::map<std::string,std::pair<int,double> >::iterator iter ;
+        		if ((iter =uniq_structs.find(ensemble.substr(1))) != uniq_structs.end())
+        		{
+        			std::pair<int,double>& pp = iter->second;
+        			pp.first++;
+        		}
+        		else {
+        			uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
+        		}
+			//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 		  }
-	  }
-    
-    int pcount = 0;
-    int maxCount = 0; std::string bestStruct;
-    double bestE = INFINITY;
+	}
+	if(summaryWriteOn){
+        	printf("Saved Score Summary output in %s\n",summaryfile.c_str());
+		summaryoutfile.close();
+	}    
+	
+	int pcount = 0;
+	int maxCount = 0; std::string bestStruct;
+	double bestE = INFINITY;
 
-    std::map<std::string,std::pair<int,double> >::iterator iter ;
-    for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
-    {
-      const std::string& ss = iter->first;
-      const std::pair<int,double>& pp = iter->second;
-    //  printf("%s\tp=%lf, e=%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
-      pcount += pp.first;
-      if (pp.first > maxCount)
-      {
-        maxCount = pp.first;
-        bestStruct  = ss;
-        bestE = pp.second;
-      }
-    }
-    assert(num_rnd == pcount);
-    printf("Most favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+	std::map<std::string,std::pair<int,double> >::iterator iter ;
+	for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
+	{
+		const std::string& ss = iter->first;
+		const std::pair<int,double>& pp = iter->second;
+		//  printf("%s\tp=%lf, e=%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
+		pcount += pp.first;
+		if (pp.first > maxCount)
+		{
+			maxCount = pp.first;
+			bestStruct  = ss;
+			bestE = pp.second;
+		}
+	}
+	assert(num_rnd == pcount);
+	printf("Most favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+	
+	if(calcBpProb){
+        printf("\nComputing Base Pair Probability Comparison Data:\n");
+        for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI){
+                for(int bpIndJ=1; bpIndJ<=seq.length(); ++bpIndJ){
+                        bpProb[bpIndI][bpIndJ]/=num_rnd;
+                }
+        }
 
-	  free_partition();
-	  free_fold(seq.length());
-	  delete [] structure;
-	  exit(0);
+        double ** Q,  **QM, **QB, **P;
+        Q = mallocTwoD(seq.length() + 1, seq.length() + 1);
+        QM = mallocTwoD(seq.length() + 1, seq.length() + 1);
+        QB = mallocTwoD(seq.length() + 1, seq.length() + 1);
+        P = mallocTwoD(seq.length() + 1, seq.length() + 1);
+        fill_partition_fn_arrays(seq.length(), Q, QB, QM);
+        fillBasePairProbabilities(seq.length(), Q, QB, QM, P);
+
+        char abspath[1000];
+        getcwd(abspath, 1000);
+        std::stringstream bppss;
+        bppss<<abspath<<"/"<<seqfile<<"_"<<"bppComparison"<<".ct";
+        printBasePairProbabilitiesComparison(seq.length(), structure, P, bpProb, bppss.str().c_str());
+        printf("Saved BPP comparison output in %s\n",bppss.str().c_str());
+        freeTwoD(Q, seq.length() + 1, seq.length() + 1);
+        freeTwoD(QM, seq.length() + 1, seq.length() + 1);
+        freeTwoD(QB, seq.length() + 1, seq.length() + 1);
+        freeTwoD(P, seq.length() + 1, seq.length() + 1);
+        for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI)delete[] bpProb[bpIndI];
+        delete[] bpProb;
+	}
+
+	free_partition();
+	free_fold(seq.length());
+	//delete [] structure;
+	exit(0);
   }
 
 	printf("\nComputing minimum free energy structure...\n");
