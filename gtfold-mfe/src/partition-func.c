@@ -189,7 +189,7 @@ printf("\n\nAfter calculation, s3 matrix:\n\n");
 
 }
 
-void calculate_partition(int len, int pf_count_mode) 
+double calculate_partition(int len, int pf_count_mode) 
 {printf("RT=%f\n",RT);//RT=RT/100;
   PF_COUNT_MODE_ = pf_count_mode;
   //int i, j;
@@ -212,6 +212,8 @@ void calculate_partition(int len, int pf_count_mode)
   //printAllMatrixes();
 
   printf("%4.4f\n",u[1][part_len]);
+
+  return u[1][part_len];
 }
 
 void free_partition()

@@ -299,11 +299,12 @@ int main(int argc, char** argv) {
 	  printf("\nComputing partition function...\n");
 	  int pf_count_mode = 0;
 	  if(PF_COUNT_MODE) pf_count_mode=1;
-	  calculate_partition(seq.length(),pf_count_mode);
+	  double U = calculate_partition(seq.length(),pf_count_mode);
 
 	  int* structure = new int[seq.length()+1];
 	  srand(time(NULL));
     std::map<std::string,std::pair<int,double> >  uniq_structs;
+    std::map<double,int>  energy_freq;;
 
 	  if (num_rnd > 0 ) {
 		  printf("\nSampling structures...\n");
@@ -330,6 +331,15 @@ int main(int argc, char** argv) {
         else {
           uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
         }
+
+        std::map<double,int >::iterator iter1 ;
+        if ((iter1 = energy_freq.find(energy)) != energy_freq.end()) {
+          int& freq = iter1->second;
+          ++freq;
+        }
+        else {
+          energy_freq.insert(make_pair(energy,1)); 
+        }
 			  //std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 		  }
 	  }
@@ -343,7 +353,11 @@ int main(int argc, char** argv) {
     {
       const std::string& ss = iter->first;
       const std::pair<int,double>& pp = iter->second;
-      printf("%s\t%lf\t%lf\n",ss.c_str(),(double)pp.first/(double)num_rnd,pp.second);
+      const double& estimated_p =  (double)pp.first/(double)num_rnd;
+      const double& energy = pp.second;
+      double actual_p = pow(2.718281,-1.0*energy/RT_)/U;
+
+      printf("%s\t%lf\t%lf\t%lf\n",ss.c_str(),energy,actual_p,estimated_p);
       pcount += pp.first;
       if (pp.first > maxCount)
       {
@@ -354,6 +368,14 @@ int main(int argc, char** argv) {
     }
     assert(num_rnd == pcount);
     printf("\nMost favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+
+    std::map<double,int >::iterator iter1 ;
+    int eCount = 0;
+    for (iter1 = energy_freq.begin(); iter1 != energy_freq.end(); ++iter1) {
+       eCount += iter1->second;
+      //printf("%4.6f\t%0.6f\t%d\n",iter1->first,(double)iter1->second/(double)num_rnd,iter1->second);
+    }
+    assert(num_rnd == eCount);
 
 	  free_partition();
 	  free_fold(seq.length());
