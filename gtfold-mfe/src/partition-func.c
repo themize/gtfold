@@ -6,6 +6,7 @@
 #include "algorithms-partition.h"
 #include "global.h"
 #include "utils.h"
+#include "omp.h"
 double ** u;
 double ** up;
 double ** upm;
