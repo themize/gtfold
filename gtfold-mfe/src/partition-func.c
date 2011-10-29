@@ -158,7 +158,6 @@ void calculate_partition(int len, int pf_count_mode, int no_dangle_mode)
 {
 	PF_COUNT_MODE_ = pf_count_mode;
 	NO_DANGLE_MODE_ = no_dangle_mode;
-	int i, j;
 	part_len = len;
 	create_partition_arrays();
 	init_partition_arrays();
