@@ -17,6 +17,7 @@ double ** s3;
 double ** u1;
 int part_len;
 int PF_COUNT_MODE_;
+static int NO_DANGLE_MODE_=0;
 static void create_partition_arrays();
 static void init_partition_arrays();
 static void fill_partition_arrays();
@@ -92,10 +93,12 @@ double eL_new(int i, int j, int p, int q){
 	return eL(i,j,p,q);
 }
 double ED3_new(int i, int j, int k){
+	if(NO_DANGLE_MODE_) return 0;
 	if(PF_COUNT_MODE_) return 0;
 	return Ed5(j,i,k);
 }
 double ED5_new(int i, int j, int k){
+	if(NO_DANGLE_MODE_) return 0;
 	if(PF_COUNT_MODE_) return 0;
 	if (k<1) return 0;
 	return Ed3(j,i,k);
@@ -151,9 +154,10 @@ void printAllMatrixes(){
 	printf("\n\nAfter calculation, s3 matrix:\n\n");
 	printMatrix(s3,part_len);
 }
-void calculate_partition(int len, int pf_count_mode)
+void calculate_partition(int len, int pf_count_mode, int no_dangle_mode)
 {
 	PF_COUNT_MODE_ = pf_count_mode;
+	NO_DANGLE_MODE_ = no_dangle_mode;
 	int i, j;
 	part_len = len;
 	create_partition_arrays();

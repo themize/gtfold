@@ -289,7 +289,9 @@ int main(int argc, char** argv) {
     printf("\nComputing partition function...\n");
     int pf_count_mode = 0;
     if(PF_COUNT_MODE) pf_count_mode=1;
-    calculate_partition(seq.length(),pf_count_mode);
+    int no_dangle_mode=0;
+    if(NO_DANGLE_MODE) no_dangle_mode=1;
+    calculate_partition(seq.length(),pf_count_mode,no_dangle_mode);
     free_partition();
     free_fold(seq.length());
     exit(0);
@@ -297,7 +299,7 @@ int main(int argc, char** argv) {
   if (RND_SAMPLE == true)
   {
 	//below code is for comparison of scores of different sampled structures from different methods
-	int ctFileWriteOn=1;
+	int ctFileWriteOn=0;
 	int summaryWriteOn=1;
         string summaryfile = "";
         ofstream summaryoutfile;      
@@ -323,7 +325,9 @@ int main(int argc, char** argv) {
 	printf("\nComputing partition function...\n");
 	  int pf_count_mode = 0;
 	  if(PF_COUNT_MODE) pf_count_mode=1;
-	  calculate_partition(seq.length(),pf_count_mode);
+	  int no_dangle_mode=0;
+    	  if(NO_DANGLE_MODE) no_dangle_mode=1;
+	  calculate_partition(seq.length(),pf_count_mode,no_dangle_mode);
 
 	  //int* structure = new int[seq.length()+1];
 	  srand(time(NULL));
@@ -363,10 +367,18 @@ int main(int argc, char** argv) {
         		else {
         			uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
         		}
+
+                        if(calcBpProb){
+                                for(int struInd=1; struInd<=seq.length(); ++struInd){
+                                        if(structure[struInd]>0){bpProb[struInd][structure[struInd]]++;}
+                                }
+                        }
+
 			//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 		  }
 	}
 	if(summaryWriteOn){
+		if(ctFileWriteOn) printf("All sampled structure were dumped into corresponding ct files.\n");
         	printf("Saved Score Summary output in %s\n",summaryfile.c_str());
 		summaryoutfile.close();
 	}    
@@ -393,33 +405,35 @@ int main(int argc, char** argv) {
 	printf("Most favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
 	
 	if(calcBpProb){
-        printf("\nComputing Base Pair Probability Comparison Data:\n");
-        for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI){
-                for(int bpIndJ=1; bpIndJ<=seq.length(); ++bpIndJ){
-                        bpProb[bpIndI][bpIndJ]/=num_rnd;
-                }
-        }
+        	printf("\nComputing Base Pair Probability Comparison Data:\n");
+        	for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI){
+                	for(int bpIndJ=1; bpIndJ<=seq.length(); ++bpIndJ){
+                        	bpProb[bpIndI][bpIndJ]/=num_rnd;
+                	}
+        	}
 
-        double ** Q,  **QM, **QB, **P;
-        Q = mallocTwoD(seq.length() + 1, seq.length() + 1);
-        QM = mallocTwoD(seq.length() + 1, seq.length() + 1);
-        QB = mallocTwoD(seq.length() + 1, seq.length() + 1);
-        P = mallocTwoD(seq.length() + 1, seq.length() + 1);
-        fill_partition_fn_arrays(seq.length(), Q, QB, QM);
-        fillBasePairProbabilities(seq.length(), Q, QB, QM, P);
+        	double ** Q,  **QM, **QB, **P;
+	        Q = mallocTwoD(seq.length() + 1, seq.length() + 1);
+	        QM = mallocTwoD(seq.length() + 1, seq.length() + 1);
+	        QB = mallocTwoD(seq.length() + 1, seq.length() + 1);
+	        P = mallocTwoD(seq.length() + 1, seq.length() + 1);
+	        fill_partition_fn_arrays(seq.length(), Q, QB, QM);
+	        fillBasePairProbabilities(seq.length(), Q, QB, QM, P);
 
-        char abspath[1000];
-        getcwd(abspath, 1000);
-        std::stringstream bppss;
-        bppss<<abspath<<"/"<<seqfile<<"_"<<"bppComparison"<<".ct";
-        printBasePairProbabilitiesComparison(seq.length(), structure, P, bpProb, bppss.str().c_str());
-        printf("Saved BPP comparison output in %s\n",bppss.str().c_str());
-        freeTwoD(Q, seq.length() + 1, seq.length() + 1);
-        freeTwoD(QM, seq.length() + 1, seq.length() + 1);
-        freeTwoD(QB, seq.length() + 1, seq.length() + 1);
-        freeTwoD(P, seq.length() + 1, seq.length() + 1);
-        for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI)delete[] bpProb[bpIndI];
-        delete[] bpProb;
+        	char abspath[1000];
+	        getcwd(abspath, 1000);
+	        std::stringstream bppss;
+		printf("no dangle mode is %d\n", NO_DANGLE_MODE);
+	        if(NO_DANGLE_MODE) bppss<<abspath<<"/"<<seqfile<<"_"<<"bppComparisonNoDangle"<<".ct";
+		else bppss<<abspath<<"/"<<seqfile<<"_"<<"bppComparison"<<".ct";
+	        printBasePairProbabilitiesComparison(seq.length(), structure, P, bpProb, bppss.str().c_str());
+	        printf("Saved BPP comparison output in %s\n",bppss.str().c_str());
+	        freeTwoD(Q, seq.length() + 1, seq.length() + 1);
+	        freeTwoD(QM, seq.length() + 1, seq.length() + 1);
+	        freeTwoD(QB, seq.length() + 1, seq.length() + 1);
+	        freeTwoD(P, seq.length() + 1, seq.length() + 1);
+	        for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI)delete[] bpProb[bpIndI];
+	        delete[] bpProb;
 	}
 
 	free_partition();

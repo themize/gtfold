@@ -216,7 +216,7 @@ void printBasePairProbabilities(int n, int *structure, double **P, const char* o
 	fclose(outp);
 }
 
-void printBasePairProbabilitiesComparison(int n, int *structure, double **P1, double** P2, const char* outfile) {printf("here1\n");
+void printBasePairProbabilitiesComparison(int n, int *structure, double **P1, double** P2, const char* outfile) {
 	FILE* outp = fopen(outfile,"w");
 	if (outp == NULL) {
 		fprintf(stderr, "printBasePairProbabilitiesComparison() : Cannot open %s",outfile);
