@@ -301,10 +301,10 @@ int main(int argc, char** argv) {
     exit(0);
   }
   if (RND_SAMPLE == true)
-  {
+  { 
 	//below code is for comparison of scores of different sampled structures from different methods
 	int ctFileWriteOn=0;
-	int summaryWriteOn=1;
+	int summaryWriteOn=0;
         string summaryfile = "";
         ofstream summaryoutfile;      
 	if(summaryWriteOn){//if(ctFileWriteOn){
@@ -313,7 +313,7 @@ int main(int argc, char** argv) {
 	}
 
 	//below code is for comparison of BP probabilities 
-	int calcBpProb=1;
+	int calcBpProb=0;
          double** bpProb;
          if(calcBpProb){
                 bpProb = new double*[seq.length()+1];
@@ -331,8 +331,11 @@ int main(int argc, char** argv) {
 	  if(PF_COUNT_MODE) pf_count_mode=1;
 	  int no_dangle_mode=0;
     	  if(NO_DANGLE_MODE) no_dangle_mode=1;
+	t1 = get_seconds();
 	  calculate_partition(seq.length(),pf_count_mode,no_dangle_mode);
-
+	t1 = get_seconds() - t1;
+        printf("partition function computation running time: %9.6f seconds\n", t1);
+	t1 = get_seconds();
 	  //int* structure = new int[seq.length()+1];
 	  srand(time(NULL));
 	std::map<std::string,std::pair<int,double> >  uniq_structs;
@@ -407,7 +410,10 @@ int main(int argc, char** argv) {
 	}
 	assert(num_rnd == pcount);
 	printf("Most favourable structure is : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
-	
+
+	t1 = get_seconds() - t1;
+        printf("Stochastic traceback (samples=%d), running time: %9.6f seconds\n", num_rnd, t1);
+
 	if(calcBpProb){
         	printf("\nComputing Base Pair Probability Comparison Data:\n");
         	for(int bpIndI=1; bpIndI<=seq.length(); ++bpIndI){
@@ -443,6 +449,8 @@ int main(int argc, char** argv) {
 	free_partition();
 	free_fold(seq.length());
 	//delete [] structure;
+	//t1 = get_seconds() - t1;
+	//printf("Stochastic traceback (samples=%d) with partition function computation, running time: %9.6f seconds\n", num_rnd, t1);
 	exit(0);
   }
 
