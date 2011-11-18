@@ -83,5 +83,6 @@ void  rnd_ud(int i, int j, int* structure);
 void   rnd_u(int i, int j, int* structure);
 
 double rnd_structure(int* structure, int len);
+void batch_sample(int num_rnd, int length, double U);
 
 #endif
