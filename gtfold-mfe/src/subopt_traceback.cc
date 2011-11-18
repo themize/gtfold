@@ -139,13 +139,13 @@ void process(ss_map_t& subopt_data, int len) {
 
                 if (ps.empty()) {
                         count++;
-                        //pair<ss_map_t::iterator, bool> ins_result;
-                        // ins_result = subopt_data.insert(std::make_pair<std::string,int>(ps.str,ps.ae_));
-                        //if (ins_result.second == false) {
-                          //printf("Duplicate Structure!!!");
-                         // exit(1);
-                        //}
-                        cout << ps.str << endl;
+                        pair<ss_map_t::iterator, bool> ins_result;
+                        ins_result = subopt_data.insert(std::make_pair<std::string,int>(ps.str,ps.ae_));
+                        if (ins_result.second == false) {
+                          printf("Duplicate Structure!!!");
+                          exit(1);
+                        }
+                        //cout << ps.str << endl;
                         continue;
                 }	
                 else {
