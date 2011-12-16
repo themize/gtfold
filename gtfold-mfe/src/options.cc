@@ -44,6 +44,8 @@ int contactDistance = -1;
 /**
  * Print the help message and quit.
  */
+
+/*
 void help() {
     printf("Usage: gtfold [OPTION]... FILE\n\n");
 
@@ -92,10 +94,12 @@ void help() {
     printf("\tAll other values for INT are ignored.\n");
     exit(-1);
 }
+*/
 
 /**
  * Parse the options from argc and argv and save them into global state.
  */
+/*
 void parse_options(int argc, char** argv) {
   int i;
 
@@ -252,12 +256,13 @@ void parse_options(int argc, char** argv) {
   bppOutFile += outputPrefix;	
   bppOutFile += "_bpp.txt";	
 }
-
+*/
 /**
  * Prints the run configuration for this run.
  *
  * The lines that start with a '-' are normal options, the '+' are beta options.
  */
+/*
 void printRunConfiguration(string seq) {
 	bool standardRun = true;
 
@@ -320,3 +325,4 @@ void printRunConfiguration(string seq) {
 	printf("- sequence length: %d\n", (int)seq.length());
 	printf("- output file: %s\n", outputFile.c_str());
 }
+*/

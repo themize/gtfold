@@ -682,7 +682,7 @@ void batch_sample(int num_rnd, int length, double U)
 	  
     if (num_rnd > 0 ) {
       printf("\nSampling structures...\n");
-      int count,nsamples =0;
+      int count; //nsamples =0;
       for (count = 1; count <= num_rnd; ++count) 
       {
         memset(structure, 0, (length+1)*sizeof(int));
@@ -713,7 +713,7 @@ void batch_sample(int num_rnd, int length, double U)
         
         // std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
       }
-      std::cout << nsamples << std::endl;
+      //std::cout << nsamples << std::endl;
       int pcount = 0;
       int maxCount = 0; std::string bestStruct;
       double bestE = INFINITY;
