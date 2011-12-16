@@ -1,8 +1,14 @@
 #!/bin/sh
+if [ $# != 1 ]
+then
+echo "Usage: sh createsymlinks.sh <INSTALLDIR>"
+exit -1
+fi
 
-BINDIR=/home/users/pgaurav/git-hub/gtfold_final/bin
+BINDIR=$1 
 echo 'creating symlinks under' $BINDIR
-ln -sf gtfold $BINDIR/gtmfe
-ln -sf gtfold $BINDIR/gtsubopt
-ln -sf gtfold $BINDIR/gtboltzmann
+cd $BINDIR
+ln -sf gtfold gtmfe
+ln -sf gtfold gtsubopt
+ln -sf gtfold gtboltzmann
 
