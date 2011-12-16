@@ -21,6 +21,8 @@ static bool PF_COUNT_MODE = false;
 static bool BPP_ENABLED = false;
 static bool PARAM_DIR = false;
 static bool RND_SAMPLE = false;
+static bool CALC_PF_DO = false;
+static bool CALC_PF_DS = false;
 
 static string seqfile = "";
 static string outputPrefix = "";
@@ -37,9 +39,13 @@ static void help() {
 
     printf("OPTIONS\n");
  
-    printf("   --partition          Calculate the partition function.\n");
+    printf("   --partition          Calculate the partition function (default is using sfold reccurences).\n");
+    printf("   --partition -dS      Calculate the partition function using sfold reccurences.\n");
+    printf("   --partition -d0      Calculate the partition function using -d0 reccurences.\n");
+    printf("   --partition -d2      Calculate the partition function using -d2 reccurences (Under implementation).\n");
+
     printf("   --sample   INT       Sample number of structures equal to INT\n");
-    printf("   --pf_count           Calculate the structure count using partition function and zero energy value.\n");
+    printf("   --pfcount           Calculate the structure count using partition function and zero energy value.\n");
     printf("   --bpp                Calculate base pair probabilities.\n");
     printf("\n");
     printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
@@ -80,7 +86,14 @@ static void parse_options(int argc, char** argv) {
       }
       else if (strcmp(argv[i],"--partition") == 0) {
         CALC_PART_FUNC = true;
-      } else if (strcmp(argv[i],"--pf_count") == 0) {
+      } else if (strcmp(argv[i],"-dS") == 0) {
+        CALC_PF_DS = true;  
+      } else if (strcmp(argv[i],"-d0") == 0) {
+        CALC_PF_DO = true;  
+      } else if (strcmp(argv[i],"-d2") == 0) {
+        help();
+      }
+      else if (strcmp(argv[i],"--pfcount") == 0) {
         CALC_PART_FUNC = true;
         PF_COUNT_MODE = true;
       }  else if (strcmp(argv[i],"--sample") == 0) {
@@ -147,11 +160,27 @@ int boltzmann_main(int argc, char** argv) {
 
   readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, 0, 0, 0);
 
-	calculate(seq.length()) ; 
-	trace(seq.length());
-  
-  if (CALC_PART_FUNC == true)
-  {
+  if (CALC_PART_FUNC == true && CALC_PF_DS == true) {
+    printf("\nComputing partition function in -dS mode ...\n");
+    calculate_partition(seq.length(),0);
+    free_partition();
+  } 
+  else if (CALC_PART_FUNC == true && CALC_PF_DO == true) {
+    printf("\nCalculating partition function in -d0 mode ...\n");
+    double ** Q,  **QM, **QB, **P;
+    Q = mallocTwoD(seq.length() + 1, seq.length() + 1);
+    QM = mallocTwoD(seq.length() + 1, seq.length() + 1);
+    QB = mallocTwoD(seq.length() + 1, seq.length() + 1);
+    P = mallocTwoD(seq.length() + 1, seq.length() + 1);
+
+
+    fill_partition_fn_arrays(seq.length(), Q, QB, QM);
+    freeTwoD(Q, seq.length() + 1, seq.length() + 1);
+    freeTwoD(QM, seq.length() + 1, seq.length() + 1);
+    freeTwoD(QB, seq.length() + 1, seq.length() + 1);
+    freeTwoD(P, seq.length() + 1, seq.length() + 1);
+  }
+  else if (CALC_PART_FUNC == true) {
     printf("\nComputing partition function...\n");
     int pf_count_mode = 0;
     if(PF_COUNT_MODE) pf_count_mode=1;
@@ -167,8 +196,7 @@ int boltzmann_main(int argc, char** argv) {
     batch_sample(num_rnd, seq.length(), U); 
 
     free_partition();
-  }
-  else if(BPP_ENABLED){
+  } else if(BPP_ENABLED) {
     printf("\n");
     printf("Calculating partition function\n");
     double ** Q,  **QM, **QB, **P;
