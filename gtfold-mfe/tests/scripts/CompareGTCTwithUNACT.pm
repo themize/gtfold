@@ -46,7 +46,7 @@ sub test()
     };
     my $exception;
     if ($exception = Exception::Class->caught('CompareCTException')) {
-      $logger->error("Test Failed: $seqname: $exception\n");
+      $logger->error("TEST FAILED: $seqname: $exception\n");
       next;
     }
 

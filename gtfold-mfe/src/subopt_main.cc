@@ -69,7 +69,10 @@ void parse_options(int argc, char** argv) {
           suboptDelta = atof(argv[++i]);
         else
           help();
-      } 
+      }
+      else if(strcmp(argv[i], "-o") == 0) {
+		outputPrefix.assign(argv[++i]);
+	  }
     } else {
       seqfile = argv[i];
     }
@@ -109,7 +112,7 @@ void parse_options(int argc, char** argv) {
   suboptFile += outputPrefix;	
   suboptFile += "_ss.txt";	
 
-
+	printf("Output: %s %s %s\n", outputPrefix.c_str(), outputFile.c_str(), suboptFile.c_str());
 }
 
 static void help() {
