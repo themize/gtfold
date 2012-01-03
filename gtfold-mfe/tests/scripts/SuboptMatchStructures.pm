@@ -54,7 +54,7 @@ sub test()
       my $rnafile = $rnaout.$energy."_ss.txt";
   	  my $gtcmd;
       my $rnacmd;
-      $gtcmd  = "$gtdir/gtfold --subopt $energy $seqfile -o $gtfile > /dev/null 2>&1";
+      $gtcmd  = "$gtdir/gtsubopt --subopt $energy $seqfile -o $gtfile > /dev/null 2>&1";
       $rnacmd  = "$rnadir/RNAsubopt -s DAT -e $energy < $seqfile > $rnafile";
 
 	    system("$gtcmd");
@@ -63,11 +63,11 @@ sub test()
       my $gtsubopt_file = $gtfile."_ss.txt";
       my $rnasubopt_file = $rnafile;
 
-      my $gtsorted = $gtsubopt_file."_sorted";
-      my $rnasubopt_sorted = $rnafile."_sorted";
       my $gtstructs = `cat $gtsubopt_file | sed '/[A-Z]/d' | sed '/^\$/d'`;
       my $rnastructs = `cat $rnasubopt_file | sed '/[A-Z]/d' | sed '/^\$/d'`;
 
+      print $gtsubopt_file."\n";
+      print $gtstructs;
       %gtstruct_hash = split('[ \n]',$gtstructs);
       %rnastruct_hash = split('[ \n]',$rnastructs);
 

@@ -138,7 +138,7 @@ void subopt_main(int argc, char** argv) {
     exit(-1);
   }
   init_fold(seq.c_str());
-  
+  g_dangles = 2;  
   readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, 0, 1, 0);
 
 	int energy = calculate(seq.length()) ; 

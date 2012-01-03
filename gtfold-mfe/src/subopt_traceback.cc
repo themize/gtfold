@@ -233,7 +233,7 @@ void traceV(int i, int j, ps_t& ps, ps_stack_t& gstack) {
           int kenergy_total = kenergy1 + kenergy2;
           if (i == 4 && j == 41) {
             //printf("ps: ");
-            ps.print();
+//            ps.print();
             //printf("\n");
           }
           //printf("FM[%d][%d]: %d FM1[%d][%d]: %d\n", i+1, k, FM[i+1][k], k+1, j-1, FM1[k+1][j-1]);
