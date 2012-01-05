@@ -8,10 +8,11 @@
 
 using namespace std;
 
-extern bool ILSA;
-extern bool NOISOLATE;
+//extern bool ILSA;
+//extern bool NOISOLATE;
 //extern bool USERDATA;
 //extern bool PARAMS;
+/*
 extern bool LIMIT_DISTANCE;
 extern bool BPP_ENABLED;
 extern bool SUBOPT_ENABLED;
@@ -46,11 +47,11 @@ extern int num_rnd;
 
 extern bool LIMIT_DISTANCE;
 extern int contactDistance;
+*/
 
-
-void help();
-void parse_options(int argc, char** argv);
-void printRunConfiguration(string seq);
+//void help();
+//void parse_options(int argc, char** argv);
+//void printRunConfiguration(string seq);
 
 
 #endif

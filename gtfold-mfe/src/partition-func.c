@@ -7,6 +7,9 @@
 #include "global.h"
 #include "utils.h"
 #include "omp.h"
+#include <assert.h>
+//#include "options.h"
+
 double ** u;
 double ** up;
 double ** upm;
@@ -51,7 +54,7 @@ static void set_s1(int i, int j, double val);
 static void set_s2(int i, int j, double val);
 static void set_s3(int i, int j, double val);
 void errorAndExit(char* msg, int i, int j, double oldVal, double newVal){
-	printf("%s\n", msg);
+	printf("%s", msg);
 	printf("i=%d,j=%d,oldVal=%0.1f,newVal=%0.1f\n",i,j,oldVal,newVal);
 	printf("%s","\nprogram is exiting now due to above error\n");
 	exit(-1);
@@ -94,14 +97,19 @@ double eL_new(int i, int j, int p, int q){
 	return eL(i,j,p,q);
 }
 double ED3_new(int i, int j, int k){
-	if(NO_DANGLE_MODE_) return 0;
-	if(PF_COUNT_MODE_) return 0;
-	return Ed5(j,i,k);
+  if(PF_COUNT_MODE_) return 0;
+  //if (j-i > TURN && canPair(RNA[i],RNA[j])) {
+  //  assert(Ed5(j,i,k)<0.1);
+  //}
+  return Ed5(j,i,k);
 }
 double ED5_new(int i, int j, int k){
-	if(NO_DANGLE_MODE_) return 0;
-	if(PF_COUNT_MODE_) return 0;
-	if (k<1) return 0;
+  if(PF_COUNT_MODE_) return 0;
+  if (k<1) return 0; 
+  
+  //if (j-i > TURN && canPair(RNA[i],RNA[j])) {
+  //  assert(Ed3(j,i,k)<0.1);
+  //}
 	return Ed3(j,i,k);
 }
 double EA_new(){
@@ -109,12 +117,12 @@ double EA_new(){
 	return Ea;
 }
 double EB_new(){
-	if(PF_COUNT_MODE_) return 0;
-	return Ec;
+        if(PF_COUNT_MODE_) return 0;
+        return Ec;
 }
 double EC_new(){
-	if(PF_COUNT_MODE_) return 0;
-	return Eb;
+        if(PF_COUNT_MODE_) return 0;
+        return Eb;
 }
 double auPenalty_new(int i, int j){
 	if(PF_COUNT_MODE_) return 0;
@@ -136,35 +144,54 @@ void printMatrix(double** u, int part_len){
 	}
 }
 void printAllMatrixes(){
-	printf("\n\nAfter calculation, u matrix:\n\n");
-	printMatrix(u,part_len);
-	printf("\n\nAfter calculation, ud matrix:\n\n");
-	printMatrix(ud,part_len);
-	printf("\n\nAfter calculation, up matrix:\n\n");
-	printMatrix(up,part_len);
-	printf("\n\nAfter calculation, upm matrix:\n\n");
-	printMatrix(upm,part_len);
-	printf("\n\nAfter calculation, u1 matrix:\n\n");
-	printMatrix(u1,part_len);
-	printf("\n\nAfter calculation, u1d matrix:\n\n");
-	printMatrix(u1d,part_len);
-	printf("\n\nAfter calculation, s1 matrix:\n\n");
-	printMatrix(s1,part_len);
-	printf("\n\nAfter calculation, s2 matrix:\n\n");
-	printMatrix(s2,part_len);
-	printf("\n\nAfter calculation, s3 matrix:\n\n");
-	printMatrix(s3,part_len);
+  printf("\n\nAfter calculation, u matrix:\n\n");
+  printMatrix(u,part_len);
+  printf("\n\nAfter calculation, ud matrix:\n\n");
+  printMatrix(ud,part_len);
+  printf("\n\nAfter calculation, up matrix:\n\n");
+  printMatrix(up,part_len);
+  printf("\n\nAfter calculation, upm matrix:\n\n");
+  printMatrix(upm,part_len);
+printf("\n\nAfter calculation, u1 matrix:\n\n");
+  printMatrix(u1,part_len);
+printf("\n\nAfter calculation, u1d matrix:\n\n");
+  printMatrix(u1d,part_len);
+printf("\n\nAfter calculation, s1 matrix:\n\n");
+  printMatrix(s1,part_len);
+printf("\n\nAfter calculation, s2 matrix:\n\n");
+  printMatrix(s2,part_len);
+printf("\n\nAfter calculation, s3 matrix:\n\n");
+  printMatrix(s3,part_len);
+
 }
-void calculate_partition(int len, int pf_count_mode, int no_dangle_mode)
-{
-	PF_COUNT_MODE_ = pf_count_mode;
-	NO_DANGLE_MODE_ = no_dangle_mode;
-	part_len = len;
-	create_partition_arrays();
-	init_partition_arrays();
-	fill_partition_arrays();
-	printf("%4.4f\n",u[1][part_len]);
+
+double calculate_partition(int len, int pf_count_mode) 
+{printf("RT=%f\n",RT);//RT=RT/100;
+  PF_COUNT_MODE_ = pf_count_mode;
+  //int i, j;
+  part_len = len;
+  create_partition_arrays();
+  init_partition_arrays();
+
+  /*printf("\nAfter initialization but before calculation, u matrix:\n\n");
+  for (i = 0; i <= part_len+1; ++i)
+  {
+    for (j = 0; j <= part_len+1; ++j)
+      printf("%0.1f ",u[i][j]);
+    printf("\n");
+  }
+
+  printf("%4.4f\n",u[1][part_len]);*/
+
+  fill_partition_arrays();
+
+  //printAllMatrixes();
+
+  printf("%4.4f\n",u[1][part_len]);
+
+  return u[1][part_len];
 }
+
 void free_partition()
 {
 	free_partition_arrays();
@@ -287,30 +314,33 @@ void calc_s1(int h, int j)
 void calc_s2(int h, int j)
 {
 	int l;
-	double s2_val = 0.0;
-	for (l = h+1; l < j; ++l)
+	double s2_val = 0.0;							
+	for (l = h+1; l < j; ++l)//ERROR
 	{
 		double v1 = (get_up(h,l)*(myExp(-(ED5_new(h,l,h-1)+auPenalty_new(h,l))/RT)));
 		double v2 = (myExp(-(ED3_new(h,l,l+1)+EB_new())/RT)*get_u1(l+2,j-1));
 		double v3 = get_u1d(l+1,j-1);
 		double val = v1*(v2+v3);
-		s2_val += val;
+    s2_val += val;//Error: Eb is added
 	}
 	set_s2(h, j, s2_val);
 }
 void calc_s3(int h, int j)
-{int l;
-	double s3_val = 0.0;
-	for (l = h+1; l <= j && l+2<=part_len; ++l){
-		double v1 = (get_up(h,l)*(myExp(-(ED5_new(h,l,h-1)+auPenalty_new(h,l))/RT)));
-		double v2 = (f(j+1,h,l)*myExp(-((j-l)*EB_new())/RT));
-		double v3 = (myExp(-(ED3_new(h,l,l+1)+EB_new())/RT)*get_u1(l+2,j));
-		double v4 = get_u1d(l+1,j);
-		double val = v1*(v2+v3+v4);
-		s3_val += val;
-	}
-	set_s3(h, j, s3_val);
+{
+  int l;		
+	double s3_val = 0.0;					
+  for (l = h+1; l <= j && l+2<=part_len; ++l)//ERROR in for loop variable l
+  {
+    double v1 = (get_up(h,l)*(myExp(-(ED5_new(h,l,h-1)+auPenalty_new(h,l))/RT)));
+    double v2 = (f(j+1,h,l)*myExp(-((j-l)*EB_new())/RT));
+    double v3 = (myExp(-(ED3_new(h,l,l+1)+EB_new())/RT)*get_u1(l+2,j));
+    double v4 = get_u1d(l+1,j);
+    double val = v1*(v2+v3+v4);
+    s3_val += val;
+  }
+ set_s3(h, j, s3_val);//s3[h][j] = s3_val;
 }
+
 void create_partition_arrays()
 {
 	int len = part_len + 2;
@@ -344,33 +374,74 @@ void calc_upm(int i, int j){
 	double p_val = 0;
 	int l,h;
 	double quadraticSum = 0;
-	if (canPair(RNA[i],RNA[j]))
-	{
-		for(l=i+2; l<j; ++l){
-			double v1 = (get_up(i+1,l) * myExp((-1)*(a+2*c+auPenalty_new(i+1,l))/RT));
-			double v2 = (myExp((-1)*(ED3_new(i+1,l,l+1)+b)/RT) * get_u1(l+2,j-1));
-			double v3 = get_u1d(l+1,j-1);
-			p_val = p_val + (v1*(v2+v3));
-		}
-		for(l=i+3; l<j; ++l){
-			double v1 = (get_up(i+2,l)*myExp((-1)*(a+2*c+b+ED3_new(j,i,i+1)+auPenalty_new(i+2,l))/RT));
-			double v2 = (myExp((-1)*(ED3_new(i+2,l,l+1)+b)/RT)*get_u1(l+2,j-1));
-			double v3 = get_u1d(l+1,j-1);
-			p_val = p_val + (v1*(v2+v3));
-		}
-		for(h=i+3; h<j-1; ++h){
-			quadraticSum += (get_s2(h,j) * myExp((-1)*(a+2*c+(h-i-1)*b)/RT));
-		}
-		quadraticSum *= (myExp((-1)*ED3_new(j,i,i+1)/RT));
-		p_val += quadraticSum;
-		set_upm(i, j, p_val);  }
-	else {
-		set_upm(i, j, 0.0);  }
+  if (canPair(RNA[i],RNA[j]) && j-i > TURN)
+  {
+   for(l=i+2; l<j; ++l){
+      p_val += (up[i+1][l] * myExp((-1)*(a+2*c+auPenalty_new(i+1,l))/RT) * 
+          (myExp((-1)*(ED3_new(i+1,l,l+1)+b)/RT) * u1[l+2][j-1] + u1d[l+1][j-1]));
+    }
+
+    for(l=i+3; l<j; ++l){
+      p_val += (up[i+2][l]*myExp((-1)*(a+2*c+b+ED3_new(i,j,i+1)+auPenalty_new(i+2,l))/RT) * 
+          (myExp((-1)*(ED3_new(i+2,l,l+1)+b)/RT)*u1[l+2][j-1] + u1d[l+1][j-1]));
+    }
+
+    for(h=i+3; h<j-1; ++h){
+      quadraticSum += (s2[h][j] * myExp((-1)*(a+2*c+(h-i-1)*b)/RT));	
+    }
+    quadraticSum *= myExp((-1)*ED3_new(i,j,i+1)/RT);
+
+    p_val += quadraticSum;
+    upm[i][j] = p_val;
+  }
+  else {
+    upm[i][j] = 0;   
+  }
+}*/
+
+void calc_upm(int i, int j){//printf("Entering calc_upm: i=%d, j =%d\n",i,j);
+  double a = EA_new();
+  double b = EB_new();
+  double c = EC_new();
+  double p_val = 0;
+  int l,h;
+  double quadraticSum = 0;
+
+  if (canPair(RNA[i],RNA[j]))
+  {
+    for(l=i+2; l<j; ++l){
+      double v1 = (get_up(i+1,l) * myExp((-1)*(a+2*c+auPenalty_new(i+1,l))/RT));
+      double v2 = (myExp((-1)*(ED3_new(i+1,l,l+1)+b)/RT) * get_u1(l+2,j-1));
+      double v3 = get_u1d(l+1,j-1);
+      p_val = p_val + (v1*(v2+v3));
+    }
+
+    for(l=i+3; l<j; ++l){
+      double v1 = (get_up(i+2,l)*myExp((-1)*(a+2*c+b+ED3_new(j,i,i+1)+auPenalty_new(i+2,l))/RT));
+      double v2 = (myExp((-1)*(ED3_new(i+2,l,l+1)+b)/RT)*get_u1(l+2,j-1));
+      double v3 = get_u1d(l+1,j-1);
+      p_val = p_val + (v1*(v2+v3));
+    }
+
+    for(h=i+3; h<j-1; ++h){
+      quadraticSum += (get_s2(h,j) * myExp((-1)*(a+2*c+(h-i-1)*b)/RT));
+    }
+    quadraticSum *= (myExp((-1)*ED3_new(j,i,i+1)/RT));
+
+    p_val += quadraticSum;
+    set_upm(i, j, p_val);//upm[i][j] = p_val;
+  }
+  else {
+    set_upm(i, j, 0.0);//upm[i][j] = 0;
+  }
+  //printf("Exiting calc_upm: i=%d, j =%d, val=%.3f\n",i,j,upm[i][j]/up[i][j]);
 }
+
+
+/*
 void calc_u1(int i, int j){
-	double b = EB_new();
-	double c = EC_new();
-	double p_val = get_u1d(i,j);
+	double b=Eb, c=Ec;
+	double p_val = u1d[i][j];
 	int h;
 	double quadraticSum = 0;
 	for(h=i+1; h<j; ++h){
@@ -425,48 +496,62 @@ void calc_ud(int i, int j)
 	set_ud(i, j, udij);
 }
 void printUPprobabilities(int i, int j){
-	int h,l;
-	double maxIntLoopProb = 0.0;
-	int h_max=-1, l_max=-1;
-	double sumIntLoopProb=0.0;
-	for (h = i+1; h < j ; h++) {
-		for (l = h+1; l < j; l++) {
-			if (canPair(RNA[h],RNA[l])==0) continue;
-			if(h==(i+1) && l==(j-1)) continue;
-			double intLoopProb = (get_up(h,l) * myExp(-((double)eL_new(i,j,h,l))/RT))/up[i][j];
-			sumIntLoopProb+=intLoopProb;
-			if(intLoopProb > maxIntLoopProb){ maxIntLoopProb = intLoopProb; h_max=h; l_max=l;}
-		}
-	}
-	double hpProb = myExp(-((double)eH_new(i,j))/RT )/up[i][j];
-	double stackProb = (myExp(-((double)eS_new(i,j))/RT ) * get_up(i+1,j-1))/up[i][j];
-	double upmProb = get_upm(i,j)/up[i][j];
-	if(sumIntLoopProb>=hpProb && sumIntLoopProb>=stackProb && sumIntLoopProb >=upmProb) printf("INT ");
-	else if(hpProb>=sumIntLoopProb && hpProb>=stackProb && hpProb>=upmProb) printf("HPL ");
-	else if(stackProb>=hpProb && stackProb>=sumIntLoopProb && stackProb>=upmProb) printf("STK ");
-	else if(upmProb>=hpProb && upmProb>=stackProb && upmProb>=sumIntLoopProb) printf("UPM ");
-	printf("printing probabilities: i=%d, j=%d, upmProb=%.6f, stackProb=%.6f, hpProb=%.6f, maxIntLoopProb=%.6f,  sumIntLoopProbs=%.6f, h_max=%d, l_max=%d\n",i,j, upmProb, stackProb, hpProb, maxIntLoopProb,sumIntLoopProb,h_max,l_max);
+  int h,l;
+  double maxIntLoopProb = 0.0;
+  int h_max=-1, l_max=-1;
+  double sum=0.0;
+  for (h = i+1; h < j ; h++) {
+    for (l = h+1; l < j; l++) {
+      if (canPair(RNA[h],RNA[l])==0) continue;
+      if(h==(i+1) && l==(j-1)) continue;
+      //if((l-h)<=TURN) continue;
+      double intLoopProb = (get_up(h,l) * myExp(-((double)eL_new(i,j,h,l))/RT))/up[i][j];
+      sum+=intLoopProb;
+      if(intLoopProb > maxIntLoopProb){ maxIntLoopProb = intLoopProb; h_max=h; l_max=l;}
+    }
+  }
+
+  //ERROR below line should not be there
+  //up_val = up_val * myExp(-ED3_new(i,j,i+1)/RT);
+  double hpProb = myExp(-((double)eH_new(i,j))/RT )/up[i][j];
+  double stackProb = (myExp(-((double)eS_new(i,j))/RT ) * get_up(i+1,j-1))/up[i][j];
+  double upmProb = get_upm(i,j)/up[i][j];
+
+  if(maxIntLoopProb>=hpProb && maxIntLoopProb>=stackProb && maxIntLoopProb >=upmProb) printf("INT ");
+  else if(hpProb>=maxIntLoopProb && hpProb>=stackProb && hpProb>=upmProb) printf("HPL ");
+  else if(stackProb>=hpProb && stackProb>=maxIntLoopProb && stackProb>=upmProb) printf("STK ");
+  else if(upmProb>=hpProb && upmProb>=stackProb && upmProb>=maxIntLoopProb) printf("UPM ");
+
+  printf("printing probabilities: i=%d, j =%d, upmProb=%.6f, stackProb=%.6f, hpProb=%.6f, maxIntLoopProb=%.6f,  sumIntLoopProbs=%.6f, h_max=%d, l_max=%d\n",i,j, upmProb, stackProb, hpProb, maxIntLoopProb,sum,h_max,l_max);
+
 }
+
 void calc_up(int i, int j)
-{
-	double up_val = 0.0;
-	if (canPair(RNA[i],RNA[j]))
-	{
-		int h,l;
-		for (h = i+1; h < j ; h++) {
-			for (l = h+1; l < j; l++) {
-				if (canPair(RNA[h],RNA[l])==0) continue;
-				if(h==(i+1) && l==(j-1)) continue;
-				up_val += (get_up(h,l) * myExp(-((double)eL_new(i,j,h,l))/RT));
-			}
-		}
-		up_val = up_val + myExp(-((double)eH_new(i,j))/RT );
-		up_val = up_val + (myExp(-((double)eS_new(i,j))/RT ) * get_up(i+1,j-1));
-		up_val = up_val + get_upm(i,j);
-		set_up(i, j, up_val);
-		//printUPprobabilities(i,j);
-	}
-	else  {
-		set_up(i, j, 0.0);
-	}
+{//printf("Entering calc_up: i=%d, j =%d\n",i,j);
+  double up_val = 0.0;
+  //int p,q;
+
+  if (canPair(RNA[i],RNA[j]))// if(j-i>TURN)
+  {
+    int h,l;
+    for (h = i+1; h < j ; h++) {
+      for (l = h+1; l < j; l++) {
+        if (canPair(RNA[h],RNA[l])==0) continue;
+        if(h==(i+1) && l==(j-1)) continue;
+        up_val += (get_up(h,l) * myExp(-((double)eL_new(i,j,h,l))/RT));
+      }
+    }
+
+    //ERROR below line should not be there
+    //up_val = up_val * myExp(-ED3_new(i,j,i+1)/RT);
+    up_val = up_val + myExp(-((double)eH_new(i,j))/RT );
+    up_val = up_val + (myExp(-((double)eS_new(i,j))/RT ) * get_up(i+1,j-1));
+    up_val = up_val + get_upm(i,j);
+
+    set_up(i, j, up_val);//up[i][j] = up_val;
+
+  }
+  else  {
+    set_up(i, j, 0.0);//up[i][j] = 0;
+  }
 }

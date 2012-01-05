@@ -3,7 +3,10 @@
 #include "global.h"
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stack>
+#include <map>
 
 int ss_verbose = 0; 
 
@@ -201,8 +204,6 @@ void rnd_u(int i, int j, int* structure)
   cum_prob += U_0(i,j);
   if (rnd < cum_prob)
   {
-    //set_single_stranded(i,j, structure);
-    //energy += 0;
     return;
   }
   
@@ -260,7 +261,6 @@ void rnd_u(int i, int j, int* structure)
     cum_prob += U_ihlj_case1(i,h1,l,j);
     if (rnd < cum_prob)
     {
-      //set_single_stranded(i,h1-1,structure);
       energy += (ED5_new(h1,l,h1-1)+ auPenalty_new(h1,l) + ED3_new(h1,l,l+1));
       if (ss_verbose == 1) 
         printf("(%d %d) %lf\n",i,j,(ED5_new(h1,l,h1-1)+ auPenalty_new(h1,l) + ED3_new(h1,l,l+1)) /100.0);
@@ -277,7 +277,7 @@ void rnd_u(int i, int j, int* structure)
       energy += (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l));
       if (ss_verbose == 1) 
         printf("(%d %d) %lf\n",i,j,(ED5_new(h1,l,h1-1)+auPenalty_new(h1,l))/100.0);
-      //set_single_stranded(i,h1-1,structure);
+      
       base_pair bp1(h1,l,UP);
       base_pair bp2(l+1,j,UD);
       g_stack.push(bp1);
@@ -428,7 +428,7 @@ void rnd_u1(int i, int j, int* structure)
     {
       energy += (EC_new()+(h-i)*EB_new());
       if (ss_verbose == 1) 
-        printf("U1_ij_s3h(%d %d) %lf\n",i,j, (EC_new()+(h-i)*EB_new())/100.0);
+        printf("U1_ij_s3h(%d) %lf\n",h, (EC_new()+(h-i)*EB_new())/100.0);
       h1 = h;
       break;
     }
@@ -446,7 +446,7 @@ void rnd_u1(int i, int j, int* structure)
       int tt =  (j == l)?0:ED3_new(h1,l,l+1);
       energy += (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l) + tt + (j-l)*EB_new());
       if (ss_verbose == 1) 
-        printf("U1_j_hl_case1(%d %d) %lf\n",i,j, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l) + tt + (j-l)*EB_new())/100.0);
+        printf("U1_j_hl_case1(%d %d) %lf\n",h1,l, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l) + tt + (j-l)*EB_new())/100.0);
       base_pair bp(h1,l,UP);
       g_stack.push(bp);
       return;
@@ -457,7 +457,7 @@ void rnd_u1(int i, int j, int* structure)
     {
       energy += (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l)+ ED3_new(h1,l,l+1)+EB_new());
       if (ss_verbose == 1) 
-        printf("U1_j_hl_case2(%d %d) %lf\n",i,j, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l)+ ED3_new(h1,l,l+1)+EB_new())/100.0);
+        printf("U1_j_hl_case2(%d %d) %lf\n",h1,l, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l)+ ED3_new(h1,l,l+1)+EB_new())/100.0);
       base_pair bp1(h1,l,UP);
       base_pair bp2(l+2,j,U1);
       g_stack.push(bp1);
@@ -470,7 +470,7 @@ void rnd_u1(int i, int j, int* structure)
     {
       energy += ED5_new(h1,l,h1-1)+auPenalty_new(h1,l);
       if (ss_verbose == 1) 
-        printf("U1_j_hl_case3(%d %d) %lf\n",i,j, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l))/100.0);
+        printf("U1_j_hl_case3(%d %d) %lf\n",h1,l, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l))/100.0);
       base_pair bp1(h1,l,UP);
       base_pair bp2(l+1,j,U1D);
       g_stack.push(bp1);
@@ -492,12 +492,12 @@ void rnd_u1d(int i, int j, int* structure)
     cum_prob += U1D_ij_il_case1(i,l,j);
     if (rnd < cum_prob)
     {
-      int tt = (j==l)?(0):(ED5_new(i,l,l+1));
+      int tt = (j==l)?(0):(ED3_new(i,l,l+1));
       energy += ( EC_new()+auPenalty_new(i,l) + tt + (j-l)*EB_new());
-      if (ss_verbose == 1) 
-        printf("U1D_ij_il_case1(%d %d) %lf\n",i,j, ( EC_new()+auPenalty_new(i,l) + tt + (j-l)*EB_new())/100.0);
+      if (ss_verbose == 1) {
+        printf("U1D_ij_il_case1(%d %d %d) %lf\n",i,l,j, ( EC_new()+auPenalty_new(i,l) + tt + (j-l)*EB_new())/100.0);
+      }
       base_pair bp1(i,l,UP);
-      //set_single_stranded(l+1,j,structure);
       g_stack.push(bp1);
       return;
     }
@@ -507,7 +507,7 @@ void rnd_u1d(int i, int j, int* structure)
     {
       energy += (EC_new()+auPenalty_new(i,l)+ ED3_new(i,l,l+1)+EB_new());
       if (ss_verbose == 1) 
-        printf("U1D_ij_il_case2(%d %d) %lf\n",i,j, (EC_new()+auPenalty_new(i,l)+ ED3_new(i,l,l+1)+EB_new())/100.0);
+        printf("U1D_ij_il_case2(%d %d) %lf\n",i,l, (EC_new()+auPenalty_new(i,l)+ ED3_new(i,l,l+1)+EB_new())/100.0);
       base_pair bp1(i,l,UP);
       base_pair bp2(l+2,j,U1);
       g_stack.push(bp1);
@@ -520,7 +520,7 @@ void rnd_u1d(int i, int j, int* structure)
     {
       energy += (EC_new()+auPenalty_new(i,l));
       if (ss_verbose == 1) 
-        printf("U1D_ij_il_case3(%d %d) %lf\n",i,j, (EC_new()+auPenalty_new(i,l))/100.0);
+        printf("U1D_ij_il_case3(%d %d) %lf\n",i,l, (EC_new()+auPenalty_new(i,l))/100.0);
       base_pair bp1(i,l,UP);
       base_pair bp2(l+1,j,U1D);
       g_stack.push(bp1);
@@ -528,7 +528,6 @@ void rnd_u1d(int i, int j, int* structure)
       return;
     }
   }
-
   assert(0);
 }
 
@@ -537,7 +536,7 @@ void rnd_upm(int i, int j, int* structure)
   double rnd = randdouble();
   double cum_prob = 0;
   if (ss_verbose == 1)
-    printf("Multiloop(%d %d)\n",i,j);
+    printf("Multiloop (%d %d)\n",i,j);
 
   for (int l = i+2; l < j; ++l) 
   {
@@ -545,8 +544,9 @@ void rnd_upm(int i, int j, int* structure)
     if (rnd < cum_prob)
     {
       energy += (EA_new()+2*EC_new()+auPenalty_new(i+1,l) + ED3_new(i+1,l,l+1)+EB_new()) ;
-      if (ss_verbose == 1) 
+      if (ss_verbose == 1) {
         printf("(%d %d) %s %lf\n",i,j, "UPM_ip1l_case1",(EA_new()+2*EC_new()+auPenalty_new(i+1,l) + ED3_new(i+1,l,l+1)+EB_new())/100.0);
+      }
       base_pair bp1(i+1,l,UP);
       base_pair bp2(l+2,j-1,U1);
       g_stack.push(bp2);
@@ -603,9 +603,10 @@ void rnd_upm(int i, int j, int* structure)
     if (rnd < cum_prob )
     {
       energy += (ED3_new(j,i,i+1)+ EA_new()+2*EC_new()+(h-i-1)*EB_new());
-      if (ss_verbose == 1) 
-       printf("%s(%d %d) %lf\n", "UPM_ijs2h",i,j,(ED3_new(j,i,i+1)+ EA_new()+2*EC_new()+(h-i-1)*EB_new())/100.0);
       h1 = h;
+      if (ss_verbose == 1) {
+       printf("%s(%d) %lf\n", "UPM_ijs2h",h1,(ED3_new(j,i,i+1)+ EA_new()+2*EC_new()+(h-i-1)*EB_new())/100.0);
+      }
       break;
     }
   }
@@ -620,7 +621,7 @@ void rnd_upm(int i, int j, int* structure)
     {
         energy += (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l) + ED3_new(h1,l,l+1));
         if (ss_verbose == 1) 
-          printf("%s(%d %d) %lf\n","UPM_ijhl_case1",i,j, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l) + ED3_new(h1,l,l+1))/100.0);
+          printf("%s(%d %d) %lf\n","UPM_ijhl_case1",h1,l, (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l) + ED3_new(h1,l,l+1))/100.0);
         base_pair bp1(h1,l,UP);
         base_pair bp2(l+2,j-1,U1);
         g_stack.push(bp1);
@@ -633,7 +634,7 @@ void rnd_upm(int i, int j, int* structure)
     {
         energy += (ED5_new(h1,l,h1-1)+auPenalty_new(h1,l));
         if (ss_verbose == 1) 
-          printf("%s(%d %d)  %lf\n", "UPM_ijhl_case2",i,j,(ED5_new(h1,l,h1-1)+auPenalty_new(h1,l))/100.0);
+          printf("%s(%d %d)  %lf\n", "UPM_ijhl_case2",h1,l,(ED5_new(h1,l,h1-1)+auPenalty_new(h1,l))/100.0);
         base_pair bp1(h1,l,UP);
         base_pair bp2(l+1,j-1,U1D);
         g_stack.push(bp1);
@@ -650,7 +651,7 @@ double rnd_structure(int* structure, int len)
   srand(rand());
   base_pair first(1,len,U);
   g_stack.push(first);
-  energy = 0;
+  energy = 0.0;
 
   while (!g_stack.empty())
   {
@@ -671,6 +672,76 @@ double rnd_structure(int* structure, int len)
     
   }
   return (double)energy/100.0;
+}
+
+void batch_sample(int num_rnd, int length, double U)
+{
+	  int* structure = new int[length+1];
+	  srand(time(NULL));
+    std::map<std::string,std::pair<int,double> >  uniq_structs;
+	  
+    if (num_rnd > 0 ) {
+      printf("\nSampling structures...\n");
+      int count; //nsamples =0;
+      for (count = 1; count <= num_rnd; ++count) 
+      {
+        memset(structure, 0, (length+1)*sizeof(int));
+        double energy = rnd_structure(structure, length);
+
+        std::string ensemble(length+1,'.');
+        for (int i = 1; i <= (int)length; ++ i) {
+          if (structure[i] > 0 && ensemble[i] == '.')
+          {
+            ensemble[i] = '(';
+            ensemble[structure[i]] = ')';
+          }
+        }
+        //double myEnegry = -88.4;
+        //++nsamples;
+        //if (fabs(energy-myEnegry)>0.0001) continue; //TODO: debug
+        //++count;
+
+        std::map<std::string,std::pair<int,double> >::iterator iter ;
+        if ((iter =uniq_structs.find(ensemble.substr(1))) != uniq_structs.end())
+        {
+          std::pair<int,double>& pp = iter->second;
+          pp.first++;
+        }
+        else {
+          uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
+        }
+        
+        // std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+      }
+      //std::cout << nsamples << std::endl;
+      int pcount = 0;
+      int maxCount = 0; std::string bestStruct;
+      double bestE = INFINITY;
+
+      std::map<std::string,std::pair<int,double> >::iterator iter ;
+      for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
+      {
+        const std::string& ss = iter->first;
+        const std::pair<int,double>& pp = iter->second;
+        const double& estimated_p =  (double)pp.first/(double)num_rnd;
+        const double& energy = pp.second;
+        double actual_p = pow(2.718281,-1.0*energy/RT_)/U;
+
+        printf("%s %lf %lf %lf %d\n",ss.c_str(),energy,actual_p,estimated_p,pp.first);
+        pcount += pp.first;
+        if (pp.first > maxCount)
+        {
+          maxCount = pp.first;
+          bestStruct  = ss;
+          bestE = pp.second;
+        }
+      }
+      assert(num_rnd == pcount);
+      printf("\nMax frequency structure : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+      
+    }
+
+	  delete [] structure;
 }
 
 void set_single_stranded(int i, int j, int* structure)
