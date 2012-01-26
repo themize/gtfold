@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <string>
 #include <cstring>
+//#include <sys/time.h>
+//#include <time.h>
 
 #include "global.h"
 #include "loader.h"
@@ -13,6 +15,7 @@
 #include "stochastic-sampling.h"
 #include "algorithms.h"
 #include "traceback.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -144,11 +147,16 @@ static void parse_options(int argc, char** argv) {
   bppOutFile += outputPrefix;	
   bppOutFile += "_bpp.txt";	
 }
-
+/*
+double get_seconds() {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        return (double) tv.tv_sec + (double) tv.tv_usec / 1000000.0;
+}*/
 
 int boltzmann_main(int argc, char** argv) {
   std::string seq;
-
+  double t1;
   parse_options(argc, argv);
 
   if (read_sequence_file(seqfile.c_str(), seq) == FAILURE) {
@@ -162,11 +170,17 @@ int boltzmann_main(int argc, char** argv) {
 
   if (CALC_PART_FUNC == true && CALC_PF_DS == true) {
     printf("\nComputing partition function in -dS mode ...\n");
-    calculate_partition(seq.length(),0);
+    t1 = get_seconds();
+    calculate_partition(seq.length(),0,0);
+    t1 = get_seconds() - t1;
+    printf("partition function computation running time: %9.6f seconds\n", t1);
+    //calculate_partition(seq.length(),0,0);
     free_partition();
   } 
   else if (CALC_PART_FUNC == true && CALC_PF_DO == true) {
     printf("\nCalculating partition function in -d0 mode ...\n");
+    /*
+    //Below method is not correct method for d0 mdoe partition function computation as discussed by Shel
     double ** Q,  **QM, **QB, **P;
     Q = mallocTwoD(seq.length() + 1, seq.length() + 1);
     QM = mallocTwoD(seq.length() + 1, seq.length() + 1);
@@ -179,19 +193,29 @@ int boltzmann_main(int argc, char** argv) {
     freeTwoD(QM, seq.length() + 1, seq.length() + 1);
     freeTwoD(QB, seq.length() + 1, seq.length() + 1);
     freeTwoD(P, seq.length() + 1, seq.length() + 1);
+*/
+     t1 = get_seconds();
+    calculate_partition(seq.length(),0,1);
+    t1 = get_seconds() - t1;
+    printf("partition function computation running time: %9.6f seconds\n", t1);
+    //calculate_partition(seq.length(),0,0);
+    free_partition();
+
   }
   else if (CALC_PART_FUNC == true) {
     printf("\nComputing partition function...\n");
     int pf_count_mode = 0;
     if(PF_COUNT_MODE) pf_count_mode=1;
-
-    calculate_partition(seq.length(),pf_count_mode);
+    t1 = get_seconds();
+    calculate_partition(seq.length(),pf_count_mode, 0);
+    t1 = get_seconds() - t1;
+    printf("partition function computation running time: %9.6f seconds\n", t1);
     free_partition();
   } else if (RND_SAMPLE == true) {
     printf("\nComputing partition function...\n");
 	  int pf_count_mode = 0;
 	  if(PF_COUNT_MODE) pf_count_mode=1;
-	  double U = calculate_partition(seq.length(),pf_count_mode);
+	  double U = calculate_partition(seq.length(),pf_count_mode,0);
  
     batch_sample(num_rnd, seq.length(), U); 
 
