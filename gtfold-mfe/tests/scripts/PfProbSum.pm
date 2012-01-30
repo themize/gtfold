@@ -48,13 +48,13 @@ sub test()
 	  $subopt_output =~ s/-.*//g;
 
       my @structures = split(/\n/,$subopt_output);
-	  #print (scalar(@structures)."\n");
+	  print (scalar(@structures)."\n");
 
 	  my $sum = 0;
 	  my $structure;
 	  foreach $structure (@structures) {
    	   	 my $b2ct_input = `cat $seqfile | grep "[ACGU]"`."$structure"."(1)";
-	  	 print "$b2ct_input\n";
+#	  	 print "$b2ct_input\n";
 
 	     my $ctFilePath = $workdir."/$seqname.ct";
 		 my $b2ct_cmd = "echo \"$b2ct_input\" | $b2ct > $ctFilePath";
@@ -101,7 +101,7 @@ sub getDSscore{
  my $output = `$cmd`;
 #print("output is:\n\n\n".$output);
 my @lines = split(/\n/, $output);
-print($lines[(scalar@lines)-2]);
+#print($lines[(scalar@lines)-2]);
 my $lastLine = $lines[(scalar@lines)-2];
 my @lastLineWords = split(' ',$lastLine);
 #print($lastLineWords[(scalar@lastLineWords)-1]);
