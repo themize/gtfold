@@ -3,7 +3,6 @@ package PfProbSum;
 use strict;
 use warnings;
 
-my $RT = 0.616333181;#61.6333181;#0.616333181;
 
 
 sub test()
@@ -38,18 +37,18 @@ sub test()
 	  my $seqname = $key;
 	  my $seqfile = $value;
 
-  	  my $U1 = getPFvalue($seqname, $gtdir);
-	  print($U1."\n");
+  	  my $U1 = getPFvalue($seqfile, $gtdir);
+	  #print($U1."\n");
 
   	  my $rnacmd;
 	  my $subopt_output;
-	  $rnacmd  = "$rnadir/RNAsubopt -s DAT -e 20 < $seqfile | grep \"[().]\" | head";
+	  $rnacmd  = "$rnadir/RNAsubopt -s DAT -e 20 < $seqfile | grep \"[().]\"";
 	  $subopt_output = `$rnacmd`;
 
 	  $subopt_output =~ s/-.*//g;
 
       my @structures = split(/\n/,$subopt_output);
-	  print (scalar(@structures)."\n");
+	  #print (scalar(@structures)."\n");
 
 	  my $sum = 0;
 	  my $structure;
@@ -59,12 +58,15 @@ sub test()
 
 	     my $ctFilePath = $workdir."/$seqname.ct";
 		 my $b2ct_cmd = "echo \"$b2ct_input\" | $b2ct > $ctFilePath";
-		 print("$ctFilePath\n");
+		 #print("$ctFilePath\n");
 		 system("$b2ct_cmd"); 
-		 system("cat $ctFilePath");
+		 #system("cat $ctFilePath");
          my $energy = getDSscore($ctFilePath, $paramdir);
+		 print $energy."\n";
+		 #print $U1."\n";
          my $prob = getProbability($energy, $U1);
          $sum = $sum + $prob;
+		 print $sum."\n";
 	  }
 
 	  print($sum."\n");
@@ -74,7 +76,9 @@ sub test()
 sub getProbability{
  my($e, $U)=@_;
  #P(I) = exp[-E(S, I)/RT]/U1;
- return (exp((-1)*$e/$RT))/$U;
+ my $val = exp(-$e / 0.616333181);
+ #print $val."\n";
+ return $val/$U;
 }
 
 sub getPFvalue{
@@ -84,24 +88,24 @@ sub getPFvalue{
  my $output = `$cmd`;
 # print("output is:\n\n\n".$output);
 my @lines = split(/\n/, $output);
-#print($lines[(scalar@lines)-2]);
+#print($lines[(scalar@lines)-1]);
 #print("\n\n");
-return $lines[(scalar@lines)-2];
+return $lines[(scalar@lines)-1];
 }
 
 sub getDSscore{
  my($ctFilePath1, $paramDir1)=@_;
 #./RNAScoring --dS ct_file_path 
  my $cmd = "$paramDir1/RNAScoring --dS --param-dir ".$paramDir1." ".$ctFilePath1;
- print($cmd);
+# print($cmd);
  my $output = `$cmd`;
 #print("output is:\n\n\n".$output);
 my @lines = split(/\n/, $output);
-#print($lines[(scalar@lines)-1]);
-my $lastLine = $lines[(scalar@lines)-1];
+print($lines[(scalar@lines)-2]);
+my $lastLine = $lines[(scalar@lines)-2];
 my @lastLineWords = split(' ',$lastLine);
-print($lastLineWords[(scalar@lastLineWords)-1]);
-print("\n\n");
+#print($lastLineWords[(scalar@lastLineWords)-1]);
+#print("\n\n");
 return $lastLineWords[(scalar@lastLineWords)-1];
 }
 1;
