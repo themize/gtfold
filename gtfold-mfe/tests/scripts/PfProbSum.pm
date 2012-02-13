@@ -48,28 +48,40 @@ sub test()
 	  $subopt_output =~ s/-.*//g;
 
       my @structures = split(/\n/,$subopt_output);
-	  print (scalar(@structures)."\n");
+	  #print (scalar(@structures)."\n");
 
 	  my $sum = 0;
 	  my $structure;
 	  foreach $structure (@structures) {
    	   	 my $b2ct_input = `cat $seqfile | grep "[ACGU]"`."$structure"."(1)";
-#	  	 print "$b2ct_input\n";
+	  	 #print "B2CT Input File:\n $b2ct_input\n";
 
 	     my $ctFilePath = $workdir."/$seqname.ct";
 		 my $b2ct_cmd = "echo \"$b2ct_input\" | $b2ct > $ctFilePath";
 		 #print("$ctFilePath\n");
 		 system("$b2ct_cmd"); 
+		 #print ("here\n");
+		 #print ("$ctFilePath");
 		 #system("cat $ctFilePath");
          my $energy = getDSscore($ctFilePath, $paramdir);
-		 print $energy."\n";
+		 #print "here1 $energy\n";
+		 #my $x = $energy + 1;
+		 #print $x."\n";
+		 chomp($energy);
+		 #exit(1);
 		 #print $U1."\n";
          my $prob = getProbability($energy, $U1);
          $sum = $sum + $prob;
-		 print $sum."\n";
+		 #print $prob."\n";
 	  }
 
-	  print($sum."\n");
+	  print("Final Sum: $sum\n");
+	  if ($sum >= 0.95 || $sum <= 1.05) {
+		$logger->info("TEST PASSED: Probability sum of all structures for $seqname is $sum");
+	  }
+	  else {
+		$logger->info("TEST FAILED: Probability sum of all structures for $seqname is $sum");
+	  }
   }
 }
 
@@ -90,22 +102,18 @@ sub getPFvalue{
 my @lines = split(/\n/, $output);
 #print($lines[(scalar@lines)-1]);
 #print("\n\n");
-return $lines[(scalar@lines)-1];
+return $lines[(scalar@lines)-2];
 }
 
 sub getDSscore{
  my($ctFilePath1, $paramDir1)=@_;
 #./RNAScoring --dS ct_file_path 
  my $cmd = "$paramDir1/RNAScoring --dS --param-dir ".$paramDir1." ".$ctFilePath1;
-# print($cmd);
+ #print($cmd);
  my $output = `$cmd`;
-#print("output is:\n\n\n".$output);
-my @lines = split(/\n/, $output);
-#print($lines[(scalar@lines)-2]);
-my $lastLine = $lines[(scalar@lines)-2];
-my @lastLineWords = split(' ',$lastLine);
-#print($lastLineWords[(scalar@lastLineWords)-1]);
-#print("\n\n");
-return $lastLineWords[(scalar@lastLineWords)-1];
+	#printf("output:\n$output\n");
+    my $lastline = `echo "$output" | grep \"Tree score is\" | sed 's/[A-Za-z ]*//'`;
+    #print "here2 $lastline \n";
+return $lastline;
 }
 1;
