@@ -54,7 +54,7 @@ am_gtfold_OBJECTS = main.$(OBJEXT) mfe_main.$(OBJEXT) loader.$(OBJEXT) \
 	traceback.$(OBJEXT) subopt_main.$(OBJEXT) \
 	subopt_traceback.$(OBJEXT) stochastic-sampling.$(OBJEXT) \
 	algorithms-partition.$(OBJEXT) boltzmann_main.$(OBJEXT) partition-dangle.$(OBJEXT) \
-	partition-func.$(OBJEXT) shapereader.$(OBJEXT)
+	partition-func.$(OBJEXT) partition-func-d2.$(OBJEXT) shapereader.$(OBJEXT)
 gtfold_OBJECTS = $(am_gtfold_OBJECTS)
 gtfold_DEPENDENCIES =
 gtfold_LINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(gtfold_LDFLAGS) \
@@ -190,6 +190,7 @@ gtfold_SOURCES = \
 	options.cc\
 	constraints.cc\
 	global.cc\
+	MyDouble.cc\
 	energy.c\
 	algorithms.c\
 	traceback.c\
@@ -200,6 +201,7 @@ gtfold_SOURCES = \
   boltzmann_main.cc\
   partition-dangle.c\
 	partition-func.c\
+	partition-func-d2.cc\
 	shapereader.cc
 
 gtfold_LDFLAGS = 
@@ -295,12 +297,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/constraints.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/energy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/global.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MyDouble.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/loader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mfe_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/partition-dangle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/partition-func.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/partition-func-d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shapereader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stochastic-sampling.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subopt_main.Po@am__quote@

@@ -11,6 +11,7 @@
 #include "algorithms-partition.h"
 #include "boltzmann_main.h"
 #include "partition-func.h"
+#include "partition-func-d2.h"
 #include "mfe_main.h"
 #include "stochastic-sampling.h"
 #include "algorithms.h"
@@ -27,6 +28,7 @@ static bool RND_SAMPLE = false;
 static bool DUMP_CT_FILE = false;
 static bool CALC_PF_DO = false;
 static bool CALC_PF_DS = false;
+static bool CALC_PF_D2 = false;
 
 static string seqfile = "";
 static string outputPrefix = "";
@@ -99,7 +101,8 @@ static void parse_options(int argc, char** argv) {
       } else if (strcmp(argv[i],"-d0") == 0) {
         CALC_PF_DO = true;  
       } else if (strcmp(argv[i],"-d2") == 0) {
-        help();
+        //help();
+        CALC_PF_D2 = true;  
       }
       else if (strcmp(argv[i],"--pfcount") == 0) {
         CALC_PART_FUNC = true;
@@ -194,14 +197,32 @@ int boltzmann_main(int argc, char** argv) {
   readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, 0, 0, 0);
 
   if (CALC_PART_FUNC == true && CALC_PF_DS == true) {
-    printf("\nComputing partition function in -dS mode ...\n");
+    int pf_count_mode = 0;
+    if(PF_COUNT_MODE) pf_count_mode=1;
+    int no_dangle_mode = 0;
+    if(CALC_PF_DO) no_dangle_mode=1;
+    printf("\nComputing partition function in -dS mode ..., pf_count_mode=%d, no_dangle_mode=%d\n", pf_count_mode, no_dangle_mode);
     t1 = get_seconds();
-    calculate_partition(seq.length(),0,0);
+    calculate_partition(seq.length(),pf_count_mode,no_dangle_mode);
     t1 = get_seconds() - t1;
     printf("partition function computation running time: %9.6f seconds\n", t1);
     //calculate_partition(seq.length(),0,0);
     free_partition();
-  } 
+  }
+  else if (CALC_PART_FUNC == true && CALC_PF_D2 == true) {
+    int pf_count_mode = 0;
+    if(PF_COUNT_MODE) pf_count_mode=1;
+    int no_dangle_mode = 0;
+    if(CALC_PF_DO) no_dangle_mode=1;
+    printf("\nComputing partition function in -d2 mode ..., pf_count_mode=%d, no_dangle_mode=%d\n", pf_count_mode, no_dangle_mode);
+    t1 = get_seconds();
+    PartitionFunctionD2 pf_d2;
+    pf_d2.calculate_partition(seq.length(),pf_count_mode,no_dangle_mode);
+    t1 = get_seconds() - t1;
+    printf("partition function computation running time: %9.6f seconds\n", t1);
+    //calculate_partition(seq.length(),0,0);
+    pf_d2.free_partition();
+  }  
   else if (CALC_PART_FUNC == true && CALC_PF_DO == true) {
     printf("\nCalculating partition function in -d0 mode ...\n");
     /*
