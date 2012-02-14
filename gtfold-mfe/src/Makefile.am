@@ -23,6 +23,7 @@ gtfold_SOURCES = \
   boltzmann_main.cc\
 	partition-dangle.c\
 	partition-func.c\
+	partition-func-d2.cc\
 	shapereader.cc
 
 gtfold_LDFLAGS = 
