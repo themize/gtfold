@@ -36,17 +36,6 @@ class PartitionFunctionD2{
 		void set_s1(int i, int j, MyDouble val);
 		void set_s2(int i, int j, MyDouble val);
 		void set_s3(int i, int j, MyDouble val);
-		//Functions providing general utilities related to energy
-		double ED3_new(int i, int j, int k);
-		double ED5_new(int i, int j, int k);
-		double EA_new();
-		double EB_new();
-		double EC_new();
-		double eS_new(int i, int j);
-		double eL_new(int i, int j, int p, int q);
-		double eH_new(int i, int j);
-		double auPenalty_new(int i, int j);
-		MyDouble f(int j, int h, int l);
 		//Functions to calculate partition function array entries
 		void calc_u(int i, int j);
 		void calc_up(int i, int j);
@@ -58,11 +47,20 @@ class PartitionFunctionD2{
 		//general utility functions
 		MyDouble **mallocTwoD(int r, int c);
 		void freeTwoD(MyDouble** arr, int r, int c);
-		MyDouble myExp(double arg);
 		void printMatrix(MyDouble** u, int part_len);
-
-	
 	public:
+		//Functions providing general utilities related to energy
+		MyDouble myExp(double arg);
+		double ED3_new(int i, int j, int k);
+		double ED5_new(int i, int j, int k);
+		double EA_new();
+		double EB_new();
+		double EC_new();
+		double eS_new(int i, int j);
+		double eL_new(int i, int j, int p, int q);
+		double eH_new(int i, int j);
+		double auPenalty_new(int i, int j);
+		MyDouble f(int j, int h, int l);
 		//Functions to retrieve partition function array entries
 		MyDouble get_u(int i, int j);
 		MyDouble get_up(int i, int j);

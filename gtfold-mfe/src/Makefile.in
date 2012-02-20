@@ -52,7 +52,7 @@ am_gtfold_OBJECTS = main.$(OBJEXT) mfe_main.$(OBJEXT) loader.$(OBJEXT) \
 	utils.$(OBJEXT) options.$(OBJEXT) constraints.$(OBJEXT) \
 	global.$(OBJEXT) energy.$(OBJEXT) algorithms.$(OBJEXT) \
 	traceback.$(OBJEXT) subopt_main.$(OBJEXT) \
-	subopt_traceback.$(OBJEXT) stochastic-sampling.$(OBJEXT) \
+	subopt_traceback.$(OBJEXT) stochastic-sampling.$(OBJEXT) stochastic-sampling-d2.$(OBJEXT) \
 	algorithms-partition.$(OBJEXT) boltzmann_main.$(OBJEXT) partition-dangle.$(OBJEXT) \
 	partition-func.$(OBJEXT) partition-func-d2.$(OBJEXT) shapereader.$(OBJEXT)
 gtfold_OBJECTS = $(am_gtfold_OBJECTS)
@@ -197,6 +197,7 @@ gtfold_SOURCES = \
 	subopt_main.cc\
 	subopt_traceback.cc\
 	stochastic-sampling.cc\
+	stochastic-sampling-d2.cc\
   algorithms-partition.c\
   boltzmann_main.cc\
   partition-dangle.c\
@@ -307,6 +308,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/partition-func-d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shapereader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stochastic-sampling.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stochastic-sampling-d2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subopt_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/subopt_traceback.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/traceback.Po@am__quote@
