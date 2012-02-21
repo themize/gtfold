@@ -95,12 +95,13 @@ double PartitionFunctionD2::eL_new(int i, int j, int p, int q){
 double PartitionFunctionD2::ED3_new(int i, int j, int k){
 	if(NO_DANGLE_MODE_) return 0;
 	if(PF_COUNT_MODE_) return 0;
+	if(k > part_len) return 0;//This is to take care of round robin way of d2
 	return Ed5(j,i,k);
 }
 double PartitionFunctionD2::ED5_new(int i, int j, int k){
 	if(NO_DANGLE_MODE_) return 0;
 	if(PF_COUNT_MODE_) return 0;
-	if (k<1) return 0;
+	if (k<1) return 0;//This is to take care of round robin way of d2
 	return Ed3(j,i,k);
 }
 double PartitionFunctionD2::EA_new(){
@@ -121,6 +122,9 @@ double PartitionFunctionD2::auPenalty_new(int i, int j){
 }
 MyDouble PartitionFunctionD2::f(int j, int h, int l){
 	//if(j - 1 == l || PF_COUNT_MODE_ || NO_DANGLE_MODE_)//TODO: if(j - 1 == l)
+	if(PF_COUNT_MODE_ || NO_DANGLE_MODE_)//New: please confirm it
+	return MyDouble(1.0);
+	
 	if(j - 1 == l)//TODO: if(j - 1 == l)
 		return MyDouble(1.0);
 	else
@@ -165,6 +169,7 @@ MyDouble PartitionFunctionD2::calculate_partition(int len, int pf_count_mode, in
 	create_partition_arrays();
 	init_partition_arrays();
 	fill_partition_arrays();
+	//printAllMatrixes();//TODO uncomment it
 	//printf("%4.4f\n",u[1][part_len]);
 	(u[1][part_len]).print();
 	printf("\n");
@@ -256,7 +261,7 @@ void PartitionFunctionD2::init_partition_arrays()
 	*/
 	//for(i=1; i<=n; i++){//OLD
 	for(i=1; i<=n-1; i++){//NEW
-		u1[i+2][i] = MyDouble(0.0);
+		u1[i+2][i] = MyDouble(0.0);//TODO Uncomment it, as of now i have tested it that commenting it does not impact correctness
 	}
 }
 void PartitionFunctionD2::create_partition_arrays()
@@ -435,11 +440,11 @@ void PartitionFunctionD2::calc_s3(int h, int j)
 {
 	int l;
 	MyDouble s3_val(0.0);
-	for (l = h+1; l <= j && l+2<=part_len; ++l){//TODO: old
-	//for (l = h+1; l <= j; ++l){//TODO: new
+	//for (l = h+1; l <= j && l+2<=part_len; ++l){//TODO: old
+	for (l = h+1; l <= j && l+1<=part_len; ++l){//TODO: new, comment it
 		MyDouble v1 = (get_up(h,l)*(myExp(-(auPenalty_new(h,l)+ED5_new(h,l,h-1)+ED3_new(h,l,l+1))/RT)));
 		MyDouble v2 = (f(j+1,h,l)*myExp(-((j-l)*EB_new())/RT));
-		MyDouble val = v1*(v2 + get_u1(l+1,j));
+		MyDouble val = v1*(v2 + get_u1(l+1,j));//TODO verify it as it is different from dS, in dS it is get_u1(l+2,j) and when we use it, we get error of re-using entry without initialization
 		s3_val = s3_val + val;
 	}
 	set_s3(h, j, s3_val);
@@ -452,7 +457,8 @@ void PartitionFunctionD2::calc_upm(int i, int j){
 	MyDouble quadraticSum(0.0);//Default constructor of MyDouble will be called, which creates a double with value zero.
 	if (canPair(RNA[i],RNA[j]))
 	{
-		for(h=i+3; h<j-1; ++h){
+		//for(h=i+3; h<j-1; ++h){//TODO According to Shel's document
+		for(h=i+1; h<j-1; ++h){//Manoj has changed it
 			quadraticSum = quadraticSum + (get_s2(h,j) * myExp((-1)*((h-i-1)*b)/RT));
 		}
 		//quadraticSum = quadraticSum * (myExp((-1)*(a+ auPenalty_new(i,j) + ED5_new(j,i,j-1)/RT + ED3_new(j,i,i+1)/RT)));//TODO: make sure which one out of ed3(i,j,j-1) or ed3(i,j,j-1) is correct, similarly for ed5
@@ -469,7 +475,8 @@ void PartitionFunctionD2::calc_u1(int i, int j){
 	double c = EC_new();
 	int h;
 	MyDouble quadraticSum(0.0);
-	for(h=i+1; h<j; ++h){
+	//for(h=i+1; h<j; ++h){//OLD
+	for(h=i; h<j; ++h){//NEW, suggested by Shel
 		quadraticSum = quadraticSum + (get_s3(h,j) * myExp((-1)*(c+(h-i)*b)/RT));
 	}
 	set_u1(i, j, quadraticSum);
@@ -483,14 +490,15 @@ void PartitionFunctionD2::calc_u(int i, int j)
 	for (h = i; h < j; ++h) {//TODO: New, check if OLD one is correct
 		uval = uval + (get_up(h,j) * myExp( -(ED5_new(h,j,h-1) + ED3_new(h,j,j+1) + auPenalty_new(h,j)) / RT ));
 	}
-	for (ctr = i+1; ctr < j-1; ++ctr) {
+	//for (ctr = i+1; ctr < j-1; ++ctr) {//Shel's doc
+	for (ctr = i; ctr < j-1; ++ctr) {//TODO Manoj corrected it
 		uval = uval + get_s1(ctr,j);
 	}
 	set_u(i, j, uval);
 }
 void PartitionFunctionD2::calc_up(int i, int j)
 {
-	MyDouble up_val = 0.0;
+	MyDouble up_val(0.0);
 	if (canPair(RNA[i],RNA[j]))
 	{
 		int h,l;
