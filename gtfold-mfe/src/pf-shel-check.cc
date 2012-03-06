@@ -4,10 +4,13 @@
 /* Documentation of type codes:
 0 = u
 1 = up
-2 = upm
-3 = s1
+2 = s1
+3 = upm
 4 = s2
 5 = s3
+6 = u1
+7 = 
+8 = 
 */
 
 //int main(){
