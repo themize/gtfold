@@ -1,5 +1,4 @@
 #include "stochastic-sampling-d2.h"
-
 #include "global.h"
 #include <assert.h>
 #include <stdio.h>
@@ -13,6 +12,7 @@
 //Basic utility functions
 void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int ss_verbose1){
 	length = length1;
+	fraction = pf_shel_check(length);
 	ss_verbose = ss_verbose1; 
 	energy = 0.0;
 	structure = new int[length+1];
@@ -20,6 +20,7 @@ void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_D
 	PF_COUNT_MODE = PF_COUNT_MODE1;
 	NO_DANGLE_MODE = NO_DANGLE_MODE1;
 	pf_d2.calculate_partition(length,PF_COUNT_MODE,NO_DANGLE_MODE);
+	
 }
 
 void StochasticTracebackD2::free_traceback(){
@@ -111,7 +112,6 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 {
 	MyDouble rnd = randdouble();
 	MyDouble cum_prob(0.0);
-
 	cum_prob = cum_prob + U_0(i,j);
 	if (rnd < cum_prob)
 	{

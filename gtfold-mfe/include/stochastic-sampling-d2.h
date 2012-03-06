@@ -1,6 +1,7 @@
 #ifndef _STOCHASTIC_SAMPLING_D2_H
 #define _STOCHASTIC_SAMPLING_D2_H
 
+#include "pf-shel-check.h"
 #include <iostream>
 #include <stack>
 #include <stdlib.h>
@@ -47,7 +48,8 @@ public:
 				return out;
 			}
 		};
-	private:
+	private:		
+		pf_shel_check fraction;
 		enum {U=0,UP,U1};
 		int* structure;
 		PartitionFunctionD2 pf_d2;
@@ -57,6 +59,7 @@ public:
 		int length;
                 int PF_COUNT_MODE;
                 int NO_DANGLE_MODE;
+
  
 		MyDouble randdouble();
                 bool feasible(int i, int j);
