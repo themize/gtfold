@@ -39,8 +39,8 @@ int pf_shel_check::count() {
 			(check->first).print();
 		}
 		if(check->second < 0) {
-			numDenominator += check->second;				
-			printf("Element in denominator %d time(s): ", check->second);
+			numDenominator -= check->second;				
+			printf("Element in denominator %d time(s): ", -1 * check->second);
 			(check->first).print();
 		}
 	}
