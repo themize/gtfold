@@ -9,5 +9,6 @@ class Key {
 	int getJ();
 	bool operator<(const Key& other) const;
 	bool operator==(const Key& other) const;
+	void print() const;
 	
 };

@@ -11,8 +11,9 @@
 
 //Basic utility functions
 void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int ss_verbose1){
+	checkFraction = true;
 	length = length1;
-	fraction = pf_shel_check(length);
+	if(checkFraction) fraction = pf_shel_check(length);
 	ss_verbose = ss_verbose1; 
 	energy = 0.0;
 	structure = new int[length+1];
@@ -115,7 +116,7 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 	cum_prob = cum_prob + U_0(i,j);
 	if (rnd < cum_prob)
 	{
-		fraction.add(0, i, j, false);
+		if(checkFraction) fraction.add(0, i, j, false);
 		return;
 	}
 
@@ -131,8 +132,10 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 			base_pair bp(h,j,UP);
 			//set_single_stranded(i,h-1,structure);
 			g_stack.push(bp);
-			fraction.add(1, h, j, true);
-			fraction.add(0, h, j, false);
+			if(checkFraction) {
+				fraction.add(1, h, j, true);
+				fraction.add(0, h, j, false);
+			}
 			return;
 		}
 	}
@@ -145,8 +148,10 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 		{
 			h1 = h;
 			rnd_s1(i,h1,j);
-			fraction.add(2, h, j, true);
-			fraction.add(0, i, j, false);
+			if(checkFraction) {
+				fraction.add(2, h, j, true);
+				fraction.add(0, i, j, false);
+			}
 			return;
 		}
 	}
@@ -170,9 +175,11 @@ void StochasticTracebackD2::rnd_s1(int i, int h, int j){
 			base_pair bp2(l+1,j,U);
 			g_stack.push(bp1);
 			g_stack.push(bp2);
-			fraction.add(1, h, l, true);
-			fraction.add(0, l+1, j, true);
-			fraction.add(2, i, j, false);
+			if(checkFraction) {
+				fraction.add(1, h, l, true);
+				fraction.add(0, l+1, j, true);
+				fraction.add(2, i, j, false);
+			}
 			return ;
 		}
 	}
@@ -196,7 +203,7 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 			printf("Hairpin(%d %d) %lf\n",i,j, e2/100.0);
 		energy += e2;
 		//set_single_stranded(i+1,j-1,structure);
-		fraction.add(1, i, j, false);
+		if(checkFraction) fraction.add(1, i, j, false);
 		return ;
 	}
 
@@ -209,16 +216,20 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 		energy+=e2;
 		base_pair bp(i+1,j-1,UP);
 		g_stack.push(bp);
-		fraction.add(1, i+1, j-1, true);
-		fraction.add(1, i, j, false);
+		if(checkFraction) {
+			fraction.add(1, i+1, j-1, true);
+			fraction.add(1, i, j, false);
+		}
 		return ;
 	}
 
 	cum_prob = cum_prob + Q_M_ij(i,j);
 	if (rnd < cum_prob)
 	{
-		fraction.add(3, i, j,true);
-		fraction.add(1, i, j, false);
+		if(checkFraction) {
+			fraction.add(3, i, j,true);
+			fraction.add(1, i, j, false);
+		}
 		rnd_upm(i,j);
 		return;
 	}
@@ -230,8 +241,10 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 			cum_prob = cum_prob + Q_BI_ihlj(i,h,l,j);
 			if (rnd < cum_prob)
 			{
-				fraction.add(1, h, l, true);
-				fraction.add(1, i, j, false);
+				if(checkFraction) {
+					fraction.add(1, h, l, true);
+					fraction.add(1, i, j, false);
+				}
 				double e2 = (pf_d2.eL_new(i,j,h,l));
 				if (ss_verbose == 1) 
 					printf("IntLoop(%d %d) %lf\n",i,j, e2/100.0);
@@ -262,8 +275,10 @@ void StochasticTracebackD2::rnd_u1(int i, int j)
 			energy += e2;
 			h1 = h;
 			rnd_s3(i, h1, j);
-			fraction.add(5, h, j, true);
-			fraction.add(6, i, j, false);
+			if(checkFraction) {
+				fraction.add(5, h, j, true);
+				fraction.add(6, i, j, false);
+			}
 			return;
 		}
 	}
@@ -286,9 +301,11 @@ void StochasticTracebackD2::rnd_s3(int i, int h, int j){
 			base_pair bp(h,l,UP);
 			g_stack.push(bp);
 			rnd_s3_mb(i,h,l,j);
-			fraction.add(1, h, l, true);
-			fraction.add(6, l+1, j, true);
-			fraction.add(5, h, j, false);
+			if(checkFraction) {
+				fraction.add(1, h, l, true);
+				fraction.add(6, l+1, j, true);
+				fraction.add(5, h, j, false);
+			}
 			return;
 		}
 	}
@@ -306,7 +323,7 @@ void StochasticTracebackD2::rnd_s3_mb(int i, int h, int l, int j){//shel's docum
 		if (ss_verbose == 1)
 			printf("S3_MB_ihlj(%d %d) %lf\n",h,l, e2/100.0);
 		energy += e2;
-		fraction.add(6, l+1, j, false);
+		if(checkFraction) fraction.add(6, l+1, j, false);
 		return;
 	}
 	else{
@@ -336,8 +353,10 @@ void StochasticTracebackD2::rnd_upm(int i, int j)
 				printf("%s(%d) %lf\n", "UPM_S2_ihj",h1,e2/100.0);
 			}
 			rnd_s2(i,h1,j);
-			fraction.add(4, h, j, true);
-			fraction.add(3, i, j, false);
+			if(checkFraction) {
+				fraction.add(4, h, j, true);
+				fraction.add(3, i, j, false);
+			}
 			return;
 		}
 	}
@@ -361,9 +380,11 @@ void StochasticTracebackD2::rnd_s2(int i, int h, int j){
 			base_pair bp2(l+1,j-1,U1);
 			g_stack.push(bp1);
 			g_stack.push(bp2);
-			fraction.add(1, h, l, true);
-			fraction.add(6, l+1, j-1, true);
-			fraction.add(4, h, j, false);
+			if(checkFraction) {
+				fraction.add(1, h, l, true);
+				fraction.add(6, l+1, j-1, true);
+				fraction.add(4, h, j, false);
+			}
 			return;
 		}
 	}
@@ -529,6 +550,7 @@ void StochasticTracebackD2::batch_sample(int num_rnd)
 		}
 		assert(num_rnd == pcount);
 		printf("\nMax frequency structure : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+		printf("\n%d\n", fraction.count());
 
 	}
 }

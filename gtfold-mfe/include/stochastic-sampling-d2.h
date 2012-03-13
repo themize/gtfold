@@ -50,6 +50,7 @@ public:
 		};
 	private:		
 		pf_shel_check fraction;
+		bool checkFraction;
 		enum {U=0,UP,U1};
 		int* structure;
 		PartitionFunctionD2 pf_d2;

@@ -8,7 +8,7 @@ class pf_shel_check {
 	pf_shel_check(int num);
 	int count();
 	void add(unsigned char type, int i, int j, bool isNumerator);
-	int getNumNumerator();
-	int getNumDenominator();
+	//int getNumNumerator();
+	//int getNumDenominator();
 	std::map<Key, int> myMap;
 };
