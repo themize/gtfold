@@ -16,6 +16,7 @@ static void errorAndExit(char* msg, int i, int j, MyDouble oldVal, MyDouble newV
 MyDouble PartitionFunctionD2::myExp(double arg){
 	double posArgMultRT = (-1)*arg*RT;
 	if(posArgMultRT>=INFINITY_){
+	//if(posArgMultRT>=999999999999999){
 		return MyDouble(0.0);
 	}
 	//Varifed it, working correctly
@@ -95,13 +96,15 @@ double PartitionFunctionD2::eL_new(int i, int j, int p, int q){
 double PartitionFunctionD2::ED3_new(int i, int j, int k){
 	if(NO_DANGLE_MODE_) return 0;
 	if(PF_COUNT_MODE_) return 0;
-	if(k > part_len) return 0;//This is to take care of round robin way of d2
+	if(k > part_len) return 0;//This is to take care of round robin way of d2, this is shel's suggestion and rnafold also seems to follow this
+	//if(k > part_len) k=1;//This is to take care of round robin way of d2, rnascoring code follows this means, you need to do this in case you want to pass scoring test
 	return Ed5(j,i,k);
 }
 double PartitionFunctionD2::ED5_new(int i, int j, int k){
 	if(NO_DANGLE_MODE_) return 0;
 	if(PF_COUNT_MODE_) return 0;
-	if (k<1) return 0;//This is to take care of round robin way of d2
+	if (k<1) return 0;//This is to take care of round robin way of d2, this is shel's suggestion and rnafold also seems to follow this
+	//if (k<1) k=part_len;//This is to take care of round robin way of d2, rnascoring code follows this means, you need to do this in case you want to pass scoring test
 	return Ed3(j,i,k);
 }
 double PartitionFunctionD2::EA_new(){
@@ -127,8 +130,10 @@ MyDouble PartitionFunctionD2::f(int j, int h, int l){
 	
 	if(j - 1 == l)//TODO: if(j - 1 == l)
 		return MyDouble(1.0);
-	else
-		return myExp(-ED3_new(h,l,l+1)/RT);
+	else{
+		//return myExp(-ED3_new(h,l,l+1)/RT);
+		return MyDouble(1.0);
+	}
 }
 
 //Functions to calculate partition, and other partition function related utilities exposed to outside world
@@ -153,7 +158,7 @@ MyDouble PartitionFunctionD2::calculate_partition(int len, int pf_count_mode, in
 	PF_COUNT_MODE_ = pf_count_mode;
 	NO_DANGLE_MODE_ = no_dangle_mode;
 	part_len = len;
-	/*	
+		
 	//OPTIMIZED CODE STARTS
         #ifdef _OPENMP
         if (g_nthreads > 0) omp_set_num_threads(g_nthreads);
@@ -165,7 +170,7 @@ MyDouble PartitionFunctionD2::calculate_partition(int len, int pf_count_mode, in
         fprintf(stdout,"Thread count: %3d \n",omp_get_num_threads());
 	#endif
 	//OPTIMIZED CODE ENDSS
-	*/
+	
 	create_partition_arrays();
 	init_partition_arrays();
 	fill_partition_arrays();
@@ -392,13 +397,13 @@ void PartitionFunctionD2::fill_partition_arrays()
 		}
 	}
 	*/
-	//sequential Implementation
+	//parallel implementation, sequential Implementation
 	for(b=TURN+1; b<n; ++b){
-		/*
+		
 		#ifdef _OPENMP
 		#pragma omp parallel for private (i,j) schedule(guided)
 		#endif
-		*/
+	
 		for(i=1; i<=n-b; ++i){
 			j=i+b;
 			calc_s1(i,j);
@@ -462,7 +467,8 @@ void PartitionFunctionD2::calc_upm(int i, int j){
 			quadraticSum = quadraticSum + (get_s2(h,j) * myExp((-1)*((h-i-1)*b)/RT));
 		}
 		//quadraticSum = quadraticSum * (myExp((-1)*(a+ auPenalty_new(i,j) + ED5_new(j,i,j-1)/RT + ED3_new(j,i,i+1)/RT)));//TODO: make sure which one out of ed3(i,j,j-1) or ed3(i,j,j-1) is correct, similarly for ed5
-		quadraticSum = quadraticSum * (myExp((-1)*(a+auPenalty_new(i,j) + ED5_new(j,i,j-1) + ED3_new(j,i,i+1) +2*b)/RT));
+		quadraticSum = quadraticSum * (myExp((-1)*(a+auPenalty_new(i,j) + ED5_new(j,i,j-1) + ED3_new(j,i,i+1) +2*c)/RT));//TODO Old impl using ed3(j,i) instead of ed3(i,j)
+		//quadraticSum = quadraticSum * (myExp((-1)*(a+auPenalty_new(i,j) + ED5_new(i,j,j-1) + ED3_new(i,j,i+1) +2*c)/RT));//TODO New impl using ed5(i,j) instead of ed3(j,i)
 		
 		set_upm(i, j, quadraticSum);  
 	}
@@ -502,7 +508,7 @@ void PartitionFunctionD2::calc_up(int i, int j)
 	if (canPair(RNA[i],RNA[j]))
 	{
 		int h,l;
-		for (h = i+1; h < j ; h++) {
+		for (h = i+1; h < j-1 ; h++) {
 			for (l = h+1; l < j; l++) {
 				if (canPair(RNA[h],RNA[l])==0) continue;
 				if(h==(i+1) && l==(j-1)) continue;
