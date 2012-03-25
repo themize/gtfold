@@ -633,17 +633,23 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd)
         if (g_nthreads > 0) omp_set_num_threads(g_nthreads);
         #endif
 
-        #ifdef _OPENMP
-        #pragma omp parallel
-        #pragma omp master
-        fprintf(stdout,"Stochastic Traceback: Thread count: %3d \n",omp_get_num_threads());
-	g_nthreads = omp_get_num_threads();//TODO remove this line, g_nthreads!=-1 works
-        #endif
-        //OPTIMIZED CODE ENDSS
+	#ifdef _OPENMP
+	#pragma omp parallel
+	//#pragma omp master
+	{
+		int thdId1 = omp_get_thread_num();
+		if(thdId1==0){
+			fprintf(stdout,"Stochastic Traceback: Thread count: %3d \n",omp_get_num_threads());
+			if(g_nthreads < 0) g_nthreads = omp_get_num_threads();//TODO move this line to mfe_main.cc
+		}
+	}
+	#endif
+	//OPTIMIZED CODE ENDSS
+	
 	std::map<std::string,std::pair<int,double> >  uniq_structs;
 	//std::map<std::string,std::pair<int,double> >  uniq_structs_thread[g_nthreads];
-	g_nthreads=4;//TODO remove this line
-	cout<<"g_nthreads="<<g_nthreads<<endl;
+	//g_nthreads=4;//TODO remove this line
+	cout<<"Manoj after: g_nthreads="<<g_nthreads<<endl;
 	std::map<std::string,std::pair<int,double> > *  uniq_structs_thread = new std::map<std::string,std::pair<int,double> >[g_nthreads];
 	int* structures_thread = new int[g_nthreads*(length+1)];
 

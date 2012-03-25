@@ -51,6 +51,7 @@ static void help() {
 
 	printf("OPTIONS\n");
 
+	printf("   -t|--threads INT    Limit number of threads used to INT.\n");
 	printf("   --partition          Calculate the partition function (default is using sfold reccurences).\n");
 	printf("   --partition -dS      Calculate the partition function using sfold reccurences.\n");
 	printf("   --partition -d0      Calculate the partition function using -d0 reccurences.\n");
@@ -196,7 +197,7 @@ int boltzmann_main(int argc, char** argv) {
 		printf("Failed to open sequence file: %s.\n\n", seqfile.c_str());
 		exit(-1);
 	}
-
+	parse_mfe_options(argc, argv);
 	init_fold(seq.c_str());
 
 	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, 0, 0, 0);
