@@ -7,8 +7,8 @@
 #include<math.h>
 #include "gmp.h"
 using namespace std;
-const int PRECISION = 102400000;
-static char BIG_NUM_ENABLED = 'N';//'N';//'Y';
+const int PRECISION = 1024;
+static char BIG_NUM_ENABLED = 'Y';//'N';//'Y';
 static int BIGNUM_ONLY=0;
 const int PRINT_DIGITS_AFTER_DECIMAL = 10;
 static int verbose=0;

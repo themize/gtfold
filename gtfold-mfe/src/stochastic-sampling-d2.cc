@@ -530,11 +530,14 @@ void StochasticTracebackD2::batch_sample(int num_rnd)
 {
 	MyDouble U;
 	if(PF_D2_UP_APPROX_ENABLED){
-		PartitionFunctionD2 pf_d2_exact_up;
-		bool PF_D2_UP_APPROX_ENABLED2 = false;
-		pf_d2_exact_up.calculate_partition(length,PF_COUNT_MODE,NO_DANGLE_MODE, PF_D2_UP_APPROX_ENABLED2);
-		U = pf_d2_exact_up.get_u(1,length);
-		pf_d2_exact_up.free_partition();	
+		double t1 = get_seconds();
+                PartitionFunctionD2 pf_d2_exact_up;
+                bool PF_D2_UP_APPROX_ENABLED2 = false;
+                pf_d2_exact_up.calculate_partition(length,PF_COUNT_MODE,NO_DANGLE_MODE, PF_D2_UP_APPROX_ENABLED2);
+                U = pf_d2_exact_up.get_u(1,length);
+                pf_d2_exact_up.free_partition();
+                t1 = get_seconds() - t1;
+                printf("D2 Exact UP partition function computation running time: %9.6f seconds\n", t1);
 	}
 	else U = pf_d2.get_u(1,length);
 	srand(time(NULL));
@@ -619,12 +622,15 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd)
 	//MyDouble U = pf_d2.get_u(1,length);
 	 MyDouble U;
         if(PF_D2_UP_APPROX_ENABLED){
+		double t1 = get_seconds();
                 PartitionFunctionD2 pf_d2_exact_up;
                 bool PF_D2_UP_APPROX_ENABLED2 = false;
                 pf_d2_exact_up.calculate_partition(length,PF_COUNT_MODE,NO_DANGLE_MODE, PF_D2_UP_APPROX_ENABLED2);
                 U = pf_d2_exact_up.get_u(1,length);
                 pf_d2_exact_up.free_partition();
-        }
+                t1 = get_seconds() - t1;
+                printf("D2 Exact UP partition function computation running time: %9.6f seconds\n", t1);
+       }
         else U = pf_d2.get_u(1,length);
 
 	srand(time(NULL));
@@ -766,12 +772,15 @@ void StochasticTracebackD2::batch_sample_and_dump(int num_rnd, std::string ctFil
 	//MyDouble U = pf_d2.get_u(1,length);
 	 MyDouble U;
         if(PF_D2_UP_APPROX_ENABLED){
+		double t1 = get_seconds();
                 PartitionFunctionD2 pf_d2_exact_up;
                 bool PF_D2_UP_APPROX_ENABLED2 = false;
                 pf_d2_exact_up.calculate_partition(length,PF_COUNT_MODE,NO_DANGLE_MODE, PF_D2_UP_APPROX_ENABLED2);
                 U = pf_d2_exact_up.get_u(1,length);
                 pf_d2_exact_up.free_partition();
-        }
+                t1 = get_seconds() - t1;
+                printf("D2 Exact UP partition function computation running time: %9.6f seconds\n", t1);
+       }
         else U = pf_d2.get_u(1,length);
 
 	//data dump preparation code starts here

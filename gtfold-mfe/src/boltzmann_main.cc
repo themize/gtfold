@@ -55,7 +55,7 @@ static void help() {
 	printf("   --partition          Calculate the partition function (default is using sfold reccurences).\n");
 	printf("   --partition -dS      Calculate the partition function using sfold reccurences.\n");
 	printf("   --partition -d0      Calculate the partition function using -d0 reccurences.\n");
-	printf("   --partition -d2 [-approxUP]      Calculate the partition function using -d2 reccurences, if -approxUP used then use approximate calculation of UP.\n");
+	printf("   --partition -d2 [--approxUP]      Calculate the partition function using -d2 reccurences, if --approxUP used then use approximate calculation of UP.\n");
 
 	printf("   --sample   INT -dS      Sample number of structures equal to INT  using -dS reccurences.\n");
 	printf("   --sample   INT -d2 [--approxUP]     Sample number of structures equal to INT  using -d2 reccurences, if --approxUP used then use approximate calculation of UP.\n");
@@ -272,7 +272,10 @@ int boltzmann_main(int argc, char** argv) {
 		if(CALC_PF_D2 == true){
 			printf("\nComputing stochastic traceback in -d2 mode ..., pf_count_mode=%d, no_dangle_mode=%d, PF_D2_UP_APPROX_ENABLED=%d\n", pf_count_mode, no_dangle_mode,PF_D2_UP_APPROX_ENABLED);
 			StochasticTracebackD2 st_d2;
-			st_d2.initialize(seq.length(), pf_count_mode, no_dangle_mode, ss_verbose_global,PF_D2_UP_APPROX_ENABLED);
+			t1 = get_seconds();
+                        st_d2.initialize(seq.length(), pf_count_mode, no_dangle_mode, ss_verbose_global,PF_D2_UP_APPROX_ENABLED);
+                        t1 = get_seconds() - t1;
+                        printf("D2 Traceback initialization (partition function computation) running time: %9.6f seconds\n", t1);
 			t1 = get_seconds();
 			if(DUMP_CT_FILE==false){
 				//st_d2.batch_sample(num_rnd);
@@ -280,7 +283,7 @@ int boltzmann_main(int argc, char** argv) {
 			}
                         else  st_d2.batch_sample_and_dump(num_rnd, ctFileDumpDir, stochastic_summery_file_name, seq, seqfile);
 			t1 = get_seconds() - t1;
-                        printf("Traceback computation running time: %9.6f seconds\n", t1);
+                        printf("D2 Traceback computation running time: %9.6f seconds\n", t1);
 			st_d2.free_traceback();
 		}
 		else{//if(CALC_PF_DS == true){//TODO here it is making dS by default
