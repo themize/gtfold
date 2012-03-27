@@ -53,7 +53,10 @@ void pf_shel_check::add(unsigned char type, int i, int j, bool isNumerator) {
 	std::map<Key, int>::iterator check = myMap.find(key);
 	if(check == myMap.end()) {	
 		myMap.insert(std::make_pair(key, isNumerator ? 1 : -1));
-		if(!isNumerator) printf("Added to denominator first\n");
+		if(!isNumerator) {
+			printf("Added to denominator first\n");
+			key.print();
+		}
 	}
 	else {
 		int value = check -> second;

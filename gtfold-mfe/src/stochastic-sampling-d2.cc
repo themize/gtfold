@@ -117,7 +117,11 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 	cum_prob = cum_prob + U_0(i,j);
 	if (rnd < cum_prob)
 	{
-		if(checkFraction) fraction.add(0, i, j, false);
+		if(checkFraction){
+			//printf("U_0(i, j)");
+			//printf("\n");
+			fraction.add(0, i, j, false);
+		}
 		return;
 	}
 
@@ -126,6 +130,12 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 		cum_prob = cum_prob + U_ihj(i,h,j);
 		if (rnd < cum_prob)
 		{
+			if(checkFraction) {
+				//printf("U_ihj(i, h, j)");
+				//printf("\n");
+				fraction.add(1, h, j, true);
+				fraction.add(0, i, j, false);
+			}
 			double e2 = ( (pf_d2.ED5_new(h,j,h-1)) + (pf_d2.ED3_new(h,j,j+1)) + (pf_d2.auPenalty_new(h,j)) );
 			if (ss_verbose == 1) {
 				printf(" (pf_d2.ED5_new(h,j,h-1))=%f, (pf_d2.ED3_new(h,j,j+1))=%f, (pf_d2.auPenalty_new(h,j))=%f\n", (pf_d2.ED5_new(h,j,h-1))/100.0, (pf_d2.ED3_new(h,j,j+1))/100.0, (pf_d2.auPenalty_new(h,j))/100.0);
@@ -135,10 +145,7 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 			base_pair bp(h,j,UP);
 			//set_single_stranded(i,h-1,structure);
 			g_stack.push(bp);
-			if(checkFraction) {
-				fraction.add(1, h, j, true);
-				fraction.add(0, h, j, false);
-			}
+			
 			return;
 		}
 	}
@@ -149,12 +156,17 @@ void StochasticTracebackD2::rnd_u(int i, int j)
 		cum_prob = cum_prob + U_s1_ihj(i,h,j);
 		if (rnd < cum_prob)
 		{
-			h1 = h;
-			rnd_s1(i,h1,j);
 			if(checkFraction) {
+				//printf("U_s1_ihj(i, h, j)");
+				//printf("\n");
 				fraction.add(2, h, j, true);
 				fraction.add(0, i, j, false);
 			}
+			h1 = h;
+			
+			rnd_s1(i,h1,j);
+			
+			
 			return;
 		}
 	}
@@ -170,6 +182,13 @@ void StochasticTracebackD2::rnd_s1(int i, int h, int j){
 		cum_prob = cum_prob + S1_ihlj(i,h,l,j);
 		if (rnd < cum_prob)
 		{
+			if(checkFraction) {
+				//printf("S1_ihlj(i,h,l,j)");
+				//printf("\n");
+				fraction.add(1, h, l, true);
+				fraction.add(0, l+1, j, true);
+				fraction.add(2, h, j, false);
+			}
 			double e2 = (pf_d2.ED5_new(h,l,h-1))+ (pf_d2.auPenalty_new(h,l)) + (pf_d2.ED3_new(h,l,l+1));
 			if (ss_verbose == 1) {
 				printf("(pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.ED5_new(h,l,h-1)), (pf_d2.auPenalty_new(h,l)), (pf_d2.ED3_new(h,l,l+1)));
@@ -180,11 +199,6 @@ void StochasticTracebackD2::rnd_s1(int i, int h, int j){
 			base_pair bp2(l+1,j,U);
 			g_stack.push(bp1);
 			g_stack.push(bp2);
-			if(checkFraction) {
-				fraction.add(1, h, l, true);
-				fraction.add(0, l+1, j, true);
-				fraction.add(2, i, j, false);
-			}
 			return ;
 		}
 	}
@@ -207,12 +221,19 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 			cum_prob = cum_prob + Q_BI_ihlj(i,h,l,j);
 			if (rnd < cum_prob)
 			{
+				if(checkFraction) {
+					//printf("Q_BI_ihlj(i, h, l, j)");
+					//printf("\n");
+					fraction.add(1, h, l, true);
+					fraction.add(1, i, j, false);
+				}
 				double e2 = (pf_d2.eL_new(i,j,h,l));
 				if (ss_verbose == 1) 
 					printf("IntLoop(%d %d) %lf\n",i,j, e2/100.0);
 				energy += e2;
 				base_pair bp(h,l,UP);
 				g_stack.push(bp);
+				
 				return;
 			}
 		}
@@ -220,28 +241,36 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 	cum_prob = cum_prob + Q_H_ij(i,j);
 	if (rnd < cum_prob)
 	{
+		if(checkFraction){
+			//printf("Q_H_ij(i, j)");
+			//printf("\n");
+			fraction.add(1, i, j, false);
+		}
 		double e2 = (pf_d2.eH_new(i,j));
 		if (ss_verbose == 1) 
 			printf("Hairpin(%d %d) %lf\n",i,j, e2/100.0);
 		energy += e2;
 		//set_single_stranded(i+1,j-1,structure);
-		if(checkFraction) fraction.add(1, i, j, false);
+		
 		return ;
 	}
 
 	cum_prob = cum_prob + Q_S_ij(i,j);
 	if (rnd < cum_prob)
 	{
+		if(checkFraction) {
+			//printf("Q_S_ij(i,j)");
+			//printf("\n");
+			fraction.add(1, i+1, j-1, true);
+			fraction.add(1, i, j, false);
+		}
 		double e2 = (pf_d2.eS_new(i,j));
 		if (ss_verbose == 1) 
 			printf("Stack(%d %d) %lf\n",i,j, e2/100.0);
 		energy+=e2;
 		base_pair bp(i+1,j-1,UP);
 		g_stack.push(bp);
-		if(checkFraction) {
-			fraction.add(1, i+1, j-1, true);
-			fraction.add(1, i, j, false);
-		}
+		
 		return ;
 	}
 
@@ -249,6 +278,8 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 	if (rnd < cum_prob)
 	{
 		if(checkFraction) {
+			//printf("Q_M_ij(i,j)");
+			//printf("\n");
 			fraction.add(3, i, j,true);
 			fraction.add(1, i, j, false);
 		}
@@ -264,6 +295,8 @@ void StochasticTracebackD2::rnd_up(int i, int j)
 			if (rnd < cum_prob)
 			{
 				if(checkFraction) {
+					//printf("Q_BI_ihlj(i,h,l,j)");
+					//printf("\n");
 					fraction.add(1, h, l, true);
 					fraction.add(1, i, j, false);
 				}
@@ -291,6 +324,12 @@ void StochasticTracebackD2::rnd_u1(int i, int j)
 		cum_prob = cum_prob + U1_s3_ihj(i,h,j);
 		if (rnd < cum_prob)
 		{
+			if(checkFraction) {
+				//printf("U1_s3_ihj(i,h,j)");
+				//printf("\n");
+				fraction.add(5, h, j, true);
+				fraction.add(6, i, j, false);
+			}
 			double e2 = (pf_d2.EC_new()) + (h-i)*(pf_d2.EB_new());
 			if (ss_verbose == 1){ 
 				printf("(pf_d2.EC_new())=%f (h-i)*(pf_d2.EB_new())=%f\n",(pf_d2.EC_new())/100.0, (h-i)*(pf_d2.EB_new())/100.0);
@@ -299,10 +338,6 @@ void StochasticTracebackD2::rnd_u1(int i, int j)
 			energy += e2;
 			h1 = h;
 			rnd_s3(i, h1, j);
-			if(checkFraction) {
-				fraction.add(5, h, j, true);
-				fraction.add(6, i, j, false);
-			}
 			return;
 		}
 	}
@@ -318,6 +353,13 @@ void StochasticTracebackD2::rnd_s3(int i, int h, int j){
 		cum_prob = cum_prob +  S3_ihlj(i,h,l,j);
 		if (rnd < cum_prob)
 		{
+			if(checkFraction) {
+				//printf("S3_ihlj(i,h,l,j)");
+				//printf("\n");
+				fraction.add(1, h, l, true);
+				fraction.add(6, l+1, j, true);
+				fraction.add(5, h, j, false);
+			}
 			double e2 = ((pf_d2.auPenalty_new(h,l)) + (pf_d2.ED5_new(h,l,h-1)) + (pf_d2.ED3_new(h,l,l+1)));
 			if (ss_verbose == 1) {
 				printf("(pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.auPenalty_new(h,l))/100.0, (pf_d2.ED5_new(h,l,h-1))/100.0, (pf_d2.ED3_new(h,l,l+1))/100.0);
@@ -327,11 +369,7 @@ void StochasticTracebackD2::rnd_s3(int i, int h, int j){
 			base_pair bp(h,l,UP);
 			g_stack.push(bp);
 			rnd_s3_mb(i,h,l,j);
-			if(checkFraction) {
-				fraction.add(1, h, l, true);
-				fraction.add(6, l+1, j, true);
-				fraction.add(5, h, j, false);
-			}
+			
 			return;
 		}
 	}
@@ -344,13 +382,18 @@ void StochasticTracebackD2::rnd_s3_mb(int i, int h, int l, int j){//shel's docum
 	cum_prob = cum_prob +  S3_MB_ihlj(i,h,l,j);
 	if (rnd < cum_prob)
 	{
+		if(checkFraction) {
+			//printf("S3_MB_ihlj(i,h,l,j)");
+			//printf("\n");
+			fraction.add(6, l+1, j, false);
+		}
 		double tt =  0;//(j == l)? 0 : (pf_d2.ED3_new(h,l,l+1));//this term is corresponding to f(j+1,h,l)
 		double e2 = tt + (j-l)*(pf_d2.EB_new());
 		if (ss_verbose == 1){
 			printf("j=%d,l=%d,tt=(j == l)?0:(pf_d2.ED3_new(h,l,l+1))=%f,(j-l)*(pf_d2.EB_new())=%f\n",j,l,tt/100.0,(j-l)*(pf_d2.EB_new())/100.0);				printf("S3_MB_ihlj(%d %d %d %d) %lf\n",i,h,l,j, e2/100.0);
 		}
 		energy += e2;
-		if(checkFraction) fraction.add(6, l+1, j, false);
+		
 		return;
 	}
 	else{
@@ -374,6 +417,12 @@ void StochasticTracebackD2::rnd_upm(int i, int j)
 		cum_prob = cum_prob + UPM_S2_ihj(i,h,j);
 		if (rnd < cum_prob )
 		{
+			if(checkFraction) {
+				//printf("UPM_S2_ihj(i,h,j)");
+				//printf("\n");
+				fraction.add(4, h, j, true);
+				fraction.add(3, i, j, false);
+			}
 			double e2 = (pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new()) + (pf_d2.auPenalty_new(i,j)) + (pf_d2.ED5_new(j,i,j-1)) + (pf_d2.ED3_new(j,i,i+1));//TODO Old impl using ed3(j,i) instead of ed3(i,j)
 			//double e2 = (pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new()) + (pf_d2.auPenalty_new(i,j)) + (pf_d2.ED5_new(i,j,j-1)) + (pf_d2.ED3_new(i,j,i+1));//TODO New impl using ed3(i,j( instead of ed3(j,i)
 			energy += e2;
@@ -384,10 +433,7 @@ void StochasticTracebackD2::rnd_upm(int i, int j)
 				printf("%s(%d %d %d) %lf\n", "UPM_S2_ihj",i,h1,j,e2/100.0);
 			}
 			rnd_s2(i,h1,j);
-			if(checkFraction) {
-				fraction.add(4, h, j, true);
-				fraction.add(3, i, j, false);
-			}
+			
 			return;
 		}
 	}
@@ -403,6 +449,13 @@ void StochasticTracebackD2::rnd_s2(int i, int h, int j){
 		cum_prob = cum_prob + S2_ihlj(i,h,l,j);
 		if (rnd < cum_prob)
 		{
+			if(checkFraction) {
+				//printf("S2_ihlj(i,h,l,j)");
+				//printf("\n");
+				fraction.add(1, h, l, true);
+				fraction.add(6, l+1, j-1, true);
+				fraction.add(4, h, j, false);
+			}
 			double e2 = (pf_d2.auPenalty_new(h,l)) + (pf_d2.ED5_new(h,l,h-1)) + (pf_d2.ED3_new(h,l,l+1));       
 			energy += e2;
 			if (ss_verbose == 1){
@@ -413,11 +466,7 @@ void StochasticTracebackD2::rnd_s2(int i, int h, int j){
 			base_pair bp2(l+1,j-1,U1);
 			g_stack.push(bp1);
 			g_stack.push(bp2);
-			if(checkFraction) {
-				fraction.add(1, h, l, true);
-				fraction.add(6, l+1, j-1, true);
-				fraction.add(4, h, j, false);
-			}
+			
 			return;
 		}
 	}
