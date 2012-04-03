@@ -18,6 +18,8 @@ gtfold_SOURCES = \
 	traceback.c\
 	subopt_main.cc\
 	subopt_traceback.cc\
+	pf-shel-check.cc\
+	key.cc\
 	stochastic-sampling.cc\
 	stochastic-sampling-d2.cc\
   algorithms-partition.c\
@@ -26,8 +28,6 @@ gtfold_SOURCES = \
 	partition-func.c\
 	partition-func-d2.cc\
 	shapereader.cc\
-	pf-shel-check.cc\
-	key.cc
 
 gtfold_LDFLAGS = 
 

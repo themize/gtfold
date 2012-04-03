@@ -705,7 +705,7 @@ delete [] structure;
 }
  */
 
-void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY)
+void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY)
 {cout<<"ST_D2_ENABLE_UNIFORM_SAMPLE="<<ST_D2_ENABLE_UNIFORM_SAMPLE<<",ST_D2_UNIFORM_SAMPLE_ENERGY="<<ST_D2_UNIFORM_SAMPLE_ENERGY<<endl;
 	MyDouble U;
 	/*if(PF_D2_UP_APPROX_ENABLED){
@@ -819,12 +819,53 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 		else{
 			printf("nsamples=%d\n",nsamples);
 		}
+		if(ST_D2_ENABLE_BPP_PROBABILITY){
+			int** bpp_freq = new int*[length+1];
+			for(int p=1; p<=length; ++p) bpp_freq[p] = new int[length+1];
+			for(int p=1; p<=length; ++p) for(int q=p+1; q<=length; ++q) bpp_freq[p][q]=0;
+			//for(int p=1; p<=length; ++p) for(int q=1; q<=length; ++q) bpp_freq[p][q]=0;
+			int total_bpp_freq=0;
+			std::map<std::string,std::pair<int,double> >::iterator iter ;
+			for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
+			{
+				const std::string& struc_str = iter->first;
+				const std::pair<int,double>& pp = iter->second;
+				const int& struc_freq =  pp.first;
+				updateBppFreq(struc_str, struc_freq, bpp_freq, length, total_bpp_freq);
+			}
+			cout<<"\nBPP Probabilities are\ni,j,bppFreq,totalBppFreq\n";
+			for(int p=1; p<=length; ++p) for(int q=p+1; q<=length; ++q){
+				if(bpp_freq[p][q]>0) cout<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<total_bpp_freq<<endl;
+			}
+			for(int p=1; p<=length; ++p) delete[] bpp_freq[p];
+			delete[] bpp_freq;
+		}
 
 	}
 	delete[] structure;
 }
 
-void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION)
+void StochasticTracebackD2::updateBppFreq(std::string struc_str, int struc_freq, int** bpp_freq, int length, int& total_bpp_freq){
+	//cout<<"Entering updateBppFreq\n";
+	std::stack<int> pos_stack;
+	int i=0;
+	while(i<length){
+		while(i<length && struc_str[i]=='('){ pos_stack.push(i);i++;}
+		while(i<length && struc_str[i]=='.'){ i++;}
+		while(i<length && struc_str[i]==')'){
+			int j=pos_stack.top();
+			pos_stack.pop();
+			//cout<<"pair: "<<j+1<<" "<<i+1<<endl;
+			bpp_freq[j+1][i+1] += struc_freq;
+			total_bpp_freq += struc_freq;
+			i++;
+		}
+	}
+	assert(pos_stack.size()==0);
+	//cout<<"Exiting updateBppFreq\n";
+}
+
+void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY)
 {
 	//MyDouble U = pf_d2.get_u(1,length);
 	MyDouble U;
