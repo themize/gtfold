@@ -7,8 +7,15 @@
 #include<math.h>
 #include "gmp.h"
 using namespace std;
-const int PRECISION = 64;
-static char BIG_NUM_ENABLED = 'N';//'Y';
+
+//#define USE_DOUBLE_ONLY 1
+
+//#ifdef USE_DOUBLE_ONLY
+//#define MyDouble double
+//#else
+const int PRECISION = 1024;
+static char BIG_NUM_ENABLED = 'Y';//'N';//'Y';
+static int BIGNUM_ONLY=0;
 const int PRINT_DIGITS_AFTER_DECIMAL = 10;
 static int verbose=0;
 /*mpf_t getBigNum(double val2){
@@ -29,10 +36,10 @@ class MyDouble{
 			bigValue=0;smallValue=0;isBig='n';
 			createDouble();			
 		}
-		void init(){
+	/*	void init(){
 			bigValue=0;smallValue=0;isBig='n';
 			createDouble();
-		}
+		}*/
 		MyDouble(char isBig1){
 			if(verbose==1)printf("Constructor with input char isBig1=%c\n",isBig1);
 			bigValue=0;smallValue=0;isBig=isBig1;
@@ -61,8 +68,10 @@ class MyDouble{
 				exit(-1);
 			}
 			isBig = 'y';
-			if(bigValue==0) bigValue = new mpf_t[1];
-			mpf_init2(*bigValue,PRECISION);
+			if(bigValue==0){
+				bigValue = new mpf_t[1];
+				mpf_init2(*bigValue,PRECISION);
+			}
 		}
 		void createDouble(){
 			double val2 =0.0;
@@ -79,13 +88,21 @@ class MyDouble{
 			if(bigValue==0){
 				if(verbose==1)printf("Allocation mpf_t\n");
 				bigValue = new mpf_t[1];
+				mpf_init2(*bigValue,PRECISION);//TODO This line was earlier outside this "if"
 			}
-			mpf_init2(*bigValue,PRECISION);
+			//mpf_init2(*bigValue,PRECISION);
 			mpf_set(*bigValue, val2);//value=val2;
+			//mpf_clear(val2);//Do not un-comment this line, this line will cause errors
 		}
 		void createDouble(double val2){
 			//bigValue = 0;
-			if(bigValue!=0){ delete bigValue; bigValue=0;}
+			if(BIGNUM_ONLY==1){
+				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, val2);
+			       	createBigNum(op2);
+				mpf_clear(op2);
+				return;
+			}
+			if(bigValue!=0){ mpf_clear(*bigValue); delete bigValue; bigValue=0;}
 			if(smallValue==0){
 				if(verbose==1)printf("Allocation double for %f\n",val2);
 				smallValue = new double;
@@ -94,9 +111,10 @@ class MyDouble{
 			isBig='n';
 		}
 		void deallocate(){
-			if(isBig=='y'){ if(bigValue!=0){ if(verbose==1) printf("Deallocation mpf_t\n"); delete(bigValue); bigValue=0;}isBig='X';}
-                        else if(isBig=='n'){ if(smallValue!=0){ if(verbose==1) printf("Deallocation double for %f\n",*smallValue); delete(smallValue); smallValue=0;} isBig='X';}
-			else printf("In MyDouble::deallocate(), Unknown isBig = %c\n", isBig);
+			if(isBig=='y'){ if(bigValue!=0){ if(verbose==1) printf("Deallocation mpf_t\n"); mpf_clear(*bigValue); delete(bigValue); bigValue=0;}isBig='X';}
+			else if(isBig=='n'){ if(smallValue!=0){ if(verbose==1) printf("Deallocation double for %f\n",*smallValue); delete(smallValue); smallValue=0;} isBig='X';}
+			else if(verbose==1) printf("In MyDouble::deallocate(), Unknown isBig = %c\n", isBig);
+			bigValue=0;smallValue=0;isBig='X';
 		}
 		~MyDouble(){if(verbose==1)printf("Destructor called\n");
 			deallocate();	
@@ -131,6 +149,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_mul(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 3: this object is smallValue and obj2 is bigValue -- result is bigValue
@@ -139,6 +158,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op1; mpf_init2(op1,PRECISION); mpf_set_d(op1, *(this->smallValue));
 				mpf_mul(*(res.bigValue),op1, *(obj1.bigValue));
+				mpf_clear(op1);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -161,6 +181,8 @@ class MyDouble{
 					mpf_t op1; mpf_init2(op1,PRECISION); mpf_set_d(op1, *(this->smallValue));
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_mul(*(res.bigValue),op1, op2);
+					mpf_clear(op1);
+					mpf_clear(op2);
 					//res.print();
 					if(verbose==1) printf("successful multiplication\n");
 					return res;
@@ -179,6 +201,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_mul(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -202,6 +225,8 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_mul(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);
+					mpf_clear(op2);
 					if(verbose==1)printf("successful multiplication\n");
 					return res;
 				}
@@ -225,6 +250,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_add(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 3: this object is smallValue and obj2 is bigValue -- result is bigValue
@@ -233,6 +259,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op1; mpf_init2(op1,PRECISION); mpf_set_d(op1, *(this->smallValue));
 				mpf_add(*(res.bigValue),op1, *(obj1.bigValue));
+				mpf_clear(op1);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -256,6 +283,7 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_add(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);mpf_clear(op2);
 					if(verbose==1)printf("successful addition\n");
 					return res;
 				}
@@ -273,6 +301,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_add(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -296,6 +325,8 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_add(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);
+					mpf_clear(op2);
 					if(verbose==1)printf("successful multiplication\n");
 					return res;
 				}
@@ -318,6 +349,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_sub(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 3: this object is smallValue and obj2 is bigValue -- result is bigValue
@@ -326,6 +358,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op1; mpf_init2(op1,PRECISION); mpf_set_d(op1, *(this->smallValue));
 				mpf_sub(*(res.bigValue),op1, *(obj1.bigValue));
+				mpf_clear(op1);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -349,6 +382,7 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_sub(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);mpf_clear(op2);
 					if(verbose==1)printf("successful subtraction\n");
 					return res;
 				}
@@ -366,6 +400,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_sub(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -389,6 +424,7 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_sub(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);mpf_clear(op2);
 					if(verbose==1)printf("successful subtraction\n");
 					return res;
 				}
@@ -411,6 +447,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_div(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 3: this object is smallValue and obj2 is bigValue -- result is bigValue
@@ -419,6 +456,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op1; mpf_init2(op1,PRECISION); mpf_set_d(op1, *(this->smallValue));
 				mpf_div(*(res.bigValue),op1, *(obj1.bigValue));
+				mpf_clear(op1);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -442,6 +480,7 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_div(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);mpf_clear(op2);
 					if(verbose==1)printf("successful division\n");
 					return res;
 				}
@@ -459,6 +498,7 @@ class MyDouble{
 				res.createBigNum();
 				mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 				mpf_div(*(res.bigValue),*(this->bigValue), op2);
+				mpf_clear(op2);
 				return res;
 			}
 			//case 4: this object is smallValue and obj2 is smallValue -- result can be smallValue or bigValue, we need to check
@@ -482,6 +522,7 @@ class MyDouble{
 					mpf_t op2; mpf_init2(op2,PRECISION); mpf_set_d(op2, *(obj1.smallValue));
 					mpf_div(*(res.bigValue),op1, op2);
 					//res.print();
+					mpf_clear(op1);mpf_clear(op2);
 					if(verbose==1)printf("successful division\n");
 					return res;
 				}
@@ -591,9 +632,10 @@ class MyDouble{
 			//printf("operator overload= starts\n");obj1.print();//printf("operator overload= ends\n");
 			if(this==&obj1) return *this;
 			if(isInitialized())this->deallocate();
+			else {bigValue=0; smallValue=0;}
 			//printf("successful deallocation\n");
-			if(obj1.isBig=='n') createDouble(*(obj1.smallValue));
-			else if(obj1.isBig=='y') createBigNum(*(obj1.bigValue));
+			if(obj1.isBig=='n'){ isBig='n'; createDouble(*(obj1.smallValue));}
+			else if(obj1.isBig=='y'){isBig='y'; createBigNum(*(obj1.bigValue));}
 			return *this;
 		}
 		MyDouble& operator=(const double &obj1) {
@@ -601,7 +643,9 @@ class MyDouble{
 			//printf("operator overload= starts\n");obj1.print();//printf("operator overload= ends\n");
 			//if(this==&obj1) return *this;
 			if(isInitialized())this->deallocate();
+			else {bigValue=0; smallValue=0;}
 			//printf("successful deallocation\n");
+			isBig='n';
 			createDouble(obj1);
 			return *this;
 		}
@@ -612,12 +656,13 @@ class MyDouble{
 			//if(this==&obj1) return ;//*this;
 			//if(isInitialized())this->deallocate();
 			//printf("successful deallocation\n");
-			if(obj1.isBig=='n') createDouble(*(obj1.smallValue));
-			else if(obj1.isBig=='y') createBigNum(*(obj1.bigValue));
+			if(obj1.isBig=='n'){ isBig='n'; createDouble(*(obj1.smallValue));}
+			else if(obj1.isBig=='y'){ isBig='y'; createBigNum(*(obj1.bigValue));}
 			//return *this;
 		}
 
 };
+//#endif
 #endif
 /*
 int main(){
