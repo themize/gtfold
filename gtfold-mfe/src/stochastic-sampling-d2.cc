@@ -12,8 +12,8 @@
 #include<omp.h>
 
 //Basic utility functions
-void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int ss_verbose1, bool PF_D2_UP_APPROX_ENABLED1){
-	checkFraction = true;
+void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int ss_verbose1, bool PF_D2_UP_APPROX_ENABLED1, bool checkFraction1){
+	checkFraction = checkFraction1;
 	length = length1;
 	if(checkFraction) fraction = pf_shel_check(length);
 	ss_verbose = ss_verbose1; 
