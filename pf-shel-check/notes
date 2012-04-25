@@ -1,1 +1,0 @@
-g++ -Wall pf-shel-check.cc pf-shel-checkh key.cc key.h -o program
