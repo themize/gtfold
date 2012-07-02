@@ -33,6 +33,9 @@ double f(int j, int h, int l);
 double calculate_partition(int len, int pf_count_mode, int no_dangle_mode);
 void free_partition();
 
+void partition_enable_limit_distance(int b);
+void partition_set_contact_distance(int dist);
+
 #ifdef __cplusplus
 }
 #endif
