@@ -51,6 +51,7 @@ static string stochastic_summery_file_name = "stochaSampleSummary.txt";
 static int num_rnd = 0;
 static int ss_verbose_global = 0;
 
+static bool LIMIT_DISTANCE = false;
 static int contactDistance = -1;
 
 static void help() {
@@ -164,10 +165,8 @@ static void parse_options(int argc, char** argv) {
 				}
 			} else if (strcmp(argv[i],"--limitCD") == 0 || strcmp(argv[i], "-l") == 0) {
 				if(i < argc) {
+					LIMIT_DISTANCE = true;
 					contactDistance = atoi(argv[++i]);
-					printf("contact distance = %d\n",contactDistance);
-					partition_enable_limit_distance(true);  
-            		partition_set_contact_distance(contactDistance);
 				}
 				else
 					help();
@@ -230,8 +229,17 @@ int boltzmann_main(int argc, char** argv) {
 	}
 	parse_mfe_options(argc, argv);
 	init_fold(seq.c_str());
+	g_LIMIT_DISTANCE = LIMIT_DISTANCE;
+	g_contactDistance = contactDistance;
 
 	readThermodynamicParameters(paramDir.c_str(), PARAM_DIR, 0, 0, 0);
+	
+	if (LIMIT_DISTANCE) {
+		if (strlen(seq.c_str()) < contactDistance) 
+			printf("\nContact distance limit is higher than the sequence length. Continuing without restraining contact distance.\n");
+		else printf("\nLimiting contact distance to %d\n",contactDistance);
+	}
+	
 	if (CALC_PART_FUNC == true && CALC_PF_DS == true) {
 		int pf_count_mode = 0;
 		if(PF_COUNT_MODE) pf_count_mode=1;
