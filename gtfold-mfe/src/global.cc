@@ -19,6 +19,8 @@ int g_prefilter_mode;
 int g_prefilter1;
 int g_prefilter2;
 
+int SHAPE_ENABLED = 0;
+
 void init_global_params(int len) {
 	RNA = (unsigned char *) malloc((len+1)* sizeof(unsigned char));
 	if (RNA == NULL) {

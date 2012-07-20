@@ -47,7 +47,11 @@ static bool PARAM_DIR = false;
 //static bool LIMIT_DISTANCE;
 static bool CONS_ENABLED = false;
 static bool VERBOSE = false;
-static bool SHAPE_ENABLED = false;
+
+//static bool SHAPE_ENABLED = false;
+
+//extern int SHAPE_ENABLED;
+
 static bool T_MISMATCH = false;
 static bool UNAMODE = false;
 static bool RNAMODE = false;
@@ -311,7 +315,8 @@ void parse_mfe_options(int argc, char** argv) {
       else if (strcmp(argv[i], "--useSHAPE") == 0){
         if( i < argc){
           shapeFile = argv[++i];
-          SHAPE_ENABLED = true;
+          //SHAPE_ENABLED = true;
+          SHAPE_ENABLED = 1;
         }
         else
           help();
