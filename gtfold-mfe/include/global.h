@@ -23,6 +23,8 @@ extern int g_prefilter2;
 extern unsigned int chPairKey;
 
 extern int SHAPE_ENABLED;//0 means false and 1 means true
+extern int g_LIMIT_DISTANCE;
+extern int g_contactDistance;
 
 // The possible base pairs are (A,U), (U,A), (C,G), (G,C), (G,U) 
 //  and (U,G). 
