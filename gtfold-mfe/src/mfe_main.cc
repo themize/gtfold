@@ -259,7 +259,7 @@ void parse_mfe_options(int argc, char** argv) {
         }
         else
           help();
-      }else if(strcmp(argv[i], "--prefix") == 0 || strcmp(argv[i], "-o") == 0) {
+      }else if(strcmp(argv[i], "--output") == 0 || strcmp(argv[i], "-o") == 0) {
         if(i < argc)
           outputPrefix = argv[++i];
         else
