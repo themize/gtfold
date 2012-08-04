@@ -45,6 +45,7 @@ static string outputDir = "";
 static string outputFile = "";
 static string paramDir; // default value
 static string bppOutFile = "";
+static string sampleOutFile = "";
 static string ctFileDumpDir = "";
 static string stochastic_summery_file_name = "stochaSampleSummary.txt";
 
@@ -97,8 +98,8 @@ static void parse_options(int argc, char** argv) {
 				else {
 					help();
 				}
-			} 
-			else if(strcmp(argv[i], "--prefix") == 0 || strcmp(argv[i], "-o") == 0) {
+			}
+			else if(strcmp(argv[i], "--output") == 0 || strcmp(argv[i], "-o") == 0) {
 				if(i < argc)
 					outputPrefix = argv[++i];
 				else
@@ -203,13 +204,19 @@ static void parse_options(int argc, char** argv) {
 		outputFile += "/";
 		bppOutFile += outputDir;
 		bppOutFile += "/";
+		sampleOutFile += outputDir;
+		sampleOutFile += "/";
+
 	}
 	// ... and append the .ct
 	outputFile += outputPrefix;
 	outputFile += ".ct";
 
 	bppOutFile += outputPrefix;	
-	bppOutFile += "_bpp.txt";	
+	bppOutFile += "_bpp.txt";
+
+	sampleOutFile += outputPrefix;	
+	sampleOutFile += ".samples";
 }
 /*
    double get_seconds() {
@@ -319,7 +326,7 @@ int boltzmann_main(int argc, char** argv) {
 			if(DUMP_CT_FILE==false){
 				if(ST_D2_ENABLE_COUNTS_PARALLELIZATION)
 					st_d2.batch_sample_parallel(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_BPP_PROBABILITY);
-				else st_d2.batch_sample(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_UNIFORM_SAMPLE,ST_D2_UNIFORM_SAMPLE_ENERGY,ST_D2_ENABLE_BPP_PROBABILITY);
+				else st_d2.batch_sample(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_UNIFORM_SAMPLE,ST_D2_UNIFORM_SAMPLE_ENERGY,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile);
 			}
                         else  st_d2.batch_sample_and_dump(num_rnd, ctFileDumpDir, stochastic_summery_file_name, seq, seqfile);
 			t1 = get_seconds() - t1;

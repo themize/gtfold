@@ -741,9 +741,13 @@ delete [] structure;
 }
  */
 
-void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY)
+void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile)
 {cout<<"ST_D2_ENABLE_UNIFORM_SAMPLE="<<ST_D2_ENABLE_UNIFORM_SAMPLE<<",ST_D2_UNIFORM_SAMPLE_ENERGY="<<ST_D2_UNIFORM_SAMPLE_ENERGY<<endl;
 	MyDouble U;
+	
+	ofstream outfile;
+        outfile.open(samplesOutputFile.c_str());
+
 	/*if(PF_D2_UP_APPROX_ENABLED){
 	  double t1 = get_seconds();
 	  PartitionFunctionD2 pf_d2_exact_up;
@@ -818,7 +822,7 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 
 			if(!ST_D2_ENABLE_SCATTER_PLOT){
 				//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
-				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy);
+				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, outfile);
 			}
 		}
 		//std::cout << nsamples << std::endl;
@@ -885,6 +889,8 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 
 	}
 	delete[] structure;
+	printf("\nStochastic samples saved to %s\n", samplesOutputFile.c_str());
+        outfile.close();
 }
 
 void StochasticTracebackD2::updateBppFreq(std::string struc_str, int struc_freq, int** bpp_freq, int length, int& total_bpp_freq){
@@ -1055,7 +1061,7 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 
 			if(!ST_D2_ENABLE_SCATTER_PLOT){
 				//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
-				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy);
+				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, std::cout);
 			}
 		}
 
@@ -1282,7 +1288,7 @@ void StochasticTracebackD2::set_base_pair(int i, int j, int* structure)
 	structure[j] = i;
 }
 
-void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotation(int* structure, std::string ensemble, int length, double energy){
+void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotation(int* structure, std::string ensemble, int length, double energy, ostream & outfile){
 	//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 	stringstream ssobj;
 	//ssobj << energy << "\t";	
@@ -1312,5 +1318,5 @@ void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotatio
 			i++;
 		}
 	}
-	std::cout<<ssobj.str()<<endl;
+	outfile<<ssobj.str()<<endl;
 }
