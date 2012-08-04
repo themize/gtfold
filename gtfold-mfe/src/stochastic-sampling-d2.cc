@@ -816,7 +816,10 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 				if(ST_D2_ENABLE_SCATTER_PLOT) uniq_structs.insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
 			}
 
-			if(!ST_D2_ENABLE_SCATTER_PLOT) std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+			if(!ST_D2_ENABLE_SCATTER_PLOT){
+				//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy);
+			}
 		}
 		//std::cout << nsamples << std::endl;
 		if(ST_D2_ENABLE_SCATTER_PLOT && !ST_D2_ENABLE_BPP_PROBABILITY){
@@ -1050,7 +1053,10 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 				//uniq_structs_thread[thdId].insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
 			}
 
-			if(!ST_D2_ENABLE_SCATTER_PLOT) std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+			if(!ST_D2_ENABLE_SCATTER_PLOT){
+				//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy);
+			}
 		}
 
 		if(ST_D2_ENABLE_SCATTER_PLOT){
@@ -1274,4 +1280,37 @@ void StochasticTracebackD2::set_base_pair(int i, int j, int* structure)
 	assert(cond);
 	structure[i] = j;
 	structure[j] = i;
+}
+
+void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotation(int* structure, std::string ensemble, int length, double energy){
+	//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+	stringstream ssobj;
+	//ssobj << energy << "\t";	
+	ssobj << ensemble.substr(1) << "\t" << energy << "\t";
+	int i=1;
+	while( i <= (int)length ) {
+		int myI = i;
+		int myJ = structure[i];
+		int myCount = 1;
+		if (myJ > 0 && myI<myJ)
+		{
+			for(int tempI=myI+1; tempI <= (int)length; ++tempI){
+				int tempJ = structure[tempI];
+				if(tempJ>0  && tempI<tempJ  && (tempI-myI)==(myJ-tempJ)){
+					myCount++;
+					i = tempI+1;
+				}
+				else{
+					//std::cout<<myI<<" "<<myJ<<" "<<myCount<<", "; 
+					ssobj<<myI<<" "<<myJ<<" "<<myCount<<", "; 
+					i = tempI;
+					break;	
+				}
+			}
+		}
+		else{
+			i++;
+		}
+	}
+	std::cout<<ssobj.str()<<endl;
 }

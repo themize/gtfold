@@ -100,7 +100,7 @@ public:
 		double rnd_structure(int* structure);
 		double rnd_structure_parallel(int* structure, int threads_for_one_sample);
 		void updateBppFreq(std::string struc_str, int struc_freq, int ** bpp_freq, int length, int& total_bpp_freq);
-
+		void printEnergyAndStructureInDotBracketAndTripletNotation(int* structure, std::string ensemble, int length, double energy);
 	public:
 		void initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int ss_verbose1, bool PF_D2_UP_APPROX_ENABLED, bool checkFraction1);
 		void free_traceback();
