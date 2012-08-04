@@ -312,7 +312,7 @@ void parse_mfe_options(int argc, char** argv) {
       } else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
         VERBOSE = true;
       }
-      else if (strcmp(argv[i], "--useSHAPE") == 0){
+      else if (strcmp(argv[i], "--useSHAPE") == 0  || strcmp(argv[i], "-s") == 0){
         if( i < argc){
           shapeFile = argv[++i];
           //SHAPE_ENABLED = true;
