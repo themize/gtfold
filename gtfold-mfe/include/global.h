@@ -39,6 +39,7 @@ void free_global_params();
 void print_sequence(int len); 
 void print_structure(int len); 
 void print_header() ;
+void print_gtfold_usage_help();
 #ifdef __cplusplus
 }
 #endif
