@@ -29,9 +29,9 @@ static bool RND_SAMPLE = false;
 static bool DUMP_CT_FILE = false;
 static bool CALC_PF_DO = false;
 static bool CALC_PF_DS = false;
-static bool CALC_PF_D2 = false;
-static bool PF_D2_UP_APPROX_ENABLED = false;
-static bool ST_D2_ENABLE_COUNTS_PARALLELIZATION = false;
+static bool CALC_PF_D2 = true;//making D2 mode as default option
+static bool PF_D2_UP_APPROX_ENABLED = true;//making short internal loop code to run as default
+static bool ST_D2_ENABLE_COUNTS_PARALLELIZATION = true;//making parallelization of sample counts as default
 static bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION = false;
 static bool ST_D2_ENABLE_SCATTER_PLOT = false;
 static bool ST_D2_ENABLE_UNIFORM_SAMPLE = false;
@@ -46,11 +46,14 @@ static string outputFile = "";
 static string paramDir; // default value
 static string bppOutFile = "";
 static string sampleOutFile = "";
+static string energyDecomposeOutFile = "";
 static string ctFileDumpDir = "";
 static string stochastic_summery_file_name = "stochaSampleSummary.txt";
 
 static int num_rnd = 0;
 static int ss_verbose_global = 0;
+static int print_energy_decompose = 0;
+static int dangles=2;//making dangle default value as 2
 
 static bool LIMIT_DISTANCE = false;
 static int contactDistance = -1;
@@ -63,6 +66,7 @@ static void help() {
 	printf("OPTIONS\n");
 
 	printf("   -t|--threads INT    Limit number of threads used to INT.\n");
+	printf("   -v, --verbose        Run in verbose mode (includes partition function table printing.)\n");
 	printf("   --partition          Calculate the partition function (default is using sfold reccurences).\n");
 	printf("   --partition -dS      Calculate the partition function using sfold reccurences.\n");
 	printf("   --partition -d0      Calculate the partition function using -d0 reccurences.\n");
@@ -79,6 +83,7 @@ static void help() {
 	printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
 	printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
 	printf("   -h, --help           Output help (this message) and exit.\n");
+	printf("   -e, --energy         prints energy decomposition for sampled structures to file with extention '.energy'.\n");
 	printf("   -w, --workdir DIR    Path of directory where output files will be written.\n");
 	exit(-1);
 }
@@ -114,31 +119,53 @@ static void parse_options(int argc, char** argv) {
 			}
 			else if (strcmp(argv[i],"--partition") == 0) {
 				CALC_PART_FUNC = true;
-			} else if (strcmp(argv[i],"-dS") == 0) {
+			} else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
+				g_verbose = 1;
+      			}
+			else if (strcmp(argv[i], "--energy") == 0 || strcmp(argv[i], "-e") == 0) {
+                                print_energy_decompose = 1;
+                        }
+			else if (strcmp(argv[i], "--dangle") == 0 || strcmp(argv[i], "-d") == 0) {
+        			std::string cmd = argv[i];
+        			if(i < argc) {
+          				dangles = atoi(argv[++i]);
+          				if (!(dangles == 0 || dangles == 2)) {
+            					dangles = 2;
+            					printf("Ignoring %s option as it accepts either 0 or 2, proceeding with taking value for dangle as 2\n", cmd.c_str());
+          				}
+					if(dangles==0) CALC_PF_DO = true;
+					else if(dangles==2) CALC_PF_D2 = true;
+        			} else
+          			help();
+      			}
+			else if (strcmp(argv[i],"-dS") == 0) {
 				CALC_PF_DS = true;  
 			} else if (strcmp(argv[i],"-d0") == 0) {
 				CALC_PF_DO = true;  
 			} else if (strcmp(argv[i],"-d2") == 0) {
 				//help();
 				CALC_PF_D2 = true;
-				if(i < argc && strcmp(argv[i+1],"--approxUP") == 0){ i=i+1;PF_D2_UP_APPROX_ENABLED = true;}
-				if(i < argc && strcmp(argv[i+1],"--scatterPlot") == 0){ i=i+1;ST_D2_ENABLE_SCATTER_PLOT = true;}
-				if(i < argc && strcmp(argv[i+1],"--uniformSample") == 0){
-					i=i+1;ST_D2_ENABLE_UNIFORM_SAMPLE = true;
-					if(i < argc){ST_D2_UNIFORM_SAMPLE_ENERGY = atof(argv[++i]);}
-					else help();
-					continue;
-					
-				}
-				if(i < argc && strcmp(argv[i+1],"--check-fraction") == 0){ i=i+1;ST_D2_ENABLE_CHECK_FRACTION = true;}
-				if(i < argc && strcmp(argv[i+1],"--bpp-probability") == 0){ i=i+1;ST_D2_ENABLE_BPP_PROBABILITY = true;ST_D2_ENABLE_SCATTER_PLOT = true;}
-				if(i < argc && strcmp(argv[i+1],"--counts-parallel") == 0){ i=i+1; ST_D2_ENABLE_COUNTS_PARALLELIZATION = true;}
-				if(i < argc && strcmp(argv[i+1],"--one-sample-parallel") == 0){ i=i+1; ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION = true;}
-			}
-			else if (strcmp(argv[i],"--pfcount") == 0) {
+			} else if(strcmp(argv[i],"--approxUP") == 0){ 
+				PF_D2_UP_APPROX_ENABLED = true;
+			} else if(strcmp(argv[i],"--scatterPlot") == 0){
+				ST_D2_ENABLE_SCATTER_PLOT = true;
+			} else if(strcmp(argv[i],"--uniformSample") == 0){
+				ST_D2_ENABLE_UNIFORM_SAMPLE = true;
+				if(i < argc){ST_D2_UNIFORM_SAMPLE_ENERGY = atof(argv[++i]);}
+				else help();
+			} else if(strcmp(argv[i],"--check-fraction") == 0){
+				ST_D2_ENABLE_CHECK_FRACTION = true;
+			} else if(strcmp(argv[i],"--bpp-probability") == 0){ 
+				ST_D2_ENABLE_BPP_PROBABILITY = true;
+				ST_D2_ENABLE_SCATTER_PLOT = true;
+			} else if(strcmp(argv[i],"--counts-parallel") == 0){
+				ST_D2_ENABLE_COUNTS_PARALLELIZATION = true;
+			} else if(strcmp(argv[i],"--one-sample-parallel") == 0){ 
+				ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION = true;
+			} else if (strcmp(argv[i],"--pfcount") == 0) {
 				CALC_PART_FUNC = true;
 				PF_COUNT_MODE = true;
-			}  else if (strcmp(argv[i],"--sample") == 0) {
+			} else if (strcmp(argv[i],"--sample") == 0) {
 				RND_SAMPLE = true;
 				if(i < argc)
 					num_rnd = atoi(argv[++i]);
@@ -206,6 +233,8 @@ static void parse_options(int argc, char** argv) {
 		bppOutFile += "/";
 		sampleOutFile += outputDir;
 		sampleOutFile += "/";
+		energyDecomposeOutFile += outputDir;
+		energyDecomposeOutFile += "/";
 
 	}
 	// ... and append the .ct
@@ -217,6 +246,9 @@ static void parse_options(int argc, char** argv) {
 
 	sampleOutFile += outputPrefix;	
 	sampleOutFile += ".samples";
+
+	energyDecomposeOutFile += outputPrefix;	
+	energyDecomposeOutFile += ".energy";
 }
 /*
    double get_seconds() {
@@ -319,13 +351,13 @@ int boltzmann_main(int argc, char** argv) {
 			printf("\nComputing stochastic traceback in -d2 mode ..., pf_count_mode=%d, no_dangle_mode=%d, PF_D2_UP_APPROX_ENABLED=%d\n", pf_count_mode, no_dangle_mode,PF_D2_UP_APPROX_ENABLED);
 			StochasticTracebackD2 st_d2;
 			t1 = get_seconds();
-                        st_d2.initialize(seq.length(), pf_count_mode, no_dangle_mode, ss_verbose_global,PF_D2_UP_APPROX_ENABLED,ST_D2_ENABLE_CHECK_FRACTION);
+                        st_d2.initialize(seq.length(), pf_count_mode, no_dangle_mode, print_energy_decompose, PF_D2_UP_APPROX_ENABLED,ST_D2_ENABLE_CHECK_FRACTION, energyDecomposeOutFile);
                         t1 = get_seconds() - t1;
                         printf("D2 Traceback initialization (partition function computation) running time: %9.6f seconds\n", t1);
 			t1 = get_seconds();
 			if(DUMP_CT_FILE==false){
 				if(ST_D2_ENABLE_COUNTS_PARALLELIZATION)
-					st_d2.batch_sample_parallel(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_BPP_PROBABILITY);
+					st_d2.batch_sample_parallel(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile);
 				else st_d2.batch_sample(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_UNIFORM_SAMPLE,ST_D2_UNIFORM_SAMPLE_ENERGY,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile);
 			}
                         else  st_d2.batch_sample_and_dump(num_rnd, ctFileDumpDir, stochastic_summery_file_name, seq, seqfile);

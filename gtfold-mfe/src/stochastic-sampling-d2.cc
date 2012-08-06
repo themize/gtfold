@@ -13,11 +13,21 @@
 #include<time.h>
 
 //Basic utility functions
-void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int ss_verbose1, bool PF_D2_UP_APPROX_ENABLED1, bool checkFraction1){
+void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_DANGLE_MODE1, int print_energy_decompose1, bool PF_D2_UP_APPROX_ENABLED1, bool checkFraction1, string energy_decompose_output_file){
 	checkFraction = checkFraction1;
 	length = length1;
 	//if(checkFraction) fraction = pf_shel_check(length);
-	ss_verbose = ss_verbose1; 
+	print_energy_decompose = print_energy_decompose1; 
+	if(print_energy_decompose==1){
+		//open file handler with file energy_decompose_output_file
+		//FILE* energy_decompose_outfile;
+        	energy_decompose_outfile = fopen(energy_decompose_output_file.c_str(), "w");
+        	if(energy_decompose_outfile==NULL){
+                	cerr<<"Error in opening file: "<<energy_decompose_output_file<<endl;
+                	exit(-1);
+        	}
+		printf("\nEnergy decomposition for Stochastically sampled structure will be saved to %s\n", energy_decompose_output_file.c_str());
+	}
 	//energy = 0.0;
 	//structure = new int[length+1];
 	//std::stack<base_pair> g_stack;
@@ -29,6 +39,7 @@ void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_D
 
 void StochasticTracebackD2::free_traceback(){
 	pf_d2.free_partition();
+	fclose(energy_decompose_outfile);
 	//delete[] structure;
 }
 
@@ -140,9 +151,10 @@ void StochasticTracebackD2::rnd_u(int i, int j, int* structure, double & energy,
 				fraction.add(0, i, j, false);
 			}
 			double e2 = ( (pf_d2.ED5_new(h,j,h-1)) + (pf_d2.ED3_new(h,j,j+1)) + (pf_d2.auPenalty_new(h,j)) );
-			if (ss_verbose == 1) {
-				printf(" (pf_d2.ED5_new(h,j,h-1))=%f, (pf_d2.ED3_new(h,j,j+1))=%f, (pf_d2.auPenalty_new(h,j))=%f\n", (pf_d2.ED5_new(h,j,h-1))/100.0, (pf_d2.ED3_new(h,j,j+1))/100.0, (pf_d2.auPenalty_new(h,j))/100.0);
-				printf(" U_ihj(i=%d,h=%d,j=%d)= %lf\n",i,h,j, e2/100.0);
+			if (print_energy_decompose == 1) {
+				fprintf(energy_decompose_outfile, " (pf_d2.ED5_new(h,j,h-1))=%f, (pf_d2.ED3_new(h,j,j+1))=%f, (pf_d2.auPenalty_new(h,j))=%f\n", (pf_d2.ED5_new(h,j,h-1))/100.0, (pf_d2.ED3_new(h,j,j+1))/100.0, (pf_d2.auPenalty_new(h,j))/100.0);
+				fprintf(energy_decompose_outfile, " U_ihj(i=%d,h=%d,j=%d)= %lf\n",i,h,j, e2/100.0);
+				
 			}
 			energy += e2;
 			base_pair bp(h,j,UP);
@@ -190,9 +202,9 @@ void StochasticTracebackD2::rnd_s1(int i, int h, int j, int* structure, double &
 				fraction.add(2, h, j, false);
 			}
 			double e2 = (pf_d2.ED5_new(h,l,h-1))+ (pf_d2.auPenalty_new(h,l)) + (pf_d2.ED3_new(h,l,l+1));
-			if (ss_verbose == 1) {
-				printf("(pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.ED5_new(h,l,h-1)), (pf_d2.auPenalty_new(h,l)), (pf_d2.ED3_new(h,l,l+1)));
-				printf("(%d %d) %lf\n",i,j, e2/100.0);
+			if (print_energy_decompose == 1) {
+				fprintf(energy_decompose_outfile, "(pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.ED5_new(h,l,h-1)), (pf_d2.auPenalty_new(h,l)), (pf_d2.ED3_new(h,l,l+1)));
+				fprintf(energy_decompose_outfile, "(%d %d) %lf\n",i,j, e2/100.0);
 			}
 			energy += e2;
 			base_pair bp1(h,l,UP);
@@ -230,8 +242,8 @@ void StochasticTracebackD2::rnd_up(int i, int j, int* structure, double & energy
 					fraction.add(1, i, j, false);
 				}
 				double e2 = (pf_d2.eL_new(i,j,h,l));
-				if (ss_verbose == 1) 
-					printf("IntLoop(%d %d) %lf\n",i,j, e2/100.0);
+				if (print_energy_decompose == 1) 
+					fprintf(energy_decompose_outfile, "IntLoop(%d %d) %lf\n",i,j, e2/100.0);
 				energy += e2;
 				base_pair bp(h,l,UP);
 				g_stack.push(bp);
@@ -249,8 +261,8 @@ void StochasticTracebackD2::rnd_up(int i, int j, int* structure, double & energy
 			fraction.add(1, i, j, false);
 		}
 		double e2 = (pf_d2.eH_new(i,j));
-		if (ss_verbose == 1) 
-			printf("Hairpin(%d %d) %lf\n",i,j, e2/100.0);
+		if (print_energy_decompose == 1) 
+			fprintf(energy_decompose_outfile, "Hairpin(%d %d) %lf\n",i,j, e2/100.0);
 		energy += e2;
 		//set_single_stranded(i+1,j-1,structure);
 		
@@ -267,8 +279,8 @@ void StochasticTracebackD2::rnd_up(int i, int j, int* structure, double & energy
 			fraction.add(1, i, j, false);
 		}
 		double e2 = (pf_d2.eS_new(i,j));
-		if (ss_verbose == 1) 
-			printf("Stack(%d %d) %lf\n",i,j, e2/100.0);
+		if (print_energy_decompose == 1) 
+			fprintf(energy_decompose_outfile, "Stack(%d %d) %lf\n",i,j, e2/100.0);
 		energy+=e2;
 		base_pair bp(i+1,j-1,UP);
 		g_stack.push(bp);
@@ -303,8 +315,8 @@ void StochasticTracebackD2::rnd_up(int i, int j, int* structure, double & energy
 					fraction.add(1, i, j, false);
 				}
 				double e2 = (pf_d2.eL_new(i,j,h,l));
-				if (ss_verbose == 1) 
-					printf("IntLoop(%d %d) %lf\n",i,j, e2/100.0);
+				if (print_energy_decompose == 1) 
+					fprintf(energy_decompose_outfile, "IntLoop(%d %d) %lf\n",i,j, e2/100.0);
 				energy += e2;
 				base_pair bp(h,l,UP);
 				g_stack.push(bp);
@@ -341,8 +353,8 @@ void StochasticTracebackD2::rnd_up_approximate(int i, int j, int* structure, dou
                                         fraction.add(1, i, j, false);
                                 }
 				double e2 = (pf_d2.eL_new(i,j,p,q));
-				if (ss_verbose == 1) 
-					printf("IntLoop(%d %d) %lf\n",i,j, e2/100.0);
+				if (print_energy_decompose == 1) 
+					fprintf(energy_decompose_outfile, "IntLoop(%d %d) %lf\n",i,j, e2/100.0);
 			
 				energy += e2;
 				base_pair bp(p,q,UP);
@@ -361,8 +373,8 @@ void StochasticTracebackD2::rnd_up_approximate(int i, int j, int* structure, dou
                         fraction.add(1, i, j, false);
                 }
 		double e2 = (pf_d2.eH_new(i,j));
-		if (ss_verbose == 1) 
-			printf("Hairpin(%d %d) %lf\n",i,j, e2/100.0);
+		if (print_energy_decompose == 1) 
+			fprintf(energy_decompose_outfile, "Hairpin(%d %d) %lf\n",i,j, e2/100.0);
 		energy += e2;
 		//set_single_stranded(i+1,j-1,structure);
 		return ;
@@ -378,8 +390,8 @@ void StochasticTracebackD2::rnd_up_approximate(int i, int j, int* structure, dou
 			fraction.add(1, i, j, false);
 		}
 		double e2 = (pf_d2.eS_new(i,j));
-		if (ss_verbose == 1) 
-			printf("Stack(%d %d) %lf\n",i,j, e2/100.0);
+		if (print_energy_decompose == 1) 
+			fprintf(energy_decompose_outfile, "Stack(%d %d) %lf\n",i,j, e2/100.0);
 		energy+=e2;
 		base_pair bp(i+1,j-1,UP);
 		g_stack.push(bp);
@@ -422,9 +434,9 @@ void StochasticTracebackD2::rnd_u1(int i, int j, int* structure, double & energy
 				fraction.add(6, i, j, false);
 			}
 			double e2 = (pf_d2.EC_new()) + (h-i)*(pf_d2.EB_new());
-			if (ss_verbose == 1){ 
-				printf("(pf_d2.EC_new())=%f (h-i)*(pf_d2.EB_new())=%f\n",(pf_d2.EC_new())/100.0, (h-i)*(pf_d2.EB_new())/100.0);
-				printf("U1_s3_ihj(%d %d %d) %lf\n",i,h,j, e2/100.0);
+			if (print_energy_decompose == 1){ 
+				fprintf(energy_decompose_outfile, "(pf_d2.EC_new())=%f (h-i)*(pf_d2.EB_new())=%f\n",(pf_d2.EC_new())/100.0, (h-i)*(pf_d2.EB_new())/100.0);
+				fprintf(energy_decompose_outfile, "U1_s3_ihj(%d %d %d) %lf\n",i,h,j, e2/100.0);
 			}
 			energy += e2;
 			h1 = h;
@@ -452,9 +464,9 @@ void StochasticTracebackD2::rnd_s3(int i, int h, int j, int* structure, double &
 				fraction.add(5, h, j, false);
 			}
 			double e2 = ((pf_d2.auPenalty_new(h,l)) + (pf_d2.ED5_new(h,l,h-1)) + (pf_d2.ED3_new(h,l,l+1)));
-			if (ss_verbose == 1) {
-				printf("(pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.auPenalty_new(h,l))/100.0, (pf_d2.ED5_new(h,l,h-1))/100.0, (pf_d2.ED3_new(h,l,l+1))/100.0);
-				printf("S3_ihlj(%d %d %d %d) %lf\n",i,h,l,j,e2/100.0);
+			if (print_energy_decompose == 1) {
+				fprintf(energy_decompose_outfile, "(pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.auPenalty_new(h,l))/100.0, (pf_d2.ED5_new(h,l,h-1))/100.0, (pf_d2.ED3_new(h,l,l+1))/100.0);
+				fprintf(energy_decompose_outfile, "S3_ihlj(%d %d %d %d) %lf\n",i,h,l,j,e2/100.0);
 			}
 			energy += e2;
 			base_pair bp(h,l,UP);
@@ -479,8 +491,9 @@ void StochasticTracebackD2::rnd_s3_mb(int i, int h, int l, int j, int* structure
 		}
 		double tt =  0;//(j == l)? 0 : (pf_d2.ED3_new(h,l,l+1));//this term is corresponding to f(j+1,h,l)
 		double e2 = tt + (j-l)*(pf_d2.EB_new());
-		if (ss_verbose == 1){
-			printf("j=%d,l=%d,tt=(j == l)?0:(pf_d2.ED3_new(h,l,l+1))=%f,(j-l)*(pf_d2.EB_new())=%f\n",j,l,tt/100.0,(j-l)*(pf_d2.EB_new())/100.0);				printf("S3_MB_ihlj(%d %d %d %d) %lf\n",i,h,l,j, e2/100.0);
+		if (print_energy_decompose == 1){
+			fprintf(energy_decompose_outfile, "j=%d,l=%d,tt=(j == l)?0:(pf_d2.ED3_new(h,l,l+1))=%f,(j-l)*(pf_d2.EB_new())=%f\n",j,l,tt/100.0,(j-l)*(pf_d2.EB_new())/100.0);
+			fprintf(energy_decompose_outfile, "S3_MB_ihlj(%d %d %d %d) %lf\n",i,h,l,j, e2/100.0);
 		}
 		energy += e2;
 		
@@ -498,8 +511,8 @@ void StochasticTracebackD2::rnd_upm(int i, int j, int* structure, double & energ
 {
 	MyDouble rnd = randdouble();
 	MyDouble cum_prob(0.0);
-	if (ss_verbose == 1)
-		printf("Multiloop (%d %d)\n",i,j);
+	if (print_energy_decompose == 1)
+		fprintf(energy_decompose_outfile, "Multiloop (%d %d)\n",i,j);
 
 	int h1 = -1;
 	for (int h = i+1; h < j-1; ++h)
@@ -517,10 +530,10 @@ void StochasticTracebackD2::rnd_upm(int i, int j, int* structure, double & energ
 			//double e2 = (pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new()) + (pf_d2.auPenalty_new(i,j)) + (pf_d2.ED5_new(i,j,j-1)) + (pf_d2.ED3_new(i,j,i+1));//TODO New impl using ed3(i,j( instead of ed3(j,i)
 			energy += e2;
 			h1 = h;
-			if (ss_verbose == 1) {
-				printf("(pf_d2.EA_new())=%f, (pf_d2.EC_new())=%f, (pf_d2.EB_new())=%f\n",(pf_d2.EA_new())/100.0, (pf_d2.EC_new())/100.0, (pf_d2.EB_new())/100.0);
-				printf("(pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new())=%f, (pf_d2.auPenalty_new(i,j))=%f, (pf_d2.ED5_new(j,i,j-1))=%f, (pf_d2.ED3_new(j,i,i+1))=%f\n",((pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new()))/100.0, (pf_d2.auPenalty_new(i,j))/100.0, (pf_d2.ED5_new(j,i,j-1))/100.0, (pf_d2.ED3_new(j,i,i+1))/100.0);
-				printf("%s(%d %d %d) %lf\n", "UPM_S2_ihj",i,h1,j,e2/100.0);
+			if (print_energy_decompose == 1) {
+				fprintf(energy_decompose_outfile, "(pf_d2.EA_new())=%f, (pf_d2.EC_new())=%f, (pf_d2.EB_new())=%f\n",(pf_d2.EA_new())/100.0, (pf_d2.EC_new())/100.0, (pf_d2.EB_new())/100.0);
+				fprintf(energy_decompose_outfile, "(pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new())=%f, (pf_d2.auPenalty_new(i,j))=%f, (pf_d2.ED5_new(j,i,j-1))=%f, (pf_d2.ED3_new(j,i,i+1))=%f\n",((pf_d2.EA_new()) + 2*(pf_d2.EC_new()) + (h-i-1)*(pf_d2.EB_new()))/100.0, (pf_d2.auPenalty_new(i,j))/100.0, (pf_d2.ED5_new(j,i,j-1))/100.0, (pf_d2.ED3_new(j,i,i+1))/100.0);
+				fprintf(energy_decompose_outfile, "%s(%d %d %d) %lf\n", "UPM_S2_ihj",i,h1,j,e2/100.0);
 			}
 			rnd_s2(i,h1,j, structure, energy, g_stack);
 			return;
@@ -547,9 +560,9 @@ void StochasticTracebackD2::rnd_s2(int i, int h, int j, int* structure, double &
 			}
 			double e2 = (pf_d2.auPenalty_new(h,l)) + (pf_d2.ED5_new(h,l,h-1)) + (pf_d2.ED3_new(h,l,l+1));       
 			energy += e2;
-			if (ss_verbose == 1){
-				printf("(pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.auPenalty_new(h,l))/100.0, (pf_d2.ED5_new(h,l,h-1))/100.0, (pf_d2.ED3_new(h,l,l+1))/100.0);
-				printf("%s(%d %d %d %d) %lf\n"," S2_ihlj",i,h,l,j, e2/100.0);
+			if (print_energy_decompose == 1){
+				fprintf(energy_decompose_outfile, "(pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.auPenalty_new(h,l))/100.0, (pf_d2.ED5_new(h,l,h-1))/100.0, (pf_d2.ED3_new(h,l,l+1))/100.0);
+				fprintf(energy_decompose_outfile, "%s(%d %d %d %d) %lf\n"," S2_ihlj",i,h,l,j, e2/100.0);
 			}
 			base_pair bp1(h,l,UP);
 			base_pair bp2(l+1,j-1,U1);
@@ -747,6 +760,10 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 	
 	ofstream outfile;
         outfile.open(samplesOutputFile.c_str());
+	if(!outfile.good()){
+                cerr<<"Error in opening file: "<<samplesOutputFile<<endl;
+                exit(-1);
+        }
 
 	/*if(PF_D2_UP_APPROX_ENABLED){
 	  double t1 = get_seconds();
@@ -913,10 +930,16 @@ void StochasticTracebackD2::updateBppFreq(std::string struc_str, int struc_freq,
 	//cout<<"Exiting updateBppFreq\n";
 }
 
-void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY)
+void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile)
 {
 	//MyDouble U = pf_d2.get_u(1,length);
 	MyDouble U;
+	ofstream outfile;
+        outfile.open(samplesOutputFile.c_str());
+	if(!outfile.good()){
+		cerr<<"Error in opening file: "<<samplesOutputFile<<endl;
+		exit(-1);
+	}
 	/*if(PF_D2_UP_APPROX_ENABLED){
 	  double t1 = get_seconds();
 	  PartitionFunctionD2 pf_d2_exact_up;
@@ -1061,7 +1084,8 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 
 			if(!ST_D2_ENABLE_SCATTER_PLOT){
 				//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
-				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, std::cout);
+				//printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, std::cout);
+				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, outfile);
 			}
 		}
 
@@ -1156,6 +1180,8 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 	}
 	delete [] structures_thread;
 	delete [] uniq_structs_thread;
+	printf("\nStochastic samples saved to %s\n", samplesOutputFile.c_str());
+        outfile.close();
 }
 
 
@@ -1319,4 +1345,7 @@ void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotatio
 		}
 	}
 	outfile<<ssobj.str()<<endl;
+	if(print_energy_decompose==1){
+		fprintf(energy_decompose_outfile, "%s\n", ssobj.str().c_str());
+	}
 }

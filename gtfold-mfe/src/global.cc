@@ -14,7 +14,7 @@ int g_nthreads;
 int g_dangles;
 int g_unamode;
 int g_mismatch;
-int g_verbose;
+int g_verbose = 0;
 int g_prefilter_mode;
 int g_prefilter1;
 int g_prefilter2;
