@@ -152,8 +152,12 @@ static void parse_options(int argc, char** argv) {
 				else {
 					help();
 				}
-			}
-			else if(strcmp(argv[i], "--output") == 0 || strcmp(argv[i], "-o") == 0) {
+			} else if(strcmp(argv[i], "--threads") == 0 || strcmp(argv[i], "-t") == 0) {
+				if(i < argc){
+					g_nthreads = atoi(argv[++i]);
+				}
+				else help();
+			} else if(strcmp(argv[i], "--output") == 0 || strcmp(argv[i], "-o") == 0) {
 				if(i < argc)
 					outputPrefix = argv[++i];
 				else
@@ -414,7 +418,7 @@ int boltzmann_main(int argc, char** argv) {
                         printf("D2 Traceback initialization (partition function computation) running time: %9.6f seconds\n", t1);
 			t1 = get_seconds();
 			if(DUMP_CT_FILE==false){
-				if(ST_D2_ENABLE_COUNTS_PARALLELIZATION)
+				if(ST_D2_ENABLE_COUNTS_PARALLELIZATION && g_nthreads!=1)
 					st_d2.batch_sample_parallel(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile, estimateBppOutputFile, scatterPlotOutputFile);
 				else st_d2.batch_sample(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_UNIFORM_SAMPLE,ST_D2_UNIFORM_SAMPLE_ENERGY,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile, estimateBppOutputFile, scatterPlotOutputFile);
 			}
