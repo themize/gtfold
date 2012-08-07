@@ -756,7 +756,7 @@ delete [] structure;
 }
  */
 
-void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile)
+void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile, string estimateBppOutputFile)
 {cout<<"ST_D2_ENABLE_UNIFORM_SAMPLE="<<ST_D2_ENABLE_UNIFORM_SAMPLE<<",ST_D2_UNIFORM_SAMPLE_ENERGY="<<ST_D2_UNIFORM_SAMPLE_ENERGY<<endl;
 	MyDouble U;
 	
@@ -883,6 +883,13 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 			printf("nsamples=%d\n",nsamples);
 		}
 		if(ST_D2_ENABLE_BPP_PROBABILITY){
+			ofstream estimateBppoutfile;
+                        estimateBppoutfile.open(estimateBppOutputFile.c_str());
+                        if(!estimateBppoutfile.good()){
+                                cerr<<"Error in opening file: "<<estimateBppOutputFile<<endl;
+                                exit(-1);
+                        }
+			
 			int** bpp_freq = new int*[length+1];
 			for(int p=1; p<=length; ++p) bpp_freq[p] = new int[length+1];
 			for(int p=1; p<=length; ++p) for(int q=p+1; q<=length; ++q) bpp_freq[p][q]=0;
@@ -897,13 +904,15 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 				updateBppFreq(struc_str, struc_freq, bpp_freq, length, total_bpp_freq);
 			}
 			//cout<<"\nBPP Probabilities are\ni,j,bppFreq,totalBppFreq\n";
-			cout<<"\nBPP Probabilities are\ni,j,bppFreq,totalSamples\n";
+			estimateBppoutfile<<"BPP Probabilities are\ni,j,bppFreq,totalSamples\n";
 			for(int p=1; p<=length; ++p) for(int q=p+1; q<=length; ++q){
 				//if(bpp_freq[p][q]>0) cout<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<total_bpp_freq<<endl;
-				if(bpp_freq[p][q]>0) cout<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<num_rnd<<endl;
+				if(bpp_freq[p][q]>0) estimateBppoutfile<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<num_rnd<<endl;
 			}
 			for(int p=1; p<=length; ++p) delete[] bpp_freq[p];
 			delete[] bpp_freq;
+			printf("\nEstimated base pair probabilities for stochastic samples, saved to %s\n", estimateBppOutputFile.c_str());
+			estimateBppoutfile.close();
 		}
 
 	}
@@ -932,7 +941,7 @@ void StochasticTracebackD2::updateBppFreq(std::string struc_str, int struc_freq,
 	//cout<<"Exiting updateBppFreq\n";
 }
 
-void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile)
+void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile, string estimateBppOutputFile)
 {
 	//MyDouble U = pf_d2.get_u(1,length);
 	MyDouble U;
@@ -1156,6 +1165,13 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 			printf("nsamples=%d\n",num_rnd);
 		}
 		if(ST_D2_ENABLE_BPP_PROBABILITY){
+			ofstream estimateBppoutfile;
+        		estimateBppoutfile.open(estimateBppOutputFile.c_str());
+        		if(!estimateBppoutfile.good()){
+                		cerr<<"Error in opening file: "<<estimateBppOutputFile<<endl;
+        	        	exit(-1);
+        		}
+
                         int** bpp_freq = new int*[length+1];
                         for(int p=1; p<=length; ++p) bpp_freq[p] = new int[length+1];
                         for(int p=1; p<=length; ++p) for(int q=p+1; q<=length; ++q) bpp_freq[p][q]=0;
@@ -1170,15 +1186,16 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
                                 updateBppFreq(struc_str, struc_freq, bpp_freq, length, total_bpp_freq);
                         }
                         //cout<<"\nBPP Probabilities are\ni,j,bppFreq,totalBppFreq\n";
-                        cout<<"\nBPP Probabilities are\ni,j,bppFreq,totalSamples\n";
+                        estimateBppoutfile<<"BPP Probabilities are\ni,j,bppFreq,totalSamples\n";
                         for(int p=1; p<=length; ++p) for(int q=p+1; q<=length; ++q){
                                 //if(bpp_freq[p][q]>0) cout<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<total_bpp_freq<<endl;
-                                if(bpp_freq[p][q]>0) cout<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<num_rnd<<endl;
+                                if(bpp_freq[p][q]>0) estimateBppoutfile<<p<<","<<q<<","<<bpp_freq[p][q]<<","<<num_rnd<<endl;
                         }
                         for(int p=1; p<=length; ++p) delete[] bpp_freq[p];
                         delete[] bpp_freq;
+			printf("\nEstimated base pair probabilities for stochastic samples, saved to %s\n", estimateBppOutputFile.c_str());
+			estimateBppoutfile.close();
                 }
-
 	}
 	delete [] structures_thread;
 	delete [] uniq_structs_thread;
