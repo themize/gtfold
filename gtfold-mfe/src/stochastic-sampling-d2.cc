@@ -756,7 +756,7 @@ delete [] structure;
 }
  */
 
-void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile, string estimateBppOutputFile)
+void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION ,bool ST_D2_ENABLE_UNIFORM_SAMPLE, double ST_D2_UNIFORM_SAMPLE_ENERGY, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile, string estimateBppOutputFile, string scatterPlotOutputFile)
 {cout<<"ST_D2_ENABLE_UNIFORM_SAMPLE="<<ST_D2_ENABLE_UNIFORM_SAMPLE<<",ST_D2_UNIFORM_SAMPLE_ENERGY="<<ST_D2_UNIFORM_SAMPLE_ENERGY<<endl;
 	MyDouble U;
 	
@@ -846,12 +846,19 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 		}
 		//std::cout << nsamples << std::endl;
 		if(ST_D2_ENABLE_SCATTER_PLOT && !ST_D2_ENABLE_BPP_PROBABILITY){
+			FILE* scatterPlotoutfile;
+			scatterPlotoutfile = fopen(scatterPlotOutputFile.c_str(), "w");
+                	if(scatterPlotoutfile==NULL){
+                        	cerr<<"Error in opening file: "<<scatterPlotOutputFile<<endl;
+                        	exit(-1);
+                	}
+
 			int pcount = 0;
 			int maxCount = 0; std::string bestStruct;
 			double bestE = INFINITY;
-			printf("nsamples=%d\n",nsamples);
-			printf("%s,%s,%s","structure","energy","boltzman_probability");
-			printf(",%s,%s\n","estimated_probability","frequency");
+			fprintf(scatterPlotoutfile, "nsamples=%d\n",nsamples);
+			fprintf(scatterPlotoutfile, "%s,%s,%s","structure","energy","boltzman_probability");
+			fprintf(scatterPlotoutfile, ",%s,%s\n","estimated_probability","frequency");
 			std::map<std::string,std::pair<int,double> >::iterator iter ;
 			for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
 			{
@@ -863,8 +870,8 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 				//MyDouble actual_p = (pf_d2.myExp(-(energy)/(RT_)))/U;
 				MyDouble actual_p = (pf_d2.myExp(-(energy*100)/(RT)))/U;
 				//MyDouble actual_p(-(energy)/(RT_));///U;
-				printf("%s,%f,",ss.c_str(),energy);actual_p.print();
-				printf(",%f,%d\n",estimated_p,pp.first);
+				fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
+				fprintf(scatterPlotoutfile, ",%f,%d\n",estimated_p,pp.first);
 
 				//printf("%s %lf\n",ss.c_str(),energy);actual_p.print();
 				//printf("%lf %d\n",estimated_p,pp.first);
@@ -877,7 +884,9 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 				}
 			}
 			assert(num_rnd == pcount);
-			printf("\nMax frequency structure : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+			fprintf(scatterPlotoutfile, "\nMax frequency structure : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+			printf("\nScatter plot frequency data for stochastic samples, saved to %s\n", scatterPlotOutputFile.c_str());
+			fclose(scatterPlotoutfile);
 		}
 		else{
 			printf("nsamples=%d\n",nsamples);
@@ -941,7 +950,7 @@ void StochasticTracebackD2::updateBppFreq(std::string struc_str, int struc_freq,
 	//cout<<"Exiting updateBppFreq\n";
 }
 
-void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile, string estimateBppOutputFile)
+void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE_SCATTER_PLOT, bool ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION, bool ST_D2_ENABLE_BPP_PROBABILITY, string samplesOutputFile, string estimateBppOutputFile, string scatterPlotOutputFile)
 {
 	//MyDouble U = pf_d2.get_u(1,length);
 	MyDouble U;
@@ -1126,13 +1135,19 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 			}
 		}
 		if(ST_D2_ENABLE_SCATTER_PLOT && !ST_D2_ENABLE_BPP_PROBABILITY){
+			FILE* scatterPlotoutfile;
+                        scatterPlotoutfile = fopen(scatterPlotOutputFile.c_str(), "w");
+                        if(scatterPlotoutfile==NULL){
+                                cerr<<"Error in opening file: "<<scatterPlotOutputFile<<endl;
+                                exit(-1);
+                        }
 			//std::cout << nsamples << std::endl;
 			int pcount = 0;
 			int maxCount = 0; std::string bestStruct;
 			double bestE = INFINITY;
-			printf("nsamples=%d\n",num_rnd);
-			printf("%s,%s,%s","structure","energy","boltzman_probability");
-			printf(",%s,%s\n","estimated_probability","frequency");
+			fprintf(scatterPlotoutfile, "nsamples=%d\n",num_rnd);
+			fprintf(scatterPlotoutfile, "%s,%s,%s","structure","energy","boltzman_probability");
+			fprintf(scatterPlotoutfile, ",%s,%s\n","estimated_probability","frequency");
 			std::map<std::string,std::pair<int,double> >::iterator iter ;
 			for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
 			{
@@ -1145,8 +1160,8 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 				MyDouble actual_p;
 				actual_p = (pf_d2.myExp(-(energy*100)/(RT)))/U;
 				//MyDouble actual_p(-(energy)/(RT_));///U;
-				printf("%s,%f,",ss.c_str(),energy);actual_p.print();
-				printf(",%f,%d\n",estimated_p,pp.first);
+				fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
+				fprintf(scatterPlotoutfile, ",%f,%d\n",estimated_p,pp.first);
 
 				//printf("%s %lf\n",ss.c_str(),energy);actual_p.print();
 				//printf("%lf %d\n",estimated_p,pp.first);
@@ -1159,7 +1174,9 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 				}
 			}
 			assert(num_rnd == pcount);
-			printf("\nMax frequency structure : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+			fprintf(scatterPlotoutfile, "\nMax frequency structure : \n%s e=%lf freq=%d p=%lf\n",bestStruct.c_str(),bestE,maxCount,(double)maxCount/(double)num_rnd);
+			printf("\nScatter plot frequency data for stochastic samples, saved to %s\n", scatterPlotOutputFile.c_str());
+                        fclose(scatterPlotoutfile);	
 		}
 		else{
 			printf("nsamples=%d\n",num_rnd);

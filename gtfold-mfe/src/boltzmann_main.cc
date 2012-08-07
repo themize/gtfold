@@ -48,6 +48,7 @@ static string bppOutFile = "";
 static string sampleOutFile = "";
 static string energyDecomposeOutFile = "";
 static string estimateBppOutputFile = "";
+static string scatterPlotOutputFile = "";
 static string ctFileDumpDir = "";
 static string stochastic_summery_file_name = "stochaSampleSummary.txt";
 
@@ -285,6 +286,8 @@ static void parse_options(int argc, char** argv) {
 		energyDecomposeOutFile += "/";
 		estimateBppOutputFile += outputDir;
 		estimateBppOutputFile += "/";
+		scatterPlotOutputFile += outputDir;
+		scatterPlotOutputFile += "/";
 	}
 	// ... and append the .ct
 	outputFile += outputPrefix;
@@ -301,6 +304,9 @@ static void parse_options(int argc, char** argv) {
 
 	estimateBppOutputFile += outputPrefix;	
 	estimateBppOutputFile += ".sbpp";
+
+	scatterPlotOutputFile += outputPrefix;	
+	scatterPlotOutputFile += ".frequency";
 }
 /*
    double get_seconds() {
@@ -409,8 +415,8 @@ int boltzmann_main(int argc, char** argv) {
 			t1 = get_seconds();
 			if(DUMP_CT_FILE==false){
 				if(ST_D2_ENABLE_COUNTS_PARALLELIZATION)
-					st_d2.batch_sample_parallel(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile, estimateBppOutputFile);
-				else st_d2.batch_sample(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_UNIFORM_SAMPLE,ST_D2_UNIFORM_SAMPLE_ENERGY,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile, estimateBppOutputFile);
+					st_d2.batch_sample_parallel(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile, estimateBppOutputFile, scatterPlotOutputFile);
+				else st_d2.batch_sample(num_rnd,ST_D2_ENABLE_SCATTER_PLOT,ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION,ST_D2_ENABLE_UNIFORM_SAMPLE,ST_D2_UNIFORM_SAMPLE_ENERGY,ST_D2_ENABLE_BPP_PROBABILITY, sampleOutFile, estimateBppOutputFile, scatterPlotOutputFile);
 			}
                         else  st_d2.batch_sample_and_dump(num_rnd, ctFileDumpDir, stochastic_summery_file_name, seq, seqfile);
 			t1 = get_seconds() - t1;
