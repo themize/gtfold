@@ -75,7 +75,7 @@ static void help() {
 	printf("   --scatterPlot	While sampling structures, Collect frequency of all structures and calculate estimate probability and boltzmann probability for scatter plot.\n");
 	printf("   --uniformSample energy1	While sampling structures, Samples with Energy energy1 will only be sampled.\n");
 	printf("   --check-fraction	While sampling structures, enable test of check fraction.\n");
-	printf("   --bpp-probability	While sampling structures, Calculate base pair probabilities.\n");
+	printf("   --estimate-bpp	While sampling structures, Calculate base pair probabilities.\n");
 	printf("   --counts-parallel	While sampling structures, parallelize INT sample counts among available threads (this is also a default behaviour of sampling).\n");
 	printf("   --one-sample-parallel	While sampling structures, parallelize the processing of one sample (useful when sampling large sequence with number of samples being less than available threads).\n");
 	printf("   --sample   INT  --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name] -dS|-d2 [--approxUP]     Sample number of structures equal to INT and dump each structure to a ct file in dump_dir_path directory (if no value provided then use current directory value for this purpose) and also create a summary file with name stochastic_summery_file_name in dump_dir_path directory (if no value provided, use stochaSampleSummary.txt value for this purpose), if --approxUP used then use approximate calculation of UP which is working only for d2 case as of now.\n");
@@ -112,7 +112,7 @@ static void validate_options(){
                         printf("Ignoring the option --check-fraction, as it will be valid with --sample option.\n\n");
                 }
 		if(ST_D2_ENABLE_BPP_PROBABILITY){
-                        printf("Ignoring the option --bpp-probability, as it will be valid with --sample option.\n\n");
+                        printf("Ignoring the option --estimate-bpp, as it will be valid with --sample option.\n\n");
                 }
 		//if(ST_D2_ENABLE_COUNTS_PARALLELIZATION){
                   //      printf("Ignoring the option --counts-parallel, as it will be valid with --sample option.\n\n");
@@ -202,7 +202,7 @@ static void parse_options(int argc, char** argv) {
 				else help();
 			} else if(strcmp(argv[i],"--check-fraction") == 0){
 				ST_D2_ENABLE_CHECK_FRACTION = true;
-			} else if(strcmp(argv[i],"--bpp-probability") == 0){ 
+			} else if(strcmp(argv[i],"--estimate-bpp") == 0){ 
 				ST_D2_ENABLE_BPP_PROBABILITY = true;
 				ST_D2_ENABLE_SCATTER_PLOT = true;
 			} else if(strcmp(argv[i],"--counts-parallel") == 0){
