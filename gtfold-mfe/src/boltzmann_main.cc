@@ -65,27 +65,74 @@ static void help() {
 
 	printf("OPTIONS\n");
 
-	printf("   -t|--threads INT    Limit number of threads used to INT.\n");
-	printf("   -v, --verbose        Run in verbose mode (includes partition function table printing.)\n");
-	printf("   --partition          Calculate the partition function (default is using sfold reccurences).\n");
-	printf("   --partition -dS      Calculate the partition function using sfold reccurences.\n");
-	printf("   --partition -d0      Calculate the partition function using -d0 reccurences.\n");
-	printf("   --partition -d2 [--approxUP]      Calculate the partition function using -d2 reccurences, if --approxUP used then use approximate calculation of UP.\n");
-
-	printf("   --sample   INT -dS      Sample number of structures equal to INT  using -dS reccurences.\n");
-	printf("   --sample   INT -d2 [--approxUP] [--scatterPlot] [--uniformSample energy1] [--check-fraction] [--bpp-probability] [--counts-parallel] [--one-sample-parallel]    Sample number of structures equal to INT  using -d2 reccurences, if --approxUP used then use approximate calculation of UP, if --scatterPlot used then collect frequency of all structures and calculate estimate probability and boltzmann probability for scatter plot, if --uniformSample used then samples with Energy energy1 will only be sampled, if --check-fraction used then enable test of check fraction, if --bpp-probability option used then calculate bppProbabilities, if --counts-parallel used then parallelize INT sample counts, if --one-sample-parallel used then parallelize one sample.\n");
+	printf("   -t|--threads INT	Limit number of threads used to INT.\n");
+	printf("   -v, --verbose	Run in verbose mode (includes partition function table printing.)\n");
+	printf("   -d, --dangle INT	Restricts treatment of dangling energies (INT=0,2),\n");
+	printf("   --partition		Calculate the partition function (default is using d2 dangling mode).\n");
+	printf("   --exact-internal-loop	Do the exact internal loop calculation while calculating partition function and traceback without any short internal loop approximation)\n");
+	printf("   -dS			Calculate the partition function using sfold reccurences and use them in traceback.\n");
+	printf("   --sample   INT	Sample number of structures equal to INT.\n");
+	printf("   --scatterPlot	While sampling structures, Collect frequency of all structures and calculate estimate probability and boltzmann probability for scatter plot.\n");
+	printf("   --uniformSample energy1	While sampling structures, Samples with Energy energy1 will only be sampled.\n");
+	printf("   --check-fraction	While sampling structures, enable test of check fraction.\n");
+	printf("   --bpp-probability	While sampling structures, Calculate base pair probabilities.\n");
+	printf("   --counts-parallel	While sampling structures, parallelize INT sample counts among available threads (this is also a default behaviour of sampling).\n");
+	printf("   --one-sample-parallel	While sampling structures, parallelize the processing of one sample (useful when sampling large sequence with number of samples being less than available threads).\n");
 	printf("   --sample   INT  --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name] -dS|-d2 [--approxUP]     Sample number of structures equal to INT and dump each structure to a ct file in dump_dir_path directory (if no value provided then use current directory value for this purpose) and also create a summary file with name stochastic_summery_file_name in dump_dir_path directory (if no value provided, use stochaSampleSummary.txt value for this purpose), if --approxUP used then use approximate calculation of UP which is working only for d2 case as of now.\n");
-	printf("   --pfcount            Calculate the structure count using partition function and zero energy value.\n");
-	printf("   --bpp                Calculate base pair probabilities.\n");
-	printf("   -l|--limitCD  INT    Set a maximum base pair contact distance to INT. If no\n");
-    printf(" 		                limit is given, base pairs can be over any distance.\n");
-	printf("\n");
+	printf("   --pfcount		Calculate the structure count using partition function and zero energy value.\n");
+	printf("   --bpp		Calculate base pair probabilities.\n");
+	printf("   -l|--limitCD  INT	Set a maximum base pair contact distance to INT. If no\n");
+	printf(" 		      	limit is given, base pairs can be over any distance.\n");
 	printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
 	printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
 	printf("   -h, --help           Output help (this message) and exit.\n");
-	printf("   -e, --energy         prints energy decomposition for sampled structures to file with extention '.energy'.\n");
+	printf("   -e, --energy         prints energy decomposition for sampled structures to file with extention '.energy' (should be used with '-t 1' option, as otherwise all threads in parallel, will write to file and output will be intermixed from all threads).\n");
 	printf("   -w, --workdir DIR    Path of directory where output files will be written.\n");
 	exit(-1);
+}
+
+static void validate_options(){
+	if(PF_COUNT_MODE){
+		if(RND_SAMPLE){
+			printf("Ignoring --sample Option with --pfcount option and Program will continue with --pfcount option only.\n\n");
+			RND_SAMPLE = false;
+		}
+	}
+	if(CALC_PART_FUNC && !RND_SAMPLE){//partition function
+		if(print_energy_decompose==1){
+			printf("Ignoring the option -e or --energy, as it will be valid with --sample option.\n\n");	
+		}
+		if(ST_D2_ENABLE_SCATTER_PLOT){
+			printf("Ignoring the option --scatterPlot, as it will be valid with --sample option.\n\n");
+		}
+		if(ST_D2_ENABLE_UNIFORM_SAMPLE){
+                        printf("Ignoring the option --uniformSample, as it will be valid with --sample option.\n\n");
+                }
+		if(ST_D2_ENABLE_CHECK_FRACTION){
+                        printf("Ignoring the option --check-fraction, as it will be valid with --sample option.\n\n");
+                }
+		if(ST_D2_ENABLE_BPP_PROBABILITY){
+                        printf("Ignoring the option --bpp-probability, as it will be valid with --sample option.\n\n");
+                }
+		//if(ST_D2_ENABLE_COUNTS_PARALLELIZATION){
+                  //      printf("Ignoring the option --counts-parallel, as it will be valid with --sample option.\n\n");
+                //}
+		if(ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION){
+                        printf("Ignoring the option --one-sample-parallel, as it will be valid with --sample option.\n\n");
+                }
+	}
+	else if(!CALC_PART_FUNC && RND_SAMPLE){//sample
+		//nothing to check
+        }
+	else if(CALC_PART_FUNC && RND_SAMPLE){//both partition function and sample
+        	printf("Program proceeding with sampling as both partition function calculation and sampling calculation option are used.\n\n");
+        	CALC_PART_FUNC = false;
+        }
+	else if(!CALC_PART_FUNC && !RND_SAMPLE){//neither partition function nor sample
+        	printf("Program exiting as neither partition function calculation nor sampling calculation option is used.\n\n");
+		help();
+        	exit(-1);	
+        }
 }
 
 static void parse_options(int argc, char** argv) {
@@ -145,8 +192,8 @@ static void parse_options(int argc, char** argv) {
 			} else if (strcmp(argv[i],"-d2") == 0) {
 				//help();
 				CALC_PF_D2 = true;
-			} else if(strcmp(argv[i],"--approxUP") == 0){ 
-				PF_D2_UP_APPROX_ENABLED = true;
+			} else if(strcmp(argv[i],"--exact-internal-loop") == 0){ 
+				PF_D2_UP_APPROX_ENABLED = false;
 			} else if(strcmp(argv[i],"--scatterPlot") == 0){
 				ST_D2_ENABLE_SCATTER_PLOT = true;
 			} else if(strcmp(argv[i],"--uniformSample") == 0){
@@ -261,7 +308,7 @@ int boltzmann_main(int argc, char** argv) {
 	std::string seq;
 	double t1;
 	parse_options(argc, argv);
-
+	validate_options();
 	if (read_sequence_file(seqfile.c_str(), seq) == FAILURE) {
 		printf("Failed to open sequence file: %s.\n\n", seqfile.c_str());
 		exit(-1);

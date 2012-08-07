@@ -26,7 +26,7 @@ void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_D
                 	cerr<<"Error in opening file: "<<energy_decompose_output_file<<endl;
                 	exit(-1);
         	}
-		printf("\nEnergy decomposition for Stochastically sampled structure will be saved to %s\n", energy_decompose_output_file.c_str());
+		printf("\nEnergy decomposition for Stochastically sampled structure will be saved to %s\n\n", energy_decompose_output_file.c_str());
 	}
 	//energy = 0.0;
 	//structure = new int[length+1];
@@ -39,7 +39,9 @@ void StochasticTracebackD2::initialize(int length1, int PF_COUNT_MODE1, int NO_D
 
 void StochasticTracebackD2::free_traceback(){
 	pf_d2.free_partition();
-	fclose(energy_decompose_outfile);
+	if(print_energy_decompose==1){
+		fclose(energy_decompose_outfile);
+	}
 	//delete[] structure;
 }
 
@@ -203,7 +205,7 @@ void StochasticTracebackD2::rnd_s1(int i, int h, int j, int* structure, double &
 			}
 			double e2 = (pf_d2.ED5_new(h,l,h-1))+ (pf_d2.auPenalty_new(h,l)) + (pf_d2.ED3_new(h,l,l+1));
 			if (print_energy_decompose == 1) {
-				fprintf(energy_decompose_outfile, "(pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.ED5_new(h,l,h-1)), (pf_d2.auPenalty_new(h,l)), (pf_d2.ED3_new(h,l,l+1)));
+				fprintf(energy_decompose_outfile, "(pf_d2.ED5_new(h,l,h-1))=%f, (pf_d2.auPenalty_new(h,l))=%f, (pf_d2.ED3_new(h,l,l+1))=%f\n",(pf_d2.ED5_new(h,l,h-1))/100.0, (pf_d2.auPenalty_new(h,l))/100.0, (pf_d2.ED3_new(h,l,l+1))/100.0);
 				fprintf(energy_decompose_outfile, "(%d %d) %lf\n",i,j, e2/100.0);
 			}
 			energy += e2;
@@ -1346,6 +1348,6 @@ void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotatio
 	}
 	outfile<<ssobj.str()<<endl;
 	if(print_energy_decompose==1){
-		fprintf(energy_decompose_outfile, "%s\n", ssobj.str().c_str());
+		fprintf(energy_decompose_outfile, "%s\n\n\n", ssobj.str().c_str());
 	}
 }
