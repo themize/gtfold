@@ -871,7 +871,9 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 				MyDouble actual_p = (pf_d2.myExp(-(energy*100)/(RT)))/U;
 				//MyDouble actual_p(-(energy)/(RT_));///U;
 				fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
-				fprintf(scatterPlotoutfile, ",%f,%d\n",estimated_p,pp.first);
+				fprintf(scatterPlotoutfile, ",%f,%d,\t",estimated_p,pp.first);
+                                string tripletNotationStructureString = getStructureStringInTripletNotation(structure, length);
+                                fprintf(scatterPlotoutfile, "%s\n", tripletNotationStructureString.c_str());
 
 				//printf("%s %lf\n",ss.c_str(),energy);actual_p.print();
 				//printf("%lf %d\n",estimated_p,pp.first);
@@ -1161,8 +1163,9 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 				actual_p = (pf_d2.myExp(-(energy*100)/(RT)))/U;
 				//MyDouble actual_p(-(energy)/(RT_));///U;
 				fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
-				fprintf(scatterPlotoutfile, ",%f,%d\n",estimated_p,pp.first);
-
+				fprintf(scatterPlotoutfile, ",%f,%d,\t",estimated_p,pp.first);
+				string tripletNotationStructureString = getStructureStringInTripletNotation(structure, length);
+				fprintf(scatterPlotoutfile, "%s\n", tripletNotationStructureString.c_str());
 				//printf("%s %lf\n",ss.c_str(),energy);actual_p.print();
 				//printf("%lf %d\n",estimated_p,pp.first);
 				pcount += pp.first;
@@ -1352,36 +1355,41 @@ void StochasticTracebackD2::set_base_pair(int i, int j, int* structure)
 
 void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotation(int* structure, std::string ensemble, int length, double energy, ostream & outfile){
 	//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
-	stringstream ssobj;
 	//ssobj << energy << "\t";	
-	ssobj << ensemble.substr(1) << "\t" << energy << "\t";
-	int i=1;
-	while( i <= (int)length ) {
-		int myI = i;
-		int myJ = structure[i];
-		int myCount = 1;
-		if (myJ > 0 && myI<myJ)
-		{
-			for(int tempI=myI+1; tempI <= (int)length; ++tempI){
-				int tempJ = structure[tempI];
-				if(tempJ>0  && tempI<tempJ  && (tempI-myI)==(myJ-tempJ)){
-					myCount++;
-					i = tempI+1;
-				}
-				else{
-					//std::cout<<myI<<" "<<myJ<<" "<<myCount<<", "; 
-					ssobj<<myI<<" "<<myJ<<" "<<myCount<<", "; 
-					i = tempI;
-					break;	
-				}
-			}
-		}
-		else{
-			i++;
-		}
-	}
-	outfile<<ssobj.str()<<endl;
+	string tripletNotationStructureString = getStructureStringInTripletNotation(structure, length);
+
+	outfile << ensemble.substr(1) << "\t" << energy << "\t" << tripletNotationStructureString<<endl;
 	if(print_energy_decompose==1){
-		fprintf(energy_decompose_outfile, "%s\n\n\n", ssobj.str().c_str());
+		fprintf(energy_decompose_outfile, "%s\t%f\t%s\n\n\n", ensemble.substr(1).c_str(), energy, tripletNotationStructureString.c_str());
 	}
+}
+
+string StochasticTracebackD2::getStructureStringInTripletNotation(int* structure, int length){
+	stringstream ssobj;
+	int i=1;
+        while( i <= (int)length ) {
+                int myI = i;
+                int myJ = structure[i];
+                int myCount = 1;
+                if (myJ > 0 && myI<myJ)
+                {
+                        for(int tempI=myI+1; tempI <= (int)length; ++tempI){
+                                int tempJ = structure[tempI];
+                                if(tempJ>0  && tempI<tempJ  && (tempI-myI)==(myJ-tempJ)){
+                                        myCount++;
+                                        i = tempI+1;
+                                }
+                                else{
+                                        //std::cout<<myI<<" "<<myJ<<" "<<myCount<<", "; 
+                                        ssobj<<myI<<" "<<myJ<<" "<<myCount<<", ";
+                                        i = tempI;
+                                        break;
+                                }
+                        }
+                }
+                else{
+                        i++;
+                }
+        }
+        return ssobj.str();
 }
