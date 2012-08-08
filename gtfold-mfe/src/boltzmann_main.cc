@@ -61,7 +61,7 @@ static bool LIMIT_DISTANCE = false;
 static int contactDistance = -1;
 
 
-static void help() {
+static void print_usage() {
 	printf("Usage: gtboltzmann [OPTION]... FILE\n\n");
 
 	printf("   FILE is an RNA sequence file containing only the sequence or in FASTA format.\n\n");
@@ -92,18 +92,28 @@ static void help() {
 	printf("   --detailed-help      Output help (this message) with detailed options and examples, and exit.\n");
 	printf("   -e, --energy         prints energy decomposition for sampled structures to file with extention '.energy' (should be used with '-t 1' option, as otherwise all threads in parallel, will write to file and output will be intermixed from all threads).\n");
 	printf("   -w, --workdir DIR    Path of directory where output files will be written.\n");
+}
+
+static void help() {
+	print_usage();
 	exit(-1);
 }
-static void detailed_help(){
+
+static void print_examples(){
         printf("\n\nEXAMPLES:\n\n");
-        printf("1. Calculate Partition function:\n");
-        printf("gtboltzmann --partition [[-d 0|2]|[-dS]] [-t 1|2|...|N] [-o outputPrefix] [--exact-internal-loop] [-v] [-p DIR] [-p DIR] [-l] <seq_file>\n\n");
-        printf("2. Sample structures stochastically:\n");
-        printf("gtboltzmann --sample INT [[-d 0|2]|[-dS]] [-t 1|2|...|N] [-o outputPrefix] [--exact-internal-loop] [-v] [--scatterPlot] [--uniformSample DOUBLE] [--estimate-bpp] [--one-sample-parallel] [-p DIR] [-l] <seq_file>\n\n");
-        printf("gtboltzmann --sample INT [[-d 0|2]|[-dS]] -t 1 [-o outputPrefix] [--exact-internal-loop] [-v] [--scatterPlot] [--uniformSample DOUBLE] [-e] [--check-fraction] [--estimate-bpp] [--one-sample-parallel] [-p DIR] [-l] <seq_file>\n\n");
-        printf("gtboltzmann --sample INT --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name] [-d 2] [--exact-internal-loop] [-v] [-p DIR] [-l] <seq_file>\n\n");
+        printf("1. Calculate Partition function:\n\n");
+        printf("gtboltzmann --partition [[-d 0|2]|[-dS]] [-t 1|2|...|N] [-o outputPrefix] [--exact-internal-loop] [-v] [-p DIR] [-w DIR] [-l] <seq_file>\n\n");
+        printf("2. Sample structures stochastically:\n\n");
+        printf("gtboltzmann --sample INT [[-d 0|2]|[-dS]] [-t 1|2|...|N] [-o outputPrefix] [--exact-internal-loop] [-v] [--scatterPlot] [--uniformSample DOUBLE] [--estimate-bpp] [--one-sample-parallel] [-p DIR] [-w DIR] [-l] <seq_file>\n\n");
+        printf("gtboltzmann --sample INT [[-d 0|2]|[-dS]] -t 1 [-o outputPrefix] [--exact-internal-loop] [-v] [--scatterPlot] [--uniformSample DOUBLE] [-e] [--check-fraction] [--estimate-bpp] [--one-sample-parallel] [-p DIR] [-w DIR] [-l] <seq_file>\n\n");
+        printf("gtboltzmann --sample INT --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name] [-d 2] [--exact-internal-loop] [-v] [-p DIR] [-w DIR] [-l] <seq_file>\n\n");
         printf("\n\n");
-        help();
+}
+
+static void detailed_help(){
+	print_usage();
+	print_examples();
+	exit(-1);
 }
 
 static void validate_options(){
@@ -157,8 +167,7 @@ static void parse_options(int argc, char** argv) {
 		if(argv[i][0] == '-') {
 			if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
 				help(); 
-			}
-			if(strcmp(argv[i], "--detailed-help") == 0 ) {
+			} else if(strcmp(argv[i], "--detailed-help") == 0 ) {
                                 detailed_help();
                         } else if (strcmp(argv[i], "--paramdir") == 0 || strcmp(argv[i], "-p") == 0) {
 				if(i < argc) {
