@@ -60,6 +60,7 @@ static int dangles=2;//making dangle default value as 2
 static bool LIMIT_DISTANCE = false;
 static int contactDistance = -1;
 
+
 static void help() {
 	printf("Usage: gtboltzmann [OPTION]... FILE\n\n");
 
@@ -80,7 +81,7 @@ static void help() {
 	printf("   --estimate-bpp	While sampling structures, Calculate base pair probabilities.\n");
 	printf("   --counts-parallel	While sampling structures, parallelize INT sample counts among available threads (this is also a default behaviour of sampling).\n");
 	printf("   --one-sample-parallel	While sampling structures, parallelize the processing of one sample (useful when sampling large sequence with number of samples being less than available threads).\n");
-	printf("   --sample   INT  --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name] -dS|-d2 [--approxUP]     Sample number of structures equal to INT and dump each structure to a ct file in dump_dir_path directory (if no value provided then use current directory value for this purpose) and also create a summary file with name stochastic_summery_file_name in dump_dir_path directory (if no value provided, use stochaSampleSummary.txt value for this purpose), if --approxUP used then use approximate calculation of UP which is working only for d2 case as of now.\n");
+	printf("   --sample   INT  --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name]	Sample number of structures equal to INT and dump each structure to a ct file in dump_dir_path directory (if no value provided then use current directory value for this purpose) and also create a summary file with name stochastic_summery_file_name in dump_dir_path directory (if no value provided, use stochaSampleSummary.txt value for this purpose).\n");
 	printf("   --pfcount		Calculate the structure count using partition function and zero energy value.\n");
 	printf("   --bpp		Calculate base pair probabilities.\n");
 	printf("   -l|--limitCD  INT	Set a maximum base pair contact distance to INT. If no\n");
@@ -88,9 +89,21 @@ static void help() {
 	printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
 	printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
 	printf("   -h, --help           Output help (this message) and exit.\n");
+	printf("   --detailed-help      Output help (this message) with detailed options and examples, and exit.\n");
 	printf("   -e, --energy         prints energy decomposition for sampled structures to file with extention '.energy' (should be used with '-t 1' option, as otherwise all threads in parallel, will write to file and output will be intermixed from all threads).\n");
 	printf("   -w, --workdir DIR    Path of directory where output files will be written.\n");
 	exit(-1);
+}
+static void detailed_help(){
+        printf("\n\nEXAMPLES:\n\n");
+        printf("1. Calculate Partition function:\n");
+        printf("gtboltzmann --partition [[-d 0|2]|[-dS]] [-t 1|2|...|N] [-o outputPrefix] [--exact-internal-loop] [-v] [-p DIR] [-p DIR] [-l] <seq_file>\n\n");
+        printf("2. Sample structures stochastically:\n");
+        printf("gtboltzmann --sample INT [[-d 0|2]|[-dS]] [-t 1|2|...|N] [-o outputPrefix] [--exact-internal-loop] [-v] [--scatterPlot] [--uniformSample DOUBLE] [--estimate-bpp] [--one-sample-parallel] [-p DIR] [-l] <seq_file>\n\n");
+        printf("gtboltzmann --sample INT [[-d 0|2]|[-dS]] -t 1 [-o outputPrefix] [--exact-internal-loop] [-v] [--scatterPlot] [--uniformSample DOUBLE] [-e] [--check-fraction] [--estimate-bpp] [--one-sample-parallel] [-p DIR] [-l] <seq_file>\n\n");
+        printf("gtboltzmann --sample INT --dump [--dump_dir dump_dir_path] [--dump_summary dump_summery_file_name] [-d 2] [--exact-internal-loop] [-v] [-p DIR] [-l] <seq_file>\n\n");
+        printf("\n\n");
+        help();
 }
 
 static void validate_options(){
@@ -144,7 +157,10 @@ static void parse_options(int argc, char** argv) {
 		if(argv[i][0] == '-') {
 			if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
 				help(); 
-			} else if (strcmp(argv[i], "--paramdir") == 0 || strcmp(argv[i], "-p") == 0) {
+			}
+			if(strcmp(argv[i], "--detailed-help") == 0 ) {
+                                detailed_help();
+                        } else if (strcmp(argv[i], "--paramdir") == 0 || strcmp(argv[i], "-p") == 0) {
 				if(i < argc) {
 					paramDir = argv[++i];
 					PARAM_DIR = true;
