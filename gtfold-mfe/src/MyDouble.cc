@@ -137,7 +137,7 @@ class MyDouble{
 		}
 		void print(FILE* outFile)const{
 			//if(isBig=='y') gmp_printf("fixed point mpf %.*Ff with %d digits\n", 5, *bigValue, 5);
-			if(isBig=='y') gmp_fprintf(outFile, "mpf %.*Ff", PRINT_DIGITS_AFTER_DECIMAL, *bigValue);
+			if(isBig=='y') gmp_fprintf(outFile, "%.*Ff", PRINT_DIGITS_AFTER_DECIMAL, *bigValue);
 			//else if(isBig=='n') printf("double %f", *smallValue);//TODO uncomment it
 			else if(isBig=='n') fprintf(outFile, "%f", *smallValue);
 			else fprintf(outFile, "Unknown isBig = %c\n", isBig);
