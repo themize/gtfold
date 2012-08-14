@@ -857,11 +857,13 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 			int maxCount = 0; std::string bestStruct;
 			double bestE = INFINITY;
 			fprintf(scatterPlotoutfile, "nsamples=%d\n",nsamples);
-			fprintf(scatterPlotoutfile, "%s,%s,%s","structure in dot bracket notation","energy","boltzman_probability");
+			fprintf(scatterPlotoutfile, "%s,%s,%s","structure","energy","boltzman_probability");
                         fprintf(scatterPlotoutfile, ",%s,%s\t%s\n","estimated_probability","frequency","structure in triplet notation");
 			std::map<std::string,std::pair<int,double> >::iterator iter ;
+			int index=0;
 			for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
 			{
+				index++;
 				const std::string& ss = iter->first;
 				const std::pair<int,double>& pp = iter->second;
 				const double& estimated_p =  (double)pp.first/(double)num_rnd;
@@ -870,7 +872,8 @@ void StochasticTracebackD2::batch_sample(int num_rnd, bool ST_D2_ENABLE_SCATTER_
 				//MyDouble actual_p = (pf_d2.myExp(-(energy)/(RT_)))/U;
 				MyDouble actual_p = (pf_d2.myExp(-(energy*100)/(RT)))/U;
 				//MyDouble actual_p(-(energy)/(RT_));///U;
-				fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
+				//fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
+				fprintf(scatterPlotoutfile, "S%d,%f,",index,energy);actual_p.print(scatterPlotoutfile);
 				fprintf(scatterPlotoutfile, ",%f,%d,\t",estimated_p,pp.first);
                                 string tripletNotationStructureString = getStructureStringInTripletNotation(ss.c_str(), length);
                                 fprintf(scatterPlotoutfile, "%s\n", tripletNotationStructureString.c_str());
@@ -1148,11 +1151,13 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 			int maxCount = 0; std::string bestStruct;
 			double bestE = INFINITY;
 			fprintf(scatterPlotoutfile, "nsamples=%d\n",num_rnd);
-			fprintf(scatterPlotoutfile, "%s,%s,%s","structure in dot bracket notation","energy","boltzman_probability");
+			fprintf(scatterPlotoutfile, "%s,%s,%s","structure","energy","boltzman_probability");
 			fprintf(scatterPlotoutfile, ",%s,%s\t%s\n","estimated_probability","frequency","structure in triplet notation");
 			std::map<std::string,std::pair<int,double> >::iterator iter ;
+			int index=0;
 			for (iter = uniq_structs.begin(); iter != uniq_structs.end();  ++iter)
 			{
+				index++;
 				const std::string& ss = iter->first;
 				const std::pair<int,double>& pp = iter->second;
 				const double& estimated_p =  (double)pp.first/(double)num_rnd;
@@ -1162,7 +1167,8 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 				MyDouble actual_p;
 				actual_p = (pf_d2.myExp(-(energy*100)/(RT)))/U;
 				//MyDouble actual_p(-(energy)/(RT_));///U;
-				fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
+				//fprintf(scatterPlotoutfile, "%s,%f,",ss.c_str(),energy);actual_p.print(scatterPlotoutfile);
+				fprintf(scatterPlotoutfile, "S%d,%f,",index,energy);actual_p.print(scatterPlotoutfile);
 				fprintf(scatterPlotoutfile, ",%f,%d,\t",estimated_p,pp.first);
 				string tripletNotationStructureString = getStructureStringInTripletNotation(ss.c_str(), length);
 				fprintf(scatterPlotoutfile, "%s\n", tripletNotationStructureString.c_str());
