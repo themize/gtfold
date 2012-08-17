@@ -430,7 +430,7 @@ static void print_usage() {
     printf("OPTIONS\n");
     printf("   -c, --constraints FILE\n");
     printf("                        Load constraints from FILE.  See Constraint syntax below.\n");
-    printf("   -d, --dangle INT     Restricts treatment of dangling energies (INT=0,2),\n"); 
+    printf("   -d, --dangle INT     Restricts treatment of dangling energies (INT=0,1,2),\n"); 
     printf("                        see below for details.\n");
     printf("   -h, --help           Output help (this message) and exit.\n");
     printf("   --detailed-help      Output help (this message) with detailed options and examples, and exit.\n");
@@ -460,6 +460,7 @@ static void print_usage() {
 
     printf("\nDangle:\n");
     printf("\tINT=0 ignores dangling energies (mostly for debugging).\n");
+    printf("\tINT=1 default mode of dangling energies (consider energetically favourable).\n");
     printf("\tINT=2 dangling energies are added for nucleotides on either\n");
     printf("\tside of each branch in multi-loops and external loops.\n");
     printf("\tAll other values for INT are ignored.\n");
@@ -473,9 +474,9 @@ static void help(){
 static void print_examples(){
         printf("\n\nEXAMPLES:\n\n");
         printf("1. Calculate Minimum Free Energy Structure:\n\n");
-        printf("gtmfe [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
-        printf("gtmfe [--rnafold] [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
-        printf("gtmfe [--unafold] [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [-c FILE] [-d 0|1|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [--rnafold] [-c FILE] [-d 0|1|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [--unafold] [-c FILE] [-d 0|1|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
         printf("\n\n");
 }
 
