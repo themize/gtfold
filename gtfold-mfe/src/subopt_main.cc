@@ -67,7 +67,7 @@ void parse_options(int argc, char** argv) {
           help();
         }
       }
-      else if(strcmp(argv[i], "--suboptDeltaEnergy") == 0) {
+      else if(strcmp(argv[i], "--delta") == 0) {
         g_dangles = 2;
         if(i < argc)
           suboptDelta = atof(argv[++i]);
@@ -136,7 +136,7 @@ static void print_usage() {
     printf("   FILE is an RNA sequence file containing only the sequence or in FASTA format.\n\n");
 
     printf("OPTIONS\n");
-    printf("   --suboptDeltaEnergy DOUBLE         Calculate suboptimal structures within DOUBLE kcal/mol\n");
+    printf("   --delta DOUBLE         Calculate suboptimal structures within DOUBLE kcal/mol\n");
     printf("                        of the MFE. (Uses -d 2 treatment of dangling energies.)\n");
     printf("\n"); 
     printf("   -d, --dangle INT     Restricts treatment of dangling energies (INT=2),\n");
@@ -155,7 +155,7 @@ static void help() {
 static void print_examples(){
         printf("\n\nEXAMPLES:\n\n");
         printf("1. Calculate Suboptimal Structures:\n");
-        printf("gtsubopt --suboptDeltaEnergy DOUBLE [-d 2] [-o outputPrefix] [-v] [-w DIR] [-p DIR] <seq_file>\n\n");
+        printf("gtsubopt --delta DOUBLE [-d 2] [-o outputPrefix] [-v] [-w DIR] [-p DIR] <seq_file>\n\n");
         printf("\n\n");
 }
 

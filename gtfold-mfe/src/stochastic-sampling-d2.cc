@@ -1057,6 +1057,8 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 	if (num_rnd > 0 ) {
 		printf("\nSampling structures...\n");
 		int count;// nsamples =0;
+		int* countArr = new int [threads_for_counts];
+		for(int ind=0; ind<threads_for_counts; ind++) countArr[ind]=0;
 		#ifdef _OPENMP
 		//#pragma omp parallel for private (count) shared(structures_thread) schedule(guided) num_threads(threads_for_counts)
 		#pragma omp parallel for private (count) shared(structures_thread) schedule(dynamic) num_threads(threads_for_counts)
@@ -1065,6 +1067,7 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 		{
 			//nsamples++;
 			int thdId = omp_get_thread_num();
+			countArr[thdId]++;
 			//cout<<"thdId="<<thdId<<endl;
 			int* structure = structures_thread + thdId*(length+1);
 			memset(structure, 0, (length+1)*sizeof(int));
@@ -1113,6 +1116,64 @@ void StochasticTracebackD2::batch_sample_parallel(int num_rnd, bool ST_D2_ENABLE
 				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, outfile);
 			//}
 		}
+
+		int finalCount=0;
+		for(int ind=0; ind<threads_for_counts; ind++) finalCount+=countArr[ind];
+		for (count = finalCount+1; count <= num_rnd; ++count) 
+		{
+			//nsamples++;
+			int thdId = 0;//omp_get_thread_num();
+			//countArr[thdId]++;
+			//cout<<"thdId="<<thdId<<endl;
+			int* structure = structures_thread + thdId*(length+1);
+			memset(structure, 0, (length+1)*sizeof(int));
+			//double energy = rnd_structure(structure);
+			double energy;
+			if(ST_D2_ENABLE_ONE_SAMPLE_PARALLELIZATION){
+				energy = rnd_structure_parallel(structure, threads_for_one_sample);
+			}
+			else{
+				energy = rnd_structure(structure);
+			}
+
+			std::string ensemble(length+1,'.');
+			for (int i = 1; i <= (int)length; ++ i) {
+				if (structure[i] > 0 && ensemble[i] == '.')
+				{
+					ensemble[i] = '(';
+					ensemble[structure[i]] = ')';
+				}
+			}
+			/*
+			//Below line of codes is for finding samples with particular energy
+			double myEnegry = -92.1;//-91.3;//-94.8;//dS=-88.4;//d2=-93.1
+			if (fabs(energy-myEnegry)>0.0001){ count--;continue;} //TODO: debug
+			 */
+
+			std::map<std::string,std::pair<int,double> >::iterator iter ;
+			if ((iter =uniq_structs_thread[thdId].find(ensemble.substr(1))) != uniq_structs_thread[thdId].end())
+			{
+				std::pair<int,double>& pp = iter->second;
+				pp.first++;
+				//cout<<"energy="<<energy<<",pp.second="<<pp.second<<endl;
+				assert(energy==pp.second);
+			}
+			else {
+				if(ST_D2_ENABLE_SCATTER_PLOT){
+					std::pair< std::string, std::pair<int,double> > new_pp = make_pair(ensemble.substr(1),std::pair<int,double>(1,energy));
+					uniq_structs_thread[thdId].insert(new_pp); 
+				}
+				//uniq_structs_thread[thdId].insert(make_pair(ensemble.substr(1),std::pair<int,double>(1,energy))); 
+			}
+
+			//if(!ST_D2_ENABLE_SCATTER_PLOT){
+				//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
+				//printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, std::cout);
+				printEnergyAndStructureInDotBracketAndTripletNotation(structure, ensemble, (int)length, energy, outfile);
+			//}
+		}
+
+
 
 		if(ST_D2_ENABLE_SCATTER_PLOT){
 			for(int thd_id=0; thd_id<threads_for_counts; thd_id++){
@@ -1363,8 +1424,10 @@ void StochasticTracebackD2::printEnergyAndStructureInDotBracketAndTripletNotatio
 	//std::cout << ensemble.substr(1) << ' ' << energy << std::endl;
 	//ssobj << energy << "\t";	
 	string tripletNotationStructureString = getStructureStringInTripletNotation(structure, length);
-
-	outfile << ensemble.substr(1) << "\t" << energy << "\t" << tripletNotationStructureString<<endl;
+	stringstream printline;
+	//outfile << ensemble.substr(1) << "\t" << energy << "\t" << tripletNotationStructureString<<endl;
+	printline << ensemble.substr(1) << "\t" << energy << "\t" << tripletNotationStructureString<<endl;
+	outfile << printline.str();
 	if(print_energy_decompose==1){
 		fprintf(energy_decompose_outfile, "%s\t%f\t%s\n\n\n", ensemble.substr(1).c_str(), energy, tripletNotationStructureString.c_str());
 	}

@@ -316,10 +316,10 @@ void parse_mfe_options(int argc, char** argv) {
           help();	
       } else if (strcmp(argv[i], "--verbose") == 0 || strcmp(argv[i], "-v") == 0) {
         VERBOSE = true;
-      } else if (strcmp(argv[i], "--energy") == 0 || strcmp(argv[i], "-e") == 0) {
+      } else if (strcmp(argv[i], "--energydetail") == 0 || strcmp(argv[i], "-e") == 0) {
 	print_energy_decompose = 1;
       }
-      else if (strcmp(argv[i], "--useSHAPE") == 0  || strcmp(argv[i], "-s") == 0){
+      else if (strcmp(argv[i], "--useSHAPE") == 0){
         if( i < argc){
           shapeFile = argv[++i];
           //SHAPE_ENABLED = true;
@@ -449,8 +449,8 @@ static void print_usage() {
     printf("   --unafold            Run as UNAfold default mode (version 3.8), subject to traceback\n");
     printf("                        implementation.\n");
 
-    printf("   -s, --useSHAPE FILE  Use SHAPE constraints from FILE.\n");      
-    printf("   -e, --energy         prints energy decomposition for sampled structures to file with extention '.energy'.\n");
+    printf("   --useSHAPE FILE  Use SHAPE constraints from FILE.\n");      
+    printf("   -e, --energydetail         prints energy decomposition for sampled structures to file with extention '.energy'.\n");
     printf("\nConstraint syntax:\n");
     printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
     printf("\tP i j k  # prohibit (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
@@ -471,9 +471,9 @@ static void help(){
 static void print_examples(){
         printf("\n\nEXAMPLES:\n\n");
         printf("1. Calculate Minimum Free Energy Structure:\n\n");
-        printf("gtmfe [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [-s FILE] [-e] <seq_file>\n\n");
-        printf("gtmfe [--rnafold] [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [-s FILE] [-e] <seq_file>\n\n");
-        printf("gtmfe [--unafold] [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [-s FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [--rnafold] [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [--unafold] [-c FILE] [-d 0|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
         printf("\n\n");
 }
 
