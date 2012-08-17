@@ -103,7 +103,7 @@ void init_fold(const char* seq) {
   if (UNAMODE) {
     if (T_MISMATCH) printf("Ignoring -m option, using --unafold\n");
     if (PARAM_DIR) printf("Ignoring -p option, using --unafold\n");
-    if (dangles == 0 || dangles == 2) 
+    if (dangles == 0 || dangles == 1 || dangles == 2) 
       printf("Ignoring -d option, using --unafold\n");
     if (b_prefilter == 1) 
       printf("Ignoring --prefilter option, using --unafold\n");
@@ -116,7 +116,7 @@ void init_fold(const char* seq) {
   if (RNAMODE) {
     if (T_MISMATCH) printf("Ignoring -m option, using --rnafold\n");
     if (PARAM_DIR) printf("Ignoring -p option, using --rnafold\n");
-    if (dangles == 0 || dangles == 2) 
+    if (dangles == 0 || dangles == 1 || dangles == 2) 
       printf("Ignoring -d option, using --rnafold\n");
     if (b_prefilter == 1) 
       printf("Ignoring --prefilter option, using --rnafold\n");
@@ -126,13 +126,15 @@ void init_fold(const char* seq) {
     b_prefilter = false;
   }
 
-  if ((dangles == 0 || dangles == 2) && !UNAMODE && !RNAMODE) {
+  if ((dangles == 0 || dangles == 1 ||dangles == 2) && !UNAMODE && !RNAMODE) {
     if (T_MISMATCH) printf("Ignoring -m option, using -d option\n");
     T_MISMATCH = false;
   } else {
-    if (dangles != -1 && !UNAMODE && !RNAMODE) printf("Ignoring -d as it accept 0 or 2 only\n");	
+    if (dangles != -1 && !UNAMODE && !RNAMODE) printf("Ignoring -d as it accept 0 1 or 2 only\n");	
     dangles = -1;
   }
+  if(dangles==1) dangles=-1;
+
   g_nthreads = nThreads;
   g_unamode  = UNAMODE;
   g_mismatch = T_MISMATCH;
@@ -285,9 +287,9 @@ void parse_mfe_options(int argc, char** argv) {
         std::string cmd = argv[i];
         if(i < argc) {
           dangles = atoi(argv[++i]);
-          if (!(dangles == 0 || dangles == 2)) {
+          if (!(dangles == 0 || dangles == 1 || dangles == 2)) {
             dangles = -1;
-            printf("Ignoring %s option as it accepts either 0 or 2\n", cmd.c_str());
+            printf("Ignoring %s option as it accepts either 0 1 or 2\n", cmd.c_str());
           } 
         } else
           help();
@@ -385,7 +387,7 @@ void printRunConfiguration(string seq) {
 		printf("+ running in unafold mode\n");
 		standardRun = false;
 	}
-	if (dangles == 0 || dangles == 2) {
+	if (dangles == 0 || dangles == 1 || dangles == 2) {
 		printf("+ running in dangle %d mode\n", dangles);
 		standardRun = false;
 	} 
