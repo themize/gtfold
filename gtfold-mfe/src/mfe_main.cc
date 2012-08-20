@@ -242,7 +242,7 @@ void parse_mfe_options(int argc, char** argv) {
     if(argv[i][0] == '-') {
       if(strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
         help();
-      } else if(strcmp(argv[i], "--detailed-help") == 0 ) {
+      } else if(strcmp(argv[i], "--detailedhelp") == 0 ) {
 	detailed_help();
       } else if(strcmp(argv[i], "--constraints") == 0 || strcmp(argv[i], "-c") == 0) {
         if(i < argc) {
@@ -422,6 +422,22 @@ void printRunConfiguration(string seq) {
 	printf("- output file: %s\n", outputFile.c_str());
 }
 
+static void print_usage_developer_options() {
+    printf("\nSetting default parameter directory:\n");
+    printf("\tTo run properly, GTfold requires access to a set of parameter files. If you are using one of the prepackaged binaries, you may need (or chose) to \n");
+    printf("\tset the GTFOLDDATADIR environment variable to specify the directory in whihc GTfold should look to find default parameter files. In a terminal \n");
+    printf("\twindow, use either the command \n");
+    printf("\t\texport GTFOLDDATADIR=DIR\n");
+    printf("\t\tfor BASH shell users, or \n");
+    printf("\t\tsetenv GTFOLDDATADIR=DIR\n");
+    printf("\t\tfor tcsh shell users. Alternatively, you may use the --paramdir option described above. \n");
+    printf("\tGTfold will by default look for parameter files in the following directories: \n");
+    printf("\t\t(1)      The directory pointed to by environment variable GTFOLDDATADIR \n");
+    printf("\t\t(2)      The install directory (eg. /usr/local/share/gtfold), if (1) fails. \n");
+    printf("\t\t(3)      The subdirectory 'data' of the current directory, if (1) and (2) fail. \n");
+    printf("\n");
+}
+
 static void print_usage() {
     printf("Usage: gtmfe [OPTION]... FILE\n\n");
 
@@ -433,7 +449,7 @@ static void print_usage() {
     printf("   -d, --dangle INT     Restricts treatment of dangling energies (INT=0,1,2),\n"); 
     printf("                        see below for details.\n");
     printf("   -h, --help           Output help (this message) and exit.\n");
-    printf("   --detailed-help      Output help (this message) with detailed options and examples, and exit.\n");
+    printf("   --detailedhelp      Output help (this message) with detailed options and examples, and exit.\n");
     printf("   -l, --limitCD INT    Set a maximum base pair contact distance to INT. If no\n");
     printf("                        limit is given, base pairs can be over any distance.\n");
     printf("   -m  --mismatch       Enable terminal mismatch calculations\n");
@@ -441,8 +457,7 @@ static void print_usage() {
     printf("   -o, --output NAME    Write output files with prefix given in NAME\n");
     printf("   -p  --paramdir DIR   Path to directory from which parameters are to be read\n");
     printf("   -t, --threads INT    Limit number of threads used to INT.\n");
-    printf("   -v, --verbose        Run in verbose mode (includes loop-by-loop energy decomposition\n");
-    printf("                        and confirmation of constraints satisfied).\n");
+    printf("   -v, --verbose        Run in verbose mode (includes confirmation of constraints satisfied).\n");
     printf("   -w, --workdir DIR    Path of directory where output files will be written.\n");
     printf("   --prefilter INT      Prohibits any basepair which does not have appropriate\n");
     printf("                        neighboring nucleotides such that it could be part of\n");
@@ -452,11 +467,12 @@ static void print_usage() {
     printf("                        implementation.\n");
 
     printf("   --useSHAPE FILE  Use SHAPE constraints from FILE.\n");      
-    printf("   -e, --energydetail         prints energy decomposition for sampled structures to file with extention '.energy'.\n");
+    printf("   -e, --energydetail         prints energy decomposition for MFE structure to file output-prefix.energy.\n");
     printf("\nConstraint syntax:\n");
-    printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
     printf("\tP i j k  # prohibit (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
+    printf("\tF i j k  # force (i,j)(i+1,j-1),.......,(i+k-1,j-k+1) pairs.\n");
     printf("\tP i 0 k  # make bases from i to i+k-1 single stranded bases.\n");
+    printf("\tF i 0 k  # forces bases from i to i+k-1 single stranded bases.\n");
 
     printf("\nDangle:\n");
     printf("\tINT=0 ignores dangling energies (mostly for debugging).\n");
@@ -464,24 +480,35 @@ static void print_usage() {
     printf("\tINT=2 dangling energies are added for nucleotides on either\n");
     printf("\tside of each branch in multi-loops and external loops.\n");
     printf("\tAll other values for INT are ignored.\n");
-}
-
-static void help(){
-	print_usage();
-	exit(-1);
+    
+    printf("\nSHAPE syntax:\n");
+    printf("\tSHAPE values should be given in a file with two space-delimited columns, for example\n");
+    printf("\t\t1 0.1\n");
+    printf("\t\t2 0.001 \n");
+    printf("\t\t3 1.67 \n");
+    printf("\t\tetc.,\n");
+    printf("\twhere the first column is the nucleotide position (INT) and the second column is the SHAPE reactivity[1] (DOUBLE) for that position. The file \n");
+    printf("\tshould have no header. Not all positions need to be included in the file, and the values do not need to be in order of increasing position. Negative\n");
+    printf("\tSHAPE reactivities are ignored. \n");
 }
 
 static void print_examples(){
         printf("\n\nEXAMPLES:\n\n");
         printf("1. Calculate Minimum Free Energy Structure:\n\n");
-        printf("gtmfe [-c FILE] [-d 0|1|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
-        printf("gtmfe [--rnafold] [-c FILE] [-d 0|1|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
-        printf("gtmfe [--unafold] [-c FILE] [-d 0|1|2] [-t 1|2|...|N] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
-        printf("\n\n");
+        printf("gtmfe [-c FILE] [-d 0|1|2] [-t n] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("gtmfe [--unafold] [--rnafold] [-c FILE] [-t n] [-o outputPrefix] [-v] [-p DIR] [-w DIR] [-l] [-m] [--prefilter INT] [--useSHAPE FILE] [-e] <seq_file>\n\n");
+        printf("\n");
+}
+
+static void help(){
+	print_usage();
+        print_examples();
+	exit(-1);
 }
 
 static void detailed_help(){
         print_usage();
         print_examples();
+	print_usage_developer_options();
         exit(-1);
 }
