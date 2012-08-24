@@ -229,7 +229,7 @@ int calculate(int len) {
   W[0] = 0;
   for (j = 1; j <= len; j++) {
     int i, Wj, Widjd, Wijd, Widj, Wij, Wim1;
-    Wj = 0;
+    Wj = canSS(j)?0:INFINITY_;
     for (i = 1; i < j-TURN; i++) {
       Wij = Widjd = Wijd = Widj = INFINITY_;
       Wim1 = MIN(0, W[i-1]); 
@@ -258,7 +258,9 @@ int calculate(int len) {
 
       Wj = MIN(Wj,Wij); 
     }
+    printf("canSS(%d) = %d",j,canSS(j));
     W[j] = canSS(j)?MIN(Wj, W[j-1]):Wj;
+    printf("W[%d] = %d\n",j,W[j]);
   }
 
 #ifdef DEBUG

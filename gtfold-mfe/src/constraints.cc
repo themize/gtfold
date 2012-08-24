@@ -367,7 +367,7 @@ int verify_structure(){
 				continue;
 			}
 			for(k = 1; k <= PBP[it][2]; k++){
-				//correct answer: strcuture(PBP[it][0]+k-1) != structure(PBP[it][1]-(k-1))
+				//correct answer: structure(PBP[it][0]+k-1) != structure(PBP[it][1]-(k-1))
 				if(structure[PBP[it][0]+k-1] == PBP[it][1]-(k-1) || structure[PBP[it][1]-(k-1)] == PBP[it][0]+k-1){	
 					errorhappened = 1; 
 					fprintf(stderr, "Constraint P %d %d %d is not fulfilled.\n",PBP[it][0], PBP[it][1], PBP[it][2]);
@@ -398,7 +398,7 @@ int verify_structure(){
 				}
 				if(FBP[it][1] == 0){
 					//force single-stranded
-					if(structure[FBP[it][0]] != 0){
+					if(structure[FBP[it][0]] == 0){
 						fprintf(stderr, "Constraint F %d %d %d is not fulfilled.\n",FBP[it][0], FBP[it][1], FBP[it][2]);
 						errorhappened = 1;
 					}
