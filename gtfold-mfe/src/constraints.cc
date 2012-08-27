@@ -113,9 +113,14 @@ static int load_constraints(const char* constr_file, int seq_length, int verbose
     }
 
 	for(it=0; it< nFBP; it++) {
-		if (FBP[it][0] < 1 || FBP[it][0] >= seq_length - TURN) {
+		if (FBP[it][1] != 0 && (FBP[it][0] < 1 || FBP[it][0] >= seq_length - TURN)) {
 			fprintf(stderr, "\nBase %d from constraint 'F %d %d %d' is out of bounds: For constraint 'F i j k' value i must be between 1 and the sequence length - %d, where the sequence length is %d \n",
 				FBP[it][0], FBP[it][0], FBP[it][1], FBP[it][2], TURN, seq_length);
+			exit(1);
+		}
+		if (FBP[it][1] == 0 && (FBP[it][0] < 1 || FBP[it][0] > seq_length)) {
+			fprintf(stderr, "\nBase %d from constraint 'F %d %d %d' is out of bounds: For constraint 'F i 0 k' value i must be between 1 and the sequence length, where the sequence length is %d \n",
+				FBP[it][0], FBP[it][0], FBP[it][1], FBP[it][2], seq_length);
 			exit(1);
 		}
 		if (FBP[it][1] != 0 && (FBP[it][1] <= FBP[it][0] + TURN 
@@ -142,9 +147,14 @@ static int load_constraints(const char* constr_file, int seq_length, int verbose
 	}
 	
 	for(it=0; it< nPBP; it++) {
-		if (PBP[it][0] < 1 || (PBP[it][1] != 0 && PBP[it][0] >= seq_length - TURN)) {
+		if (PBP[it][1] != 0 && (PBP[it][0] < 1 || PBP[it][0] >= seq_length - TURN)) {
 			fprintf(stderr, "\nBase %d from constraint 'P %d %d %d' is out of bounds: For constraint 'P i j k' value i must be between 1 and the sequence length - %d, where the sequence length is %d \n",
 				PBP[it][0], PBP[it][0], PBP[it][1], PBP[it][2], TURN, seq_length);
+			exit(1);
+		}
+		if (PBP[it][1] == 0 && (PBP[it][0] < 1 || PBP[it][0] > seq_length)) {
+			fprintf(stderr, "\nBase %d from constraint 'P %d %d %d' is out of bounds: For constraint 'P i 0 k' value i must be between 1 and the sequence length, where the sequence length is %d \n",
+				PBP[it][0], PBP[it][0], PBP[it][1], PBP[it][2], seq_length);
 			exit(1);
 		}
 		if (PBP[it][1] != 0 && (PBP[it][1] <= PBP[it][0] + TURN 
